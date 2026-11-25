@@ -1,8 +1,10 @@
 # =============================================================================
 # Shadsun Gold Lens — publication automatique d'une version
 # Auteur : Tarak Ben Abda – novembre 2026
-# FR : déclenché par une étiquette « vX.Y.Z » (X.Y.Z = version de l'add-on dans
-#      ShadsunGoldLens.toc). Lance tous les tests ; s'ils passent, fabrique le zip
+# FR : lancement : onglet « Actions » > « Publier une version » > « Run workflow »
+#      (ou étiquette « vX.Y.Z » poussée). La version publiée est celle de
+#      ShadsunGoldLens.toc ; l'étiquette vX.Y.Z est créée à la publication.
+#      Lance tous les tests ; s'ils passent, fabrique le zip
 #      de l'add-on et ShadsunGoldLens.exe, calcule leurs empreintes SHA-256 et
 #      crée la page de version avec sgl-version.json, lue par l'application.
 # EN : on tag vX.Y.Z: run all tests, build add-on zip + exe, publish release
@@ -10,6 +12,7 @@
 # =============================================================================
 name: Publier une version
 on:
+  workflow_dispatch:
   push:
     tags: ["v*"]
 permissions:
@@ -25,11 +28,16 @@ jobs:
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q lua5.1 xvfb imagemagick python3-tk python3-pil
-      - name: Étiquette = version de l'add-on
+      - name: Version à publier (pas encore publiée)
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           V=$(sed -n 's/^## Version: *//p' ShadsunGoldLens/ShadsunGoldLens.toc | tr -d '\r')
-          echo "Add-on : $V — étiquette : ${GITHUB_REF_NAME}"
-          test "v$V" = "${GITHUB_REF_NAME}"
+          echo "Add-on : $V — déclencheur : ${GITHUB_REF_TYPE} ${GITHUB_REF_NAME}"
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then test "v$V" = "$GITHUB_REF_NAME"; fi
+          if gh release view "v$V" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "La version v$V est déjà publiée : augmentez le numéro dans ShadsunGoldLens.toc."; exit 1
+          fi
       - name: Moteur de prix
         working-directory: src/tests
         run: python3 test_sgl_prix_api.py
@@ -114,4 +122,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" sortie/* --title "Shadsun Gold Lens $GITHUB_REF_NAME" --notes-file notes.md
+          V=$(sed -n 's/^## Version: *//p' ShadsunGoldLens/ShadsunGoldLens.toc | tr -d '\r')
+          gh release create "v$V" sortie/* --target "$GITHUB_SHA" --title "Shadsun Gold Lens v$V" --notes-file notes.md

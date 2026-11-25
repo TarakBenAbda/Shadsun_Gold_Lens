@@ -94,7 +94,7 @@ L'API liste les 15 HDV pour tous les types de serveur : l'application les choisi
 ### Fabriquer l'exe à partager (une seule fois)
 
 - **Sur votre PC :** double-clic sur `construire_exe.bat`. Il ferme d'abord tout ce qui peut bloquer l'ancien exe (application, mise à jour en cours) ; si l'exe reste bloqué, il est mis de côté sous le nom `ShadsunGoldLens_ancien_….exe` et supprimé à la fabrication suivante. Il installe PyInstaller, pystray et Pillow dans votre Python, puis produit `dist\ShadsunGoldLens.exe` en 1 à 3 minutes.
-- **Ou sur GitHub :** chaque version publiée (étiquette `vX.Y.Z`, voir `.github/workflows/publier.yml`) fabrique l'exe et le met sur la page de version, après avoir lancé tous les tests. Le fichier `construire-application.yml` fabrique un exe d'essai à la demande (onglet « Actions »).
+- **Ou sur GitHub :** chaque version publiée (onglet « Actions » > « Publier une version », voir `.github/workflows/publier.yml`) fabrique l'exe et le met sur la page de version, après avoir lancé tous les tests. Le fichier `construire-application.yml` fabrique un exe d'essai à la demande (onglet « Actions »).
 
 Taille : 20 à 30 Mo (Python intégré). Certains antivirus se méfient des exe fabriqués avec PyInstaller. En cas de blocage, ajoutez une exception ou envoyez le fichier par un lien de téléchargement plutôt qu'en pièce jointe.
 

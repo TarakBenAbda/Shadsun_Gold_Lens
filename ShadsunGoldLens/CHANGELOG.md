@@ -14,7 +14,7 @@ Première version publiée sur GitHub : https://github.com/TarakBenAbda/Shadsun_
   - en cas d'échec, l'add-on déjà installé reste en place.
 - Une nouvelle version de l'application est signalée avec un bouton « Télécharger », qui ouvre la page de la version.
 - Sans Internet, l'application garde la copie de l'add-on qu'elle contient.
-- Publication automatique : à chaque étiquette `vX.Y.Z`, GitHub lance tous les tests. S'ils passent, il fabrique le zip de l'add-on et l'exe, puis crée la page de version avec les empreintes.
+- Publication automatique (onglet « Actions » > « Publier une version ») : GitHub lance tous les tests. S'ils passent, il fabrique le zip de l'add-on et l'exe, puis crée la page de version avec les empreintes.
 
 ### Correction : armes et armures sans prix HDV
 - **Cause.** Pour chaque HDV, l'add-on gardait une seule photo : la plus récente entre votre scan et les prix téléchargés. Or l'API Blizzard écarte volontairement les objets vendus seulement en version à suffixe ou à bonus, ce qui concerne surtout des armes et des armures. Quand la photo de l'API était plus récente, elle masquait donc tout votre scan, y compris les prix d'équipement qu'il contenait. Résultat : « Prix HDV indisponible » sur les trois HDV.
