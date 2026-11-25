@@ -27,7 +27,7 @@ jobs:
       - name: Outils de test
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y -q lua5.1 xvfb imagemagick python3-tk python3-pil
+          sudo apt-get install -y -q lua5.1 xvfb imagemagick python3-tk python3-pil python3-pil.imagetk
       - name: Version à publier (pas encore publiée)
         env:
           GH_TOKEN: ${{ github.token }}
