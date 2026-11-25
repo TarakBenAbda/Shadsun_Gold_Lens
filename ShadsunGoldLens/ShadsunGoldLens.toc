@@ -1,0 +1,61 @@
+## Interface: 16001
+## Title: Shadsun Gold Lens
+## Notes: Prix PNJ, prix des HDV scannés, arbitrage PNJ/HDV et entre HDV (WoW Forever).
+## Notes-frFR: Prix PNJ, prix des HDV scannés, arbitrage PNJ/HDV et entre HDV (WoW Forever).
+## Author: Shadsun
+## Version: 0.14.0
+## X-Code-Author: Tarak Ben Abda
+## X-License: GPLv3
+## IconTexture: Interface\AddOns\ShadsunGoldLens\Media\icon
+## OptionalDeps: Auctionator, TomTom
+## SavedVariables: ShadsunGoldLensGlobal
+## SavedVariablesPerCharacter: ShadsunGoldLensDB
+## AddonCompartmentFunc: ShadsunGoldLens_OnAddonCompartmentClick
+## AddonCompartmentFuncOnEnter: ShadsunGoldLens_OnAddonCompartmentEnter
+## AddonCompartmentFuncOnLeave: ShadsunGoldLens_OnAddonCompartmentLeave
+
+# Bibliothèques embarquées / embedded libraries
+Libs\LibStub.lua
+Libs\CallbackHandler-1.0.lua
+Libs\LibDataBroker-1.1.lua
+Libs\LibDBIcon-1.0.lua
+
+# Noyau / core
+Core\Init.lua
+Locale\frFR.lua
+Core\Util.lua
+Data\Catalog.lua
+Core\Database.lua
+Core\Catalog.lua
+Core\Market.lua
+Core\Inventory.lua
+Core\Auctions.lua
+Core\Lists.lua
+Core\Categories.lua
+Core\Prices.lua
+Core\Economy.lua
+Core\Arbitrage.lua
+Core\Merchant.lua
+Core\Navigation.lua
+Core\Diagnostics.lua
+Core\Tooltip.lua
+
+# Interface / UI
+UI\Widgets.lua
+UI\Filters.lua
+UI\MainFrame.lua
+UI\ScanBar.lua
+UI\ArbitragePanel.lua
+UI\OpportunityList.lua
+UI\CrossList.lua
+UI\ShoppingList.lua
+UI\DetailTab.lua
+UI\ListsTab.lua
+UI\OpportunitiesTab.lua
+UI\MarketsTab.lua
+UI\OptionsTab.lua
+UI\DatabaseTab.lua
+UI\AuctionPanel.lua
+UI\MerchantOverlay.lua
+UI\Minimap.lua
+UI\Commands.lua

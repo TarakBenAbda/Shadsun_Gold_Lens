@@ -1,0 +1,11 @@
+Shadsun Gold Lens 0.4.0 — empreintes des fichiers d'entrée de la base (SHA-256)
+Auteur : Tarak Ben Abda — 2026-11-16
+c8f54b0ed5a6bea408d3276c568beeff5b7a3d0de3984b0d535c150e84ddcf01  Reference_v030.lua
+8cbd4e32abed32e205441d2506b6b9cef6ed9257c1485e801e8d6f1a4a04dc21  Vendors_v030.lua
+
+Fichiers amont utilisés par la v0.3.0 (empreintes reprises de sa notice SOURCE-HASHES.txt) :
+987d037b6df94d5b0b1dc326a1670581e3abb952736a4ae055fd9f161328b71c  foreverItemDB.lua
+a8c4169690726323dac3c6441f74f7a4d9cafcc08ec42231d72ff28c9471f0ee  foreverNpcDB.lua
+805544d9e6234876c6cc1047fc0fbde1c034a46bb418d5f5b19384b8f615206b  areaMap.lua
+4f92db520868ab4e566726f68b5b2e380ae781209beaf22237b4f7f04600d0c0  classic.sql.gz
+00b8f4685a276c932ae1a7c62cc5f68bec7030a5bf63ebb69a5314fa84eca6e1  pffrench.lua

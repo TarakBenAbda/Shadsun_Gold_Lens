@@ -1,0 +1,31 @@
+# Shadsun Gold Lens — fabrication de ShadsunGoldLens.exe sur GitHub (facultatif)
+# Auteur : Tarak Ben Abda – novembre 2026
+# Lancement : onglet « Actions » du dépôt > « Construire l'application » > « Run workflow ».
+# Résultat : l'exe à télécharger dans « Artifacts » en bas de l'exécution.
+name: Construire l'application
+on:
+  workflow_dispatch:
+jobs:
+  exe:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Outils
+        run: python -m pip install --upgrade pyinstaller pystray pillow
+      - name: Add-on livré avec l'application
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force src/tools/prix_api/addon | Out-Null
+          Copy-Item -Recurse -Force ShadsunGoldLens src/tools/prix_api/addon/ShadsunGoldLens
+      - name: Fabrication
+        working-directory: src/tools/prix_api
+        run: |
+          python sgl_icon.py ShadsunGoldLens.ico
+          python -m PyInstaller --noconfirm --clean --onefile --windowed --name ShadsunGoldLens --icon ShadsunGoldLens.ico --add-data "addon;addon" --add-data "assets;assets" --hidden-import pystray._win32 --hidden-import PIL.ImageTk sgl_app.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ShadsunGoldLens-exe
+          path: src/tools/prix_api/dist/ShadsunGoldLens.exe

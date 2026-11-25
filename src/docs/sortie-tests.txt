@@ -1,0 +1,739 @@
+======================================================================
+ Shadsun Gold Lens — prix des HDV v0.14.0
+ Auteur : Tarak Ben Abda
+======================================================================
+Clé acceptée : jeton d'accès obtenu.
+Types de serveur : 1 = PvP, 2 = Normal
+Hôtels des ventes (EU, dynamic-forever-eu) :
+   110  Alliance Auction House        HDV Alliance
+   111  Horde Auction House           HDV Horde
+   112  Blackwater Auction House      HDV neutre
+   113  Alliance Auction House        HDV Alliance
+   114  Horde Auction House           HDV Horde
+   115  Blackwater Auction House      HDV neutre
+   116  Alliance Auction House        HDV Alliance
+   117  Horde Auction House           HDV Horde
+   118  Blackwater Auction House      HDV neutre
+   119  Alliance Auction House        HDV Alliance
+   120  Horde Auction House           HDV Horde
+   121  Blackwater Auction House      HDV neutre
+   123  Alliance Auction House        HDV Alliance
+   124  Horde Auction House           HDV Horde
+   125  Blackwater Auction House      HDV neutre
+Étape suivante : python sgl_prix_api.py identifier
+======================================================================
+ Shadsun Gold Lens — prix des HDV v0.14.0
+ Auteur : Tarak Ben Abda
+======================================================================
+
+ERREUR : Clé refusée (401) : vérifiez client_id et client_secret.
+======================================================================
+ Shadsun Gold Lens — prix des HDV v0.14.0
+ Auteur : Tarak Ben Abda
+======================================================================
+
+ERREUR : Fichier de configuration introuvable : /tmp/sgl_api_ynib29xc/absent.ini
+Copiez sgl_prix_api.exemple.ini en sgl_prix_api.ini et remplissez-le (voir GUIDE-API.md).
+===== 2026-11-25 18:24:54 · mise à jour manuelle =====
+Python : /usr/local/bin/python3
+======================================================================
+ Shadsun Gold Lens — prix des HDV v0.14.0
+ Auteur : Tarak Ben Abda
+======================================================================
+
+ERREUR : Aucun HDV configuré : choisissez votre type de serveur dans l'application (ou lancez « python sgl_prix_api.py identifier »).
+RÉSULTAT : ERREUR — Aucun HDV configuré : choisissez votre type de serveur dans l'application (ou lancez « python sgl_prix_api.py identifier »).
+======================================================================
+ Shadsun Gold Lens — prix des HDV v0.14.0
+ Auteur : Tarak Ben Abda
+======================================================================
+Scans utilisés : serveur « Forever » — HDV Alliance (30 objets), HDV neutre (30 objets)
+
+Comparaison avec votre scan HDV Alliance :
+  HDV  110  prix total :   0.0 % identiques sur 30 objets communs
+  HDV  110  prix unite :   0.0 % identiques sur 30 objets communs
+  HDV  113  prix total : 100.0 % identiques sur 30 objets communs
+  HDV  113  prix unite :   0.0 % identiques sur 30 objets communs
+  HDV  116  prix total :   0.0 % identiques sur 30 objets communs
+  HDV  116  prix unite :   0.0 % identiques sur 30 objets communs
+  HDV  119  prix total :   0.0 % identiques sur 30 objets communs
+  HDV  119  prix unite :   0.0 % identiques sur 30 objets communs
+  HDV  123  prix total :   0.0 % identiques sur 30 objets communs
+  HDV  123  prix unite :   0.0 % identiques sur 30 objets communs
+  => HDV Alliance = HDV 113 (100 % de prix identiques)
+
+Comparaison avec votre scan HDV neutre :
+  HDV  112  prix total :   0.0 % identiques sur 30 objets communs
+  HDV  112  prix unite :   0.0 % identiques sur 30 objets communs
+  HDV  115  prix total : 100.0 % identiques sur 30 objets communs
+  HDV  115  prix unite :   0.0 % identiques sur 30 objets communs
+  HDV  118  prix total :   0.0 % identiques sur 30 objets communs
+  HDV  118  prix unite :   0.0 % identiques sur 30 objets communs
+  HDV  121  prix total :   0.0 % identiques sur 30 objets communs
+  HDV  121  prix unite :   0.0 % identiques sur 30 objets communs
+  HDV  125  prix total :   0.0 % identiques sur 30 objets communs
+  HDV  125  prix unite :   0.0 % identiques sur 30 objets communs
+  => HDV neutre = HDV 115 (100 % de prix identiques)
+HDV Horde déduit par position : HDV 114 (à confirmer avec « verifier »).
+Prix des annonces : « prix du lot entier ».
+
+Enregistré dans sgl_prix_api.ini. Étape suivante : python sgl_prix_api.py maj
+======================================================================
+ Shadsun Gold Lens — prix des HDV v0.14.0
+ Auteur : Tarak Ben Abda
+======================================================================
+
+ERREUR : La mise à jour horaire utilise le Planificateur de tâches de Windows.
+======================================================================
+ Shadsun Gold Lens — prix des HDV v0.14.0
+ Auteur : Tarak Ben Abda
+======================================================================
+Objet 7005 — prix unitaire le plus bas et quantité dans chaque HDV :
+   110  HDV Alliance    -
+   111  HDV Horde       -
+   112  HDV neutre      -
+   113  HDV Alliance    -
+   114  HDV Horde       75 pc (1 en vente)
+   115  HDV neutre      -
+   116  HDV Alliance    -
+   117  HDV Horde       -
+   118  HDV neutre      -
+   119  HDV Alliance    -
+   120  HDV Horde       -
+   121  HDV neutre      -
+   123  HDV Alliance    -
+   124  HDV Horde       -
+   125  HDV neutre      -
+===== 2026-11-25 18:24:54 · mise à jour manuelle =====
+Python : /usr/local/bin/python3
+======================================================================
+ Shadsun Gold Lens — prix des HDV v0.14.0
+ Auteur : Tarak Ben Abda
+======================================================================
+Source : API Blizzard
+Téléchargement HDV Alliance (HDV 113)…
+  66 annonces, 32 objets, données du 19/11 19:53 (0 s)
+Téléchargement HDV Horde (HDV 114)…
+  65 annonces, 32 objets, données du 19/11 19:53 (0 s)
+Téléchargement HDV neutre (HDV 115)…
+  64 annonces, 31 objets, données du 19/11 19:53 (0 s)
+Module écrit : /tmp/sgl_api_ynib29xc/AddOns/ShadsunGoldLens_Prix
+En jeu : /reload (ou reconnectez-vous). Vérifiez le module « Shadsun Gold Lens - Prix » dans la liste des add-ons.
+RÉSULTAT : OK
+===== 2026-11-25 18:24:54 · tâche planifiée =====
+Python : /usr/local/bin/python3
+======================================================================
+ Shadsun Gold Lens — prix des HDV v0.14.0
+ Auteur : Tarak Ben Abda
+======================================================================
+Traceback (most recent call last):
+  File "/home/claude/shadsun_gold_lens/src/tests/../tools/prix_api/sgl_prix_api.py", line 1177, in run_logged
+    code = fn()
+  File "/home/claude/shadsun_gold_lens/src/tests/../tools/prix_api/sgl_prix_api.py", line 1534, in job
+    return cmd_update(load_config(args.config), args)
+  File "/home/claude/shadsun_gold_lens/src/tests/test_sgl_prix_api.py", line 311, in <lambda>
+    T.cmd_update = lambda cfg, args: 1 / 0
+                                     ~~^~~
+ZeroDivisionError: division by zero
+RÉSULTAT : ERREUR — ZeroDivisionError: division by zero
+======================================================================
+ Shadsun Gold Lens — prix des HDV v0.14.0
+ Auteur : Tarak Ben Abda
+======================================================================
+
+ERREUR : La mise à jour horaire utilise le Planificateur de tâches de Windows.
+  nouvelle tentative 2/3 (connexion interrompue : timed out)…
+  nouvelle tentative 3/3 (connexion interrompue : timed out)…
+===== 2026-11-25 18:24:54 · tâche planifiée =====
+Python : /usr/local/bin/python3
+
+RÉSULTAT : ERREUR — délai global dépassé (0 min), mise à jour abandonnée
+RÉSULTAT : OK
+===== 2026-11-25 18:24:54 · mise à jour horaire =====
+Python : /usr/local/bin/python3
+======================================================================
+ Shadsun Gold Lens — prix des HDV v0.14.0
+ Auteur : Tarak Ben Abda
+======================================================================
+Source : API Blizzard
+Téléchargement HDV Alliance (HDV 113)…
+  66 annonces, 32 objets, données du 19/11 19:53 (0 s)
+Téléchargement HDV Horde (HDV 114)…
+  65 annonces, 32 objets, données du 19/11 19:53 (0 s)
+Téléchargement HDV neutre (HDV 115)…
+  64 annonces, 31 objets, données du 19/11 19:53 (0 s)
+Module écrit : /tmp/sgl_api_ynib29xc/AddOns/ShadsunGoldLens_Prix
+En jeu : /reload (ou reconnectez-vous). Vérifiez le module « Shadsun Gold Lens - Prix » dans la liste des add-ons.
+RÉSULTAT : OK
+
+  OK    Commande « test » : jeton obtenu, 15 HDV listés
+  OK    Requêtes : jeton Bearer, espace dynamic-forever-eu, locale en_US
+  OK    Clé invalide : erreur claire (code 1)
+  OK    Fichier .ini absent : erreur claire
+  OK    « maj » sans HDV configuré : erreur claire
+  OK    Journal : échec noté avec la raison (mise à jour manuelle)
+  OK    Identification : HDV Alliance 113 et neutre 115 d'après vos scans
+  OK    Identification : HDV Horde déduit par position (114)
+  OK    Identification : prix des annonces = prix du lot entier
+  OK    Fichier .ini : clé conservée après l'enregistrement
+  OK    Synthèse : prix unitaire le plus bas (100 pc) et quantité totale (6)
+  OK    Synthèse : variante à suffixe ignorée (version simple 9 pa)
+  OK    Synthèse : objet vendu seulement en variante : absent
+  OK    Synthèse : enchère sans achat immédiat : absente
+  OK    Synthèse : variante seule gardée à part, prix « dès » 4 pa (0.14)
+  OK    Synthèse : marchandises (prix unitaire 95 pc, 30 en vente)
+  OK    Horodatage : en-tête Last-Modified de l'API
+  OK    Cache local réutilisé (fichier présent)
+  OK    Types de serveur : noms lus sur /ruleset/{id} (PvP, Normal)
+  OK    Tâche : boucle horaire résidente lancée par pythonw.exe (sans fenêtre, sans VBScript ni .bat)
+  OK    Tâche : 1 min après l'ouverture de VOTRE session (UserId, sans droits admin)
+  OK    Tâche : relance horaire de secours (quotidienne, répétée chaque heure pendant 1 jour), plus de déclencheur unique
+  OK    Tâche : boucle sans limite de durée (chaque mise à jour a son propre délai), une seule instance
+  OK    Repli wscript (une mise à jour par lancement) : limité à 15 min
+  OK    Programme de la tâche : wscript + maj_cachee.vbs sans pythonw.exe ; pythonw.exe sinon
+  OK    Codes du Planificateur traduits (0x41303 jamais exécutée, 0x80070002 introuvable)
+  OK    Tâche : aussi sur batterie, rattrapée après veille, priorité normale
+  OK    « planifier » hors Windows : message clair
+  OK    Commande « verifier 7005 »
+  OK    Journal : mise à jour réussie notée « RÉSULTAT : OK »
+  OK    « maj » : module écrit dans AddOns/ShadsunGoldLens_Prix
+  OK    TOC : interface du client reprise (16001) et dépendance à l'add-on
+  OK    Prix.lua chargé par Lua 5.1 (tranches multiples)
+  OK    Prix.lua : table v des variantes seules (2531 → 4 pa, 1 en vente)
+  OK    Prix.lua : HDV 113/114/115, valeurs emballées (100 x 100 000 + 6)
+  OK    Prix.lua : 32 objets pour l'Alliance (variante seule et enchère seule exclues), heure de l'API
+  OK    Sans console (pythonw.exe) : mise à jour faite et notée « tâche planifiée »
+  OK    Erreur inattendue : trace et « RÉSULTAT : ERREUR — ZeroDivisionError » dans le journal
+  OK    Journal limité (anciennes lignes supprimées)
+  OK    « etat » hors Windows : message clair
+  OK    Téléchargement au compte-gouttes : arrêté au délai maximal
+  OK    Connexion bloquée : 3 tentatives (45 s sans données chacune), puis erreur claire
+  OK    Délai global (10 min) : mise à jour bloquée abandonnée, « délai global dépassé » au journal
+  OK    Journal écrit au fil de l'eau (lisible pendant la mise à jour)
+  OK    Boucle : mise à jour quand l'heure est écoulée (y compris en pleine partie), puis une heure d'attente
+  OK    Boucle : battement de cœur écrit (prochaine mise à jour, intervalle)
+  OK    Boucle : après un échec, nouvelle tentative 15 min plus tard (pas avant)
+  OK    Boucle : heure dépassée pendant une veille rattrapée au réveil, après 90 s
+  OK    Boucle : demande immédiate exécutée tout de suite, signal effacé
+  OK    Boucle : une deuxième boucle s'arrête aussitôt (verrou)
+  OK    Boucle : chaque mise à jour dans un processus séparé, avec délai et libellé « mise à jour horaire »
+  OK    Journal : libellé « mise à jour horaire »
+
+Résultat outil API : 52 réussis, 0 échoués
+
+======================================================================
+ Shadsun Gold Lens — tests hors jeu / offline tests
+ Auteur : Tarak Ben Abda
+======================================================================
+  (mesure) 2 HDV × 25 000 objets : 1281 Ko en mémoire Lua · HDV » HDV calculé en 23 ms · ≈ 554 Ko par HDV dans les SavedVariables
+
+  OK    Chargement complet de l'add-on (ordre du .toc, ADDON_LOADED, PLAYER_LOGIN)
+  OK    Post-call d'infobulle enregistré une seule fois
+  OK    Méthode d'infobulle = TooltipDataProcessor
+  OK    Commande /sgl enregistrée
+  OK    Catégorie Options > AddOns enregistrée
+  OK    Bannière de démarrage signée « Créé par Shadsun »
+  OK    Icône de minicarte enregistrée (LibDBIcon)
+  OK    Aucune erreur interne au démarrage
+  OK    Exemple du cahier des charges : bénéfice = 1 po 22 pa 50 pc
+  OK    Exemple : rentabilité = 612,5 %
+  OK    Exemple : commission = 7 pa 50 pc
+  OK    Seuil de rentabilité : ⌈2000 / 0,95⌉ = 2106 pc
+  OK    Formatage monnaie : 12250 → « 1 po 22 pa 50 pc »
+  OK    Formatage pourcentage français : « +612,5 % »
+  OK    Monnaie négative et zéro
+  OK    Séparateur de milliers : 1 234 po
+  OK    Montants avec les icônes de pièces du jeu (or, argent, cuivre)
+  OK    Option désactivée : montants en texte « 38 pa 77 pc »
+  OK    Lot de 5 : revenu = 150 − ⌈7,5⌉ = 142 pc, bénéfice 117 pc
+  OK    HDV neutre 15 % : bénéfice = 10 750 pc
+  OK    Calcul impossible sans prix HDV
+  OK    Objet lié quand ramassé : revente impossible
+  OK    Achat en devise : pas de faux bénéfice
+  OK    Recette 6325 : statut confirmé (observée sur Forever)
+  OK    Recette 6325 : meilleur vendeur accessible à l'Alliance
+  OK    Recette 6325 : prix d'achat 40 pc (et non le prix de vente)
+  OK    Recette 6325 : priorité à un vendeur de la zone actuelle (Hurlevent)
+  OK    Eau (159) : lot de 5 conservé
+  OK    Eau : prix de base 25 pc malgré des observations remisées à 23 pc
+  OK    Couteau à dépecer : prix Forever (10 pc) retenu au lieu du prix Classic (82 pc)
+  OK    Objet connu sans vendeur : statut « aucun vendeur confirmé », pas d'invention
+  OK    Objet absent des bases : « information non disponible »
+  OK    Plusieurs vendeurs (194) : aucune confusion de zone/faction entre PNJ
+  OK    Exclusivité Alliance calculée sur tous les vendeurs (objet 2123)
+  OK    Un seul vendeur Alliance en référence : confiance non « élevée »
+  OK    Statistiques recalculées = rapport de construction (objets)
+  OK    Statistiques recalculées = rapport (associations)
+  OK    Statistiques recalculées = rapport (PNJ)
+  OK    Intégrité : aucune association vers un PNJ inexistant
+  OK    Intégrité : coordonnées dans ]0;100[
+  OK    Test 2 — recette dans le sac : bloc Shadsun Gold Lens présent
+  OK    Test 2 — recette : prix d'achat PNJ affiché (40 pc)
+  OK    Test 2 — recette : profession affichée
+  OK    Test 1/6 — prix Auctionator et bénéfice affichés
+  OK    Test 4 — 150 reconstructions (≈30 s) : contenu et hauteur identiques
+  OK    Test 4 — aucune duplication du bloc
+  OK    Ajout synchrone : aucun minuteur programmé par l'infobulle
+  OK    Post-call double dans une même passe : un seul bloc
+  OK    Recette imbriquée : un seul bloc, décrit la recette (40 pc), pas l'objet créé
+  OK    Recette imbriquée : appel imbriqué compté et ignoré
+  OK    Test 5 — 10 objets en rafale : pas de texte de l'objet précédent, pas de doublon
+  OK    Reconstruction sans OnTooltipCleared : bloc rétabli, sans doublon
+  OK    Reconstruction sans OnTooltipCleared : second appel ignoré
+  OK    Récursion : post-call réentrant ignoré
+  OK    Récursion : un seul bloc malgré l'appel réentrant
+  OK    Infobulles de comparaison ignorées
+  OK    Test 3 — objet connu sans vendeur : message honnête, non définitif
+  OK    Test 3 — objet hors base : « information non disponible »
+  OK    Test 7 — sans prix HDV : « Prix HDV indisponible — effectuer un scan Auctionator. »
+  OK    Test 7 — sans prix HDV : « Calcul impossible », aucun faux bénéfice
+  OK    Mise à jour Auctionator (RegisterForDBUpdate) : prix rechargé
+  OK    Paramètre « lignes maximum » respecté (4)
+  OK    Infobulle désactivée : aucune ligne ajoutée
+  OK    Objet non chargé : chargement demandé, pas d'erreur
+  OK    Composant (tissu) : « Métier | Couture, Secourisme »
+  OK    Composant (herbe) : « Métier | Alchimie »
+  OK    Sous-catégorie générique : aucun métier supposé
+  OK    Recette : profession toujours affichée
+  OK    Lien d'objet du chat (ItemRefTooltip) : bloc présent
+  OK    Coût d'un rendu en cache < 1 ms (mesuré 0.065 ms, hors client)
+  OK    Test 8 — relevé marchand enregistré (prix payé 36 pc, PNJ 5494)
+  OK    Test 8 — l'observation personnelle prime dans l'infobulle
+  OK    Test 9 — TomTom : waypoint ajouté avec uiMapID et coordonnées 0–1
+  OK    Test 9 — commande /tway #mapID vérifiée
+  OK    Test 9 — pas de commande sans coordonnées
+  OK    Test 9 — carte inconnue du client refusée
+  OK    Interface : 4 onglets et commandes /sgl sans erreur
+  OK    Onglet Objet : vendeurs listés pour l'eau
+  OK    Bouton TomTom d'une ligne vendeur : action réelle
+  OK    Bouton Carte : ouvre la carte de la zone du vendeur
+  OK    Opportunités : calcul sans erreur
+  OK    Minicarte clic gauche : ouvre la fenêtre principale
+  OK    Minicarte clic droit : ouvre les paramètres
+  OK    Test 10 — position de l'icône stockée dans ShadsunGoldLensGlobal
+  OK    Test 10 — réglages conservés après rechargement
+  OK    Marché neutre : commission 15 % utilisée
+  OK    Test 10 — observations conservées après rechargement
+  OK    Arbitrage : gain = (100−50) + (10×100−900) = 150 pc sur 11 u.
+  OK    Arbitrage : annonce plus chère que le rachat PNJ ignorée
+  OK    Arbitrage : sans HDV ouvert, scan refusé proprement
+  OK    Panneau Gold Lens ouvert automatiquement avec l'HDV
+  OK    Scan complet : une seule requête ReplicateItems
+  OK    Scan complet : limite de 15 min respectée
+  OK    Signal répété 5 fois : une seule lecture des annonces
+  OK    Nouveau signal, même liste : pas de relecture (plus de défilement sans fin)
+  OK    Lecture de 4 003 annonces en tranches sans erreur
+  OK    Opportunité directe : couteau 3 u. à 5 pc → gain 33 pc, qté 3
+  OK    Pas de fausse opportunité (eau à 30 pc > rachat 1 pc)
+  OK    Prix « PNJ / u. » = prix de vente au marchand du jeu (pas le prix d'achat marchand)
+  OK    Objet non chargé : absent tant que son prix de rachat est inconnu (pas de valeur de repli)
+  OK    Objet chargé ensuite : ajouté avec son vrai prix de rachat (25 pc, gain 30 pc)
+  OK    Infobulle : ligne « Revente PNJ » avec annonces en cours
+  OK    Infobulle : pas de ligne « Revente PNJ » si non rentable
+  OK    Historique : giberne cotée 10 pc → gain 15 pc / u.
+  OK    Résultats combinés : annonces en cours prioritaires, sans doublon
+  OK    Panneau HDV : 2 opportunités listées (couteau direct, giberne historique)
+  OK    Panneau HDV : bouton Rechercher d'une ligne fonctionnel
+  OK    Rechercher : recherche Auctionator NON exacte (toutes les variantes)
+  OK    Rechercher : repli sur la barre de recherche Blizzard
+  OK    Panneau HDV, /sgl hdv, /sgl arb et mode « HDV → PNJ » sans erreur
+  OK    Bouton « Arrêter la lecture » : lecture interrompue, données précédentes conservées
+  OK    Liste figée : les lignes ne changent pas pendant les mises à jour
+  OK    Liste défigée : nouvelles données appliquées
+  OK    Filtre « Direct (annonces) » : seules les annonces actuelles
+  OK    Bouton « Replacer » masqué tant que le panneau n'a pas été déplacé
+  OK    Bouton « Replacer » visible après un déplacement
+  OK    Bouton « Replacer » : panneau raccroché à l'HDV, bouton masqué
+  OK    Taille auto : panneau réduit pour tenir à droite de l'HDV (échelle 0.62)
+  OK    Bouton « + » : taille augmentée de 5 % et mémorisée
+  OK    Bouton « Auto » : retour à l'ajustement automatique
+  OK    Écran trop étroit : panneau au bord droit de l'écran, sans dépasser
+  OK    Interface : aucun caractère absent de la police du jeu
+  OK    Lecture : aucune demande d'infos envoyée d'un coup (file d'attente)
+  OK    Demandes d'infos au serveur : 20 au plus par tranche de 0,25 s
+  OK    Info reçue pour un objet : un seul calcul (plus de recalcul complet)
+  OK    Objet chargé ajouté immédiatement aux opportunités
+  OK    Analyse de l'historique en cours, demandes d'infos en file
+  OK    « Tout arrêter » : analyse stoppée, file vidée, plus aucune demande au serveur
+  OK    « Tout arrêter » : résultats déjà obtenus conservés
+  OK    /sgl stop : lecture des annonces interrompue
+  OK    Vitesse « Rapide » : 50 demandes par tranche de 0,25 s
+  OK    Volume non limité : les 120 objets ont tous été demandés
+  OK    Fermeture de l'HDV : annonces brutes libérées et file d'attente vidée
+  OK    Après fermeture : plus aucune demande d'infos au serveur
+  OK    Après fermeture : résultats compacts conservés
+  OK    Mémoire : +6.6 Mo pendant la lecture de 54 555 annonces, 0.0 Mo conservés après fermeture de l'HDV
+  OK    Fermeture de l'HDV : panneau masqué
+  OK    Interface : signature « Shadsun » uniquement, nom réel absent des textes affichés
+  OK    Équipement : prix HDV = version simple seulement (16 pa, pas la variante à 13 pa)
+  OK    Équipement, sens HDV » PNJ : variantes prises en compte (rachat PNJ identique)
+  OK    Prix HDV : annonces du dernier scan prioritaires sur l'historique (5 pc et non 3 pa)
+  OK    Équipement sans annonces lues : historique Auctionator non utilisé (variantes mélangées)
+  OK    Infobulle : « Possédé | 2 (sacs) · 1 (banque) »
+  OK    Infobulle : aucune ligne « Possédé » si l'objet n'est pas possédé
+  OK    Nom coloré selon la qualité (vert)
+  OK    Panneau HDV : sens HDV » PNJ par défaut
+  OK    Sélecteur de sens : liste PNJ » HDV affichée dans l'HDV
+  OK    Liste PNJ » HDV de l'HDV : mêmes filtres que l'onglet Opportunités
+  OK    Liste PNJ » HDV : recette achetée 40 pc, revendue 1 po 50 pa
+  OK    Liste PNJ » HDV : colonne « Sacs » = 2 (sacs du personnage, sans la banque)
+  OK    Liste PNJ » HDV : colonne « Vente » = « - » (rien en vente)
+  OK    Liste PNJ » HDV : nom coloré selon la qualité
+  OK    Liste PNJ » HDV de l'HDV : bouton Rechercher, sans bouton Aller
+  OK    Tri par « Sacs » : l'objet possédé (2) passe en tête
+  OK    Tri par « Sacs » : mis à jour quand les sacs changent
+  OK    Onglet Opportunités : icône Aller → point TomTom vers le marchand
+  OK    Onglet Opportunités : icône Copier → commande /tway présélectionnée
+  OK    Arme de jet : vendue à l'unité (15 pc), plus de lot de 200 à 0 pc
+  OK    Fenêtre principale : « + » agrandit (120 %) et mémorise
+  OK    Fenêtre principale : taille plafonnée à 150 %
+  OK    Fenêtre principale : « 100 % » rétablit la taille normale
+  OK    Aucune erreur interne (bloc v0.7.0)
+  OK    Marchand : objet rentable entouré (recette, 40 pc → 1 po 50 pa)
+  OK    Marchand : objets non rentables, sans prix HDV ou payés en devise non entourés
+  OK    Marchand : aucun texte ajouté sur l'icône
+  OK    Marchand : couleur par défaut verte
+  OK    Marchand : couleur choisie appliquée (or)
+  OK    Onglet Rachats : aucune bordure
+  OK    Option désactivée : aucune bordure
+  OK    Page 2 du marchand (emplacements vides) : aucune bordure, pas d'erreur
+  OK    Test 11 — sans Auctionator : chargement sans erreur
+  OK    Test 11 — sans Auctionator : indisponibilité clairement affichée
+  OK    Test 11 — sans Auctionator : achat PNJ toujours affiché
+  OK    Test 11 — bannière signale l'absence d'Auctionator
+  OK    Sans TomTom : repère natif du jeu utilisé
+  OK    Migration v0.3.0 : relevé transféré
+  OK    Migration v0.3.0 : options et position de minicarte reprises
+  OK    Migration v0.3.0 : sauvegarde de l'ancien contenu conservée
+  OK    Migration v0.3.0 : 1 relevé compté
+  OK    Migration idempotente (pas de double import)
+  OK    Valeur secrète : infobulle ignorée sans erreur
+  OK    Recherche sans accents : « Épée » → « epee »
+  OK    Âge lisible : il y a 3 h
+  OK    Emballage prix/quantité réversible et sous 10^14
+  OK    Quantité plafonnée à 99 999, prix plafonné
+  OK    Schéma de données 4 et nouvelles tables
+  OK    Zone de Hurlevent : HDV Alliance proposé
+  OK    Zone de Tanaris (Gadgetzan) : HDV neutre proposé
+  OK    Scan enregistré pour l'HDV Alliance du serveur « Forever »
+  OK    Stockage compact : un seul nombre par objet (50 × 100 000 + 5)
+  OK    Scan : nombre d'annonces et heure conservés
+  OK    Choix mémorisé pour le personnage (ShadsunGoldLensDB)
+  OK    Choix corrigé après le scan : scan déplacé vers l'HDV neutre
+  OK    Avertissement : la zone (Hurlevent) ne concorde pas avec « HDV neutre »
+  OK    Barre de scan : avertissement affiché
+  OK    Retour à « HDV de ma faction » : scan redéplacé, pas d'avertissement
+  OK    Visite suivante : le scan précédent n'est pas déplacé
+  OK    Deuxième scan enregistré pour l'HDV neutre, celui de l'Alliance conservé
+  OK    Équipement chargé après le scan : version simple ajoutée à la photo (9 pa)
+  OK    Infobulle : ligne « HDV Alliance » (50 pc, 5 en vente, âge)
+  OK    Infobulle : ligne « HDV neutre » (2 pa, 1 en vente)
+  OK    Infobulle : plus de ligne Auctionator quand un HDV est scanné
+  OK    Objet absent des scans : prix Auctionator conservé
+  OK    HDV de l'autre faction affiché par défaut (v0.9.0)
+  OK    Option désactivée : HDV de l'autre faction masqué
+  OK    PNJ » HDV : prix du scan de l'HDV de faction (50 pc)
+  OK    Marché de revente neutre : prix du scan neutre (2 pa)
+  OK    Scan ancien (10 j > 7 j) : historique Auctionator préféré (3 pa)
+  OK    HDV » HDV : 200 − commission 30 − 50 = gain 120 pc (240 %)
+  OK    HDV » HDV : couteau acheté HDV Alliance, revendu HDV neutre
+  OK    Paire Alliance » Horde marquée « indirecte »
+  OK    Paires disponibles : 6 (trois HDV scannés)
+  OK    Sacs du personnage enregistrés (compte, par serveur)
+  OK    Possédé : personnage connecté + autres personnages du serveur (3 + 5)
+  OK    Infobulle : « Possédé | 8 : Aurelia 3 · Kael 5 »
+  OK    Personnage d'un autre serveur non compté
+  OK    Banque relevée à l'ouverture
+  OK    Catégories : « Recette » présente, noms donnés par le jeu
+  OK    Catégories : Armure » Tissu » emplacements (Tête, Torse)
+  OK    Ordre de l'HDV : Armes avant Armure avant Artisanat
+  OK    Filtre catégorie : Robe rangée avec le torse
+  OK    Recherche « epee » trouve « Épée courte usée »
+  OK    Qualité min. Rare : objet bleu accepté, objet blanc refusé
+  OK    Panneau HDV : onglets HDV » PNJ, PNJ » HDV, HDV » HDV et Listes
+  OK    Menu Catégorie ouvert : « Recette » proposé
+  OK    Filtre « Recette » appliqué à la liste PNJ » HDV
+  OK    Libellé du filtre : « Catégorie : Recette »
+  OK    Survol : sous-menu des sous-catégories (niveau 2)
+  OK    Survol : sous-menu des emplacements (niveau 3)
+  OK    Sélection d'un emplacement : « Armure » Tissu » Tête »
+  OK    Qualité choisie dans le menu : « Rare »
+  OK    Molette : qualité suivante (Épique)
+  OK    Clic droit : qualité précédente (Inhabituelle)
+  OK    Recherche par nom (après 0,3 s) : seules les lignes « Goujon »
+  OK    Effacer la recherche : toutes les lignes reviennent
+  OK    Loupe : icône (sans texte « Rechercher »)
+  OK    HDV » HDV : liste affichée, couteau en tête (gain le plus élevé)
+  OK    HDV » HDV : sens par défaut « Faction » Neutre » (Alliance » neutre uniquement)
+  OK    HDV » HDV : en-têtes « Achat alliance », « Revente neutre », « Repère Horde »
+  OK    HDV » HDV : repère Horde du couteau (75 pc), moins cher que la revente au neutre
+  OK    HDV » HDV : sens « Neutre » Faction »
+  OK    HDV » HDV : infobulle de ligne (achat, revente, commission, gain)
+  OK    Onglet « Marchés » présent dans la fenêtre principale
+  OK    Marchés : HDV Alliance scanné par Aurelia, annonces comptées
+  OK    Marchés : personnages du serveur (Aurelia, Kael), pas ceux des autres serveurs
+  OK    Effacer : premier clic = demande de confirmation
+  OK    Effacer : second clic = scan Horde supprimé
+  OK    /sgl marches, /sgl diag, /sgl hdv : marchés et personnages dans le rapport
+  OK    Rechargement : scans et inventaires conservés
+  OK    Autre serveur : aucun scan de « Forever » utilisé
+  OK    Scans de plus de 30 jours supprimés au démarrage
+  OK    Migrations v0.8.0 et v0.11.0 : infobulle portée de 9 à 12 lignes
+  OK    Volume : 2 × 25 000 objets, HDV » HDV en moins de 500 ms (23 ms)
+  OK    Volume : mémoire des deux scans sous 3 Mo (1281 Ko)
+  OK    Interface v0.8.0 : aucun caractère absent de la police du jeu
+  OK    Aucune erreur interne (bloc v0.8.0)
+  OK    Prix.lua chargé dans le client simulé (globale ShadsunGoldLensExternal)
+  OK    Prix API acceptés (région EU = client EU)
+  OK    Infobulle : « HDV Horde | 75 pc (1 en vente · API, il y a 1 h) »
+  OK    Votre scan plus récent que l'API : scan utilisé
+  OK    API plus récente que votre scan : API utilisée
+  OK    HDV » HDV depuis l'API : achat 2 pa, revente 2 pa 60 pc, gain 21 pc, repère Horde 3 pa
+  OK    Onglet Opportunités, HDV » HDV : lignes issues de l'API
+  OK    Onglet Marchés : « API Blizzard : 32 objets » et état du module
+  OK    Source Forever AH : nom de la source repris
+  OK    Infobulle : « (1 en vente · Forever AH, il y a 1 h) »
+  OK    Onglet Marchés : « Forever AH : 32 objets » et mention « Prix : Forever AH (forever-ah.com) »
+  OK    Module sans source (ancien outil) : « API Blizzard » par défaut
+  OK    Client US, prix EU : prix API ignorés avec explication
+  OK    Format inconnu : prix API ignorés
+  OK    Module absent : aucune erreur, état « absent »
+  OK    Aucune erreur interne (bloc v0.9.0)
+  OK    Listes : une liste « Ma liste » créée au départ, active
+  OK    Ajout répété : quantité augmentée (5 + 1 = 6), message avec la quantité
+  OK    Nouvelle liste « Couture » créée et active
+  OK    Quantité et prix maximum modifiés
+  OK    Renommer
+  OK    Dupliquer : copie avec les articles
+  OK    Supprimer
+  OK    Supprimer la dernière liste : une liste vide est recréée
+  OK    Progression : 3 / 5 (personnages du serveur)
+  OK    Progression : 25 / 20 terminé
+  OK    Infobulle : « Liste | Ma liste 3 / 5 »
+  OK    Alt+clic sur un objet : ajouté à la liste active
+  OK    Alt+clic dans la fenêtre du marchand : rien n'est ajouté
+  OK    Clic modifié sans Alt : rien n'est ajouté
+  OK    Onglet Opportunités : icône + sur chaque ligne
+  OK    Icône + : objet ajouté à la liste active
+  OK    Onglet « Listes » présent
+  OK    Liste : colonne PNJ (40 pc), le moins cher en vert ; prix par HDV (Alliance 1 pa 50, neutre 1 pa 20)
+  OK    Liste : progression « 3 / 5 » affichée
+  OK    Fenêtre principale : icônes Aller et Copier vers le marchand (pas de loupe)
+  OK    Icône Aller : point TomTom vers le marchand
+  OK    Icône Copier : commande /tway présélectionnée
+  OK    Prix max 1 pa : HDV grisés, seul le PNJ (40 pc) reste en vert
+  OK    Clic sur un article : champs Quantité et Prix max affichés
+  OK    Quantité modifiée depuis l'onglet
+  OK    Champ « Ajouter » : par ID
+  OK    HDV ouvert : « Rechercher toute la liste » actif
+  OK    Panneau de l'HDV : loupe active (pas d'icône Aller)
+  OK    Loupe d'un article : recherche Auctionator
+  OK    Rechercher toute la liste : articles non obtenus seulement (pas l'étoffe déjà obtenue)
+  OK    Icône de retrait : article retiré
+  OK    Rechargement : listes conservées (communes au compte)
+  OK    Marchand : article d'une liste entouré en bleu
+  OK    Marchand : article hors liste et non rentable non entouré
+  OK    Option désactivée : plus de bordure bleue
+  OK    Avis Faction » Neutre : autre faction plus chère, 5 en vente = Favorable (gain 21 pc)
+  OK    Avis Faction » Neutre : autre faction moins chère = Défavorable, gain réaliste au repère (75 - 12 - 50 = 13 pc)
+  OK    Avis Faction » Neutre : sans repère = À vérifier ; 1 seul en vente = À vérifier
+  OK    Avis Neutre » Faction : 4 en vente = Favorable ; 2 en vente = À vérifier
+  OK    HDV » HDV : avis calculés (eau Favorable, couteau Défavorable, étoffe À vérifier)
+  OK    Colonne Avis : « Favorable » en vert
+  OK    Filtre Avis « Favorable »
+  OK    Qté min. (avis) portée à 7 : l'eau (6 en vente au neutre) passe « À vérifier »
+  OK    Onglets : Objet, Listes, Opportunités, Marchés, Paramètres, Base & diagnostic
+  OK    Montant compact : 490 po 99 pa 12 pc -> 490 po ; 15 po 90 pa 12 pc -> 15 po 90 pa ; 99 pc inchangé
+  OK    Pourcentage compact : 2 528,6 % -> >999 % ; 177,5 % -> 178 %
+  OK    Panneau HDV, onglet Listes : articles de la liste active affichés
+  OK    Onglet Listes de l'HDV : loupe active par article
+  OK    Loupe : recherche de l'article
+  OK    « Rechercher toute la liste » actif à l'HDV
+  OK    Sélecteur de liste : « Pour Kael » affichée et active
+  OK    Boutons Recharger (onglet Marchés, barre de scan) : ReloadUI appelé
+  OK    /sgl listes ouvre l'onglet Listes
+  OK    Interface v0.10.0 : aucun caractère absent de la police du jeu
+  OK    Aucune erreur interne (bloc v0.10.0)
+  OK    Bouton + (données) : objet ajouté avec 1 exemplaire
+  OK    Message : quantité dans la liste et possédé (« 1 dans « Ma liste » — sacs 2 · banque 5 »)
+  OK    + répété puis +5 : 1 + 1 + 5 = 7
+  OK    -5 : 7 - 5 = 2
+  OK    Sous 1 : l'objet quitte la liste, message « retiré de »
+  OK    - sur un objet absent : refusé avec message
+  OK    Bouton - placé à gauche du +
+  OK    Objet absent : bouton - grisé, pas de badge
+  OK    Clic sur + : 1 exemplaire, badge « 1 », - actif
+  OK    Deuxième clic sur + : 2 exemplaires (plus de message « déjà dans la liste »)
+  OK    Maj+clic sur + : +5 (7)
+  OK    Maj+clic sur - : -5 (2)
+  OK    - jusqu'à 0 : objet retiré, - grisé
+  OK    Survol du + : liste active, quantité, sacs
+  OK    Ouverture de l'HDV : vos enchères demandées au jeu
+  OK    Relevé : 2 recettes et 20 étoffes en vente ; enchère vendue ignorée
+  OK    Infobulle : « En vente | 2 » sous « Possédé »
+  OK    Message de liste : « en vente 2 »
+  OK    Après une mise en vente : nouveau relevé demandé
+  OK    Message « acheteur trouvé » hors HDV : une recette de moins (1)
+  OK    Message « a expiré » : plus de recette en vente
+  OK    Marchandise vendue en partie : 19 au plus (« ~19 »)
+  OK    Infobulle : « (au plus) » et âge du relevé hors HDV
+  OK    Autre message système : rien ne change
+  OK    Enchères de tous les personnages du serveur additionnées (19 + 6)
+  OK    Infobulle : détail par personnage
+  OK    Option désactivée : plus de ligne « En vente »
+  OK    Tableaux : « Sacs » = sacs du personnage (7, sans la banque), « Vente » = ~25
+  OK    Tableaux : rien en vente = « - », sacs vides = « 0 »
+  OK    En-têtes « Sacs » et « Vente » dans les 5 tableaux (fenêtre et panneau de l'HDV), plus de « Poss. »
+  OK    Onglet Listes : colonne « Vente » = ~25
+  OK    Onglet Listes : la progression ne compte pas les objets en vente
+  OK    Rechargement : enchères conservées
+  OK    Interface v0.11.0 : aucun caractère absent de la police du jeu
+  OK    Aucune erreur interne (bloc v0.11.0)
+  OK    Listes : filtre « Meilleur achat » et case « Seulement là où ce personnage peut acheter » présents
+  OK    Filtre « Tous » : les 4 articles
+  OK    Filtre PNJ : la recette (40 pc chez le marchand)
+  OK    Filtre HDV neutre : l'étoffe (90 pc au neutre)
+  OK    Filtre HDV Horde : l'objet vendu seulement à la Horde
+  OK    Filtre « Aucune offre sous le prix max » : l'objet sans prix
+  OK    Filtre HDV Alliance : aucun article, message explicite
+  OK    Case cochée : plus rien « au meilleur prix » à la Horde
+  OK    Case cochée : l'objet Horde passe dans « Aucune offre »
+  OK    Case cochée : prix Horde affiché mais pas en vert
+  OK    Case décochée : prix Horde de nouveau en vert
+  OK    Tri par prix neutre croissant ; sans prix en bas
+  OK    Tri par prix neutre décroissant ; sans prix toujours en bas
+  OK    Tri par prix PNJ
+  OK    Tri par nom (accents ignorés)
+  OK    Flèche de tri sur la colonne triée
+  OK    Clic sur l'en-tête « Voulu » : tri par quantité
+  OK    Survol du X : la ligne reste en surbrillance
+  OK    Sortie du X : surbrillance rendue
+  OK    Fenêtre principale : grand médaillon (0.14)
+  OK    Icône de l'add-on dans la liste des add-ons (TOC)
+  OK    Logo et icône en TGA 32 bits, tailles puissances de 2 (256, 64), non compressés
+  OK    Bouton de la mini-carte : icône de l'add-on
+  OK    Icônes de faction du jeu à côté des noms d'HDV
+  OK    Infobulle : icône de faction devant « HDV Alliance »
+  OK    Aucune erreur interne (bloc v0.13.0)
+  OK    Arme absente de l'API plus récente : prix de votre scan conservé (avant : aucun prix)
+  OK    Objet présent des deux côtés : donnée la plus récente (API, 95 pc)
+  OK    Photo fusionnée : source et heure de la plus récente
+  OK    Infobulle de l'arme : prix du scan avec son âge (« scan, il y a 1 j »)
+  OK    Infobulle : objet vendu seulement en variantes → « dès 4 po (variantes seulement · 2 en vente · API…) »
+  OK    Prix d'équipement ajouté au scan après coup : visible dans la photo fusionnée
+  OK    HDV » HDV : l'arme du scan Alliance est comparée au neutre
+  OK    Fenêtre principale : médaillon 76 px qui déborde en haut à gauche, zone d'écran élargie
+  OK    Titre décalé à droite du médaillon
+  OK    Panneau de l'HDV : gemme seule (version simple du logo)
+  OK    Médaillon : TGA 128×128, 32 bits, non compressé
+  OK    Aucune erreur interne (bloc v0.14.0)
+
+Résultat : 400 réussis, 0 échoués
+
+===== 2026-11-25 18:24:58 · test =====
+Python : /usr/local/bin/python3
+======================================================================
+ Shadsun Gold Lens — prix des HDV v0.14.0
+ Auteur : Tarak Ben Abda
+======================================================================
+Source : Forever AH — Prix : Forever AH (forever-ah.com), données de l'API Battle.net de Blizzard
+Téléchargement HDV Alliance (HDV 110)…
+  52 annonces, 12 objets, données du 24/11 12:23 (0 s)
+Téléchargement HDV Horde (HDV 113)…
+  52 annonces, 12 objets, données du 24/11 12:23 (0 s)
+Téléchargement HDV neutre (HDV 116)…
+  52 annonces, 12 objets, données du 24/11 12:23 (0 s)
+Module écrit : /tmp/sgl_core_txsblz7w/World of Warcraft/_forever_/Interface/AddOns/ShadsunGoldLens_Prix
+En jeu : /reload (ou reconnectez-vous). Vérifiez le module « Shadsun Gold Lens - Prix » dans la liste des add-ons.
+RÉSULTAT : OK
+OK    Types de serveur : PvP = 110/113/116, Normal = 111/114/117, JdR = 119/120/121, JdR-PvP = 123/124/125
+OK    Type de serveur d'un HDV (120 → JdR) ; inconnu → None
+OK    Suggestion d'après le nom de royaume du jeu (…Realm6PvP → PvP, …RPPvP → JdR-PvP, …Realm2 → rien)
+OK    Source simple : Forever AH joignable sans clé, 15 HDV EU (HDV « tous » et US ignorés)
+OK    Forever AH : l'application s'identifie (User-Agent)
+OK    Configuration du moteur : HDV déduits du type de serveur
+OK    Table du marché : prix unitaire minimum et quantité ; ligne sans prix ignorée
+OK    Table du marché : date des données (as_of) et nombre d'annonces
+OK    Table du marché : cache local (pas de nouvelle requête dans les 50 min)
+OK    Mise à jour (source Forever AH) : module écrit, journal « OK »
+OK    Module : source « Forever AH » et attribution
+OK    Module : titre « Shadsun Gold Lens - Prix (Forever AH) »
+OK    Module chargé en Lua 5.1 : HDV Horde 113, Étoffe 95 pc
+OK    État des prix lu dans le module (source, 3 HDV, annonces)
+OK    Vérification avec le relevé du jeu : PvP reconnu (100 % de prix identiques)
+OK    Suggestion du type de serveur d'après le royaume du relevé
+OK    Région détectée dans WTF\Config.wtf (EU)
+OK    Dossier du jeu, _forever_, Interface ou AddOns → dossier _forever_
+OK    Recherche de WoW Forever (dossiers donnés)
+OK    Installation de l'add-on livré avec l'application
+OK    Mise à jour de l'add-on : ancien dossier remplacé (fichiers obsolètes retirés)
+OK    Configuration : la clé secrète n'est jamais écrite dans le fichier
+OK    Configuration du moteur : clé secrète reprise du coffre, en mémoire
+OK    Coffre : autre Client ID → pas de secret
+OK    Reprise de l'ancien outil : clé, AddOns et type de serveur (110 → PvP)
+OK    Commande de relance : script de l'application + option
+OK    Âge lisible (à l'instant, min, h)
+OK    Application prête (assistant fait, type de serveur, AddOns)
+OK    Boucle : rien avant l'heure
+OK    Boucle : « Mettre à jour maintenant » exécuté une fois, événements début / fin
+OK    Boucle : mise à jour automatique quand l'intervalle est écoulé
+OK    Boucle : automatique désactivé → plus de mise à jour
+OK    Boucle : prochaine mise à jour nulle quand désactivée
+OK    Boucle : après un échec, pas de nouvel essai immédiat
+OK    Boucle : nouvel essai après le délai de reprise
+OK    Instance unique : un deuxième lancement trouve le verrou pris
+OK    Deuxième lancement : signal « afficher » reçu par la première instance
+OK    Images de l'application présentes (logo, gemme, personnage)
+OK    Personnage sur fond transparent
+OK    Icône : 7 tailles de 16 à 256 px
+OK    Symboles des HDV et boutons dessinés (tailles demandées)
+OK    Éléments graphiques fournis présents (cadres, emblèmes, icônes)
+OK    Dessin à très petite taille : aucune erreur (plantage de l'exe 1.1)
+OK    Cadres étirés aux tailles demandées
+OK    Bandeau d'état : ornement du bas centré (symétrie)
+OK    Cadres des cartes et du panneau : ornement du haut centré (symétrie)
+OK    construire_exe.bat : toutes les étiquettes existent, fins de ligne Windows
+OK    construire_exe.bat : messages d'erreur seulement après une étiquette ou un test
+OK    construire_exe.bat : ferme l'application, met de côté l'exe bloqué, puis fabrique
+OK    En ligne : dernière version lue (add-on 9.9.9, application 9.0.0, page)
+OK    En ligne : une seule vérification par jour (cache)
+OK    En ligne : nouvelle vérification après 24 h
+OK    Bandeau : add-on 9.9.9 proposé en ligne
+OK    Empreinte différente : installation annulée, ancien add-on intact
+OK    Archive avec chemin « ../ » refusée, rien d'écrit hors du dossier
+OK    Version de l'archive différente de l'annonce : refus
+OK    Installation depuis GitHub : add-on 9.9.9 installé, empreinte vérifiée
+OK    Bandeau : ensuite, nouvelle application 9.0.0 signalée (lien de téléchargement)
+OK    Bandeau : rien à proposer quand tout est à jour (pas de retour à l'add-on livré, plus ancien)
+OK    Adresse non HTTPS refusée
+Résultat application : 60 réussis, 0 échoués
+
+OK    Premier lancement : assistant, étape 1
+OK    Étape 1 : WoW Forever trouvé, région EU détectée
+OK    Étape 1 : add-on pas encore installé, installation cochée
+OK    Suivant : add-on copié dans AddOns
+OK    Étape 2 : source simple (Forever AH) par défaut
+OK    Étape 2 : test de la source affiché
+OK    Guide de la clé : fenêtre ouverte à l'étape 1
+OK    Guide de la clé : étape du formulaire avec boutons Copier
+OK    Guide de la clé : rouvrir ne crée pas de deuxième fenêtre
+OK    Guide de la clé : Terminer ferme la fenêtre
+OK    Assistant : légende fixe du personnage (AURELIA SHADSUN, PVP · EUROPE)
+OK    Étape 3 : type de serveur suggéré d'après le royaume (PvP)
+OK    Étape 3 : HDV 110 / 113 / 116 affichés
+OK    Étape 3 : vérification avec le relevé du jeu affichée
+OK    Étape 4 : mise à jour automatique cochée
+OK    Terminer : configuration enregistrée (Forever AH, PvP, AddOns)
+OK    Terminer : aucune clé secrète dans le fichier de configuration
+OK    Terminer : une seule première mise à jour, lancée tout de suite
+OK    Fenêtre principale : prix à jour, 3 HDV avec leur numéro
+OK    Fenêtre principale : nombre d'annonces affiché
+OK    Fenêtre principale : prochaine mise à jour annoncée
+OK    Bandeau : version de l'add-on publiée en ligne proposée, bouton « Installer l'add-on »
+OK    Nom du personnage affiché en petit, avec sa localisation fixe (PVP · EUROPE)
+OK    Fenêtre principale dessinée : 5 boutons, symboles des HDV, bouton principal actif
+OK    Fenêtre minuscule : aucun plantage, rendu reporté
+OK    Redimensionnement : décor redessiné, textes conservés
+OK    Journal : fenêtre ouverte
+OK    Paramètres : assistant rouvert avec le dossier enregistré
+Résultat interface : 28 réussis, 0 échoués

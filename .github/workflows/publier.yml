@@ -1,0 +1,117 @@
+# =============================================================================
+# Shadsun Gold Lens — publication automatique d'une version
+# Auteur : Tarak Ben Abda – novembre 2026
+# FR : déclenché par une étiquette « vX.Y.Z » (X.Y.Z = version de l'add-on dans
+#      ShadsunGoldLens.toc). Lance tous les tests ; s'ils passent, fabrique le zip
+#      de l'add-on et ShadsunGoldLens.exe, calcule leurs empreintes SHA-256 et
+#      crée la page de version avec sgl-version.json, lue par l'application.
+# EN : on tag vX.Y.Z: run all tests, build add-on zip + exe, publish release
+#      with sgl-version.json (versions + SHA-256) consumed by the desktop app.
+# =============================================================================
+name: Publier une version
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+
+jobs:
+  tests:
+    name: Tests (add-on et application)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Outils de test
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q lua5.1 xvfb imagemagick python3-tk python3-pil
+      - name: Étiquette = version de l'add-on
+        run: |
+          V=$(sed -n 's/^## Version: *//p' ShadsunGoldLens/ShadsunGoldLens.toc | tr -d '\r')
+          echo "Add-on : $V — étiquette : ${GITHUB_REF_NAME}"
+          test "v$V" = "${GITHUB_REF_NAME}"
+      - name: Moteur de prix
+        working-directory: src/tests
+        run: python3 test_sgl_prix_api.py
+      - name: Add-on (client simulé) et globales
+        working-directory: src/tests
+        run: |
+          lua5.1 run_tests.lua
+          sh check_globals.sh
+      - name: Cœur de l'application
+        working-directory: src/tests
+        run: python3 test_app_core.py
+      - name: Interface de l'application
+        working-directory: src/tests
+        run: xvfb-run -a -s "-screen 0 1600x1000x24" python3 test_app_gui.py "$RUNNER_TEMP/captures"
+      - name: Captures de l'interface
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: captures-interface
+          path: ${{ runner.temp }}/captures
+          if-no-files-found: ignore
+
+  exe:
+    name: Application Windows
+    needs: tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Outils
+        run: python -m pip install --upgrade pyinstaller pystray pillow
+      - name: Add-on livré avec l'application
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force src/tools/prix_api/addon | Out-Null
+          Copy-Item -Recurse -Force ShadsunGoldLens src/tools/prix_api/addon/ShadsunGoldLens
+      - name: Fabrication
+        working-directory: src/tools/prix_api
+        run: |
+          python sgl_icon.py ShadsunGoldLens.ico
+          python -m PyInstaller --noconfirm --clean --onefile --windowed --name ShadsunGoldLens --icon ShadsunGoldLens.ico --add-data "addon;addon" --add-data "assets;assets" --hidden-import pystray._win32 --hidden-import PIL.ImageTk sgl_app.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: exe
+          path: src/tools/prix_api/dist/ShadsunGoldLens.exe
+
+  publier:
+    name: Page de version
+    needs: exe
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: exe
+          path: sortie
+      - name: Zip de l'add-on, empreintes, fiche de version
+        run: |
+          set -e
+          AV=$(sed -n 's/^## Version: *//p' ShadsunGoldLens/ShadsunGoldLens.toc | tr -d '\r')
+          PV=$(sed -n 's/^APP_VERSION = "\(.*\)"/\1/p' src/tools/prix_api/sgl_core.py)
+          ZIP="Shadsun_Gold_Lens_v${AV}_WoW_Forever.zip"
+          zip -q -r -X "sortie/$ZIP" ShadsunGoldLens
+          cd sortie
+          python3 - "$AV" "$PV" "$ZIP" <<'PY'
+          import hashlib, json, sys
+          av, pv, z = sys.argv[1:4]
+          sha = lambda f: hashlib.sha256(open(f, "rb").read()).hexdigest()
+          man = {"addon": {"version": av, "file": z, "sha256": sha(z)},
+                 "app": {"version": pv, "file": "ShadsunGoldLens.exe", "sha256": sha("ShadsunGoldLens.exe")}}
+          json.dump(man, open("sgl-version.json", "w"), indent=1)
+          print(json.dumps(man, indent=1))
+          PY
+          sha256sum * > SHA256SUMS.txt
+      - name: Notes de version (journal des modifications)
+        run: |
+          awk 'NR>1 && /^## /{n++} n==1{print} n==2{exit}' ShadsunGoldLens/CHANGELOG.md > notes.md
+          printf '\n---\nInstallation : téléchargez `ShadsunGoldLens.exe` (application, installe aussi l'\''add-on) ou le zip de l'\''add-on seul. Windows peut afficher « Windows a protégé votre ordinateur » : « Informations complémentaires » puis « Exécuter quand même » (exe non signé).\n' >> notes.md
+      - name: Création de la page de version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" sortie/* --title "Shadsun Gold Lens $GITHUB_REF_NAME" --notes-file notes.md

@@ -1,0 +1,16 @@
+# Fichiers générés / generated files
+__pycache__/
+*.pyc
+build/
+dist/
+*.spec
+*.ico
+src/tools/prix_api/addon/
+# Données locales de l'outil (jamais dans le dépôt) / local tool data
+sgl_prix_api.ini
+python_chemin.txt
+journal*.txt
+cache/
+# Système
+Thumbs.db
+.DS_Store

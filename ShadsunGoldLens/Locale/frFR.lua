@@ -1,0 +1,121 @@
+-- =============================================================================
+-- Shadsun Gold Lens — Locale/frFR.lua
+-- Auteur : Tarak Ben Abda – novembre 2026
+-- FR : Textes de l'interface (français, langue principale). Une clé absente
+--      renvoie la clé elle-même, ce qui évite toute erreur d'affichage.
+-- EN : UI strings (French is the primary language). Missing keys fall back
+--      to the key itself.
+-- =============================================================================
+local _, ns = ...
+local L = setmetatable({}, { __index = function(_, key) return key end })
+ns.L = L
+
+-- Infobulle / tooltip
+L.BUY = "Achat PNJ"
+L.SELL = "Vente PNJ"
+L.AH = "HDV"
+L.AH_LIVE = "annonces de %s · %s en vente"
+L.AH_VARIANTS = "Prix HDV indisponible — lire les annonces (scan complet)."
+L.OWNED = "Possédé"
+L.ON_SALE = "En vente"
+L.LIST = "Liste"
+L.MARKET_DETAIL = "%s en vente · %s"
+L.MARKET_FROM = "dès "
+L.MARKET_VARIANTS = "variantes seulement"
+L.PROFIT = "Bénéfice net"
+L.ROI = "Rentabilité"
+L.BREAKEVEN = "Seuil de rentabilité HDV / u."
+L.MARGIN = "Marge sur prix de vente"
+L.VENDOR = "Marchand"
+L.OTHERS = "+%d autre(s)"
+L.PROFESSION = "Profession"
+L.USED_IN = "Métier"
+L.RECIPE_TEACHES = "Enseigne"
+L.ITEM_ID = "Objet n° %d"
+L.SOLD_BY_LOT = " / lot de %d"
+L.UNSELLABLE = "Invendable"
+L.UNKNOWN_YET = "en chargement…"
+L.EXTCOST = "Devise ou objet requis"
+L.PRICE_UNKNOWN = "Prix inconnu"
+L.AH_NONE = "Prix HDV indisponible — effectuer un scan Auctionator."
+L.AH_NO_ADDON = "Auctionator absent — prix HDV indisponible"
+L.AH_NOT_READY = "Auctionator pas encore prêt"
+L.AH_TODAY = "aujourd'hui"
+L.AH_AGE = "il y a %d j"
+L.AH_STALE = "ancien"
+L.CALC_IMPOSSIBLE = "Calcul impossible"
+L.REASON_NO_VENDOR = "aucun prix d'achat PNJ fiable"
+L.REASON_NO_AH = "aucun prix HDV"
+L.REASON_EXTCOST = "achat en devise ou en objet"
+L.REASON_BOUND = "objet lié — revente HDV impossible"
+L.REASON_NO_PRICE = "prix d'achat inconnu"
+L.VERDICT_GOOD = "Opportunité potentielle (non garantie)"
+L.VERDICT_LOW = "Marge faible"
+L.VERDICT_BAD = "Non rentable"
+L.VERDICT_STALE = "prix HDV ancien"
+L.NO_VENDOR_KNOWN = "Aucun vendeur PNJ connu dans les sources (non définitif)"
+L.NO_DATA = "Information non disponible (objet absent des bases)"
+L.REVERSE = "Revente PNJ (HDV » PNJ)"
+L.REVERSE_LIVE = "+%s / u. · %d u. à %s (annonces)"
+L.REVERSE_HIST = "+%s / u. si acheté à %s (dernier scan)"
+L.SHIFT_HINT = "Maj : détails · /sgl : fenêtre"
+
+-- Statuts / statuses
+L.STATUS_CONFIRMED = "Vendu par un PNJ confirmé"
+L.STATUS_REFERENCE = "À vérifier"
+L.STATUS_NONE = "Aucun vendeur PNJ confirmé"
+L.STATUS_NODATA = "Information non disponible"
+L.STATUS_SHORT_CONFIRMED = "Confirmé"
+L.STATUS_SHORT_REFERENCE = "À vérifier"
+L.STATUS_SHORT_NONE = "Sans vendeur connu"
+L.STATUS_SHORT_NODATA = "Inconnu"
+
+-- Sources
+L.SRC_PERSONAL = "Observé par vous le %s (%s)"
+L.SRC_EG = "Observé sur Forever (EG Link)"
+L.SRC_REF = "Référence QuestieDB / CMaNGOS Classic — non confirmé sur Forever"
+L.SRC_WEB = "Source web communautaire (Zephras / Forever Codex)"
+L.SRC_MANUAL = "Ajout manuel vérifié"
+L.PRICE_FOREVER = "prix Forever différent de Classic"
+L.PRICE_UNCERTAIN = "prix observé, remise de réputation possible"
+L.PRICE_DISCOUNT_SEEN = "observé %s (remise de réputation)"
+
+-- Factions
+L.SIDE_A = "Alliance"
+L.SIDE_H = "Horde"
+L.SIDE_N = "Neutre"
+L.SIDE_U = "Faction inconnue"
+L.ENEMY = "faction opposée"
+L.EXCL_A = "Vendeurs Alliance uniquement"
+L.EXCL_H = "Vendeurs Horde uniquement"
+L.EXCL_BOTH = "Accessible aux deux factions"
+L.EXCL_UNKNOWN = "Exclusivité incertaine"
+L.CONF_HIGH = "confiance élevée"
+L.CONF_MED = "confiance moyenne"
+L.CONF_LOW = "confiance faible"
+L.ARBITRAGE_OWN = "Arbitrage : revente possible à l'autre faction via HDV neutre"
+L.ARBITRAGE_ENEMY = "Réservé à l'autre faction : accès difficile pour vous"
+
+-- Conditions
+L.COND_REP = "Réputation requise"
+L.COND_EVENT = "Événement saisonnier"
+L.COND_OTHER = "Condition d'achat"
+L.COND_REF = " (réf. CMaNGOS n° %d, à vérifier)"
+L.LIMITED = "Stock limité"
+L.UNLIMITED = "Stock illimité"
+L.UNAVAILABLE = "Indisponible lors de votre visite"
+L.MOVES = "Position variable (itinérant ou patrouille)"
+L.NOPOS = "Position inconnue (instance ou donnée manquante)"
+L.ZONE_UNKNOWN = "Zone inconnue"
+
+-- Navigation
+L.NAV_TOMTOM = "TomTom"
+L.NAV_MAP = "Carte"
+L.NAV_ADDED = "Point de navigation ajouté : %s"
+L.NAV_NATIVE = "Repère placé sur la carte (TomTom absent) : %s"
+L.NAV_NO_COORDS = "Navigation impossible : coordonnées inconnues pour ce marchand."
+L.NAV_BAD_MAP = "Navigation impossible : identifiant de carte invalide sur ce client."
+L.NAV_COMBAT = "Ouvre la carte après le combat."
+L.NAV_CMD = "Commande TomTom (Ctrl+C pour copier)"
+L.NAV_CMD_NONE = "Commande indisponible : coordonnées non fiables."
+L.NAV_MOVES_WARN = "Attention : ce marchand se déplace ; position approximative."

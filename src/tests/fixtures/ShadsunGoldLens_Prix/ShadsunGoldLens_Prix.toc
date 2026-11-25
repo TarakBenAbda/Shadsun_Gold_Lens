@@ -1,0 +1,8 @@
+## Interface: 16001
+## Title: Shadsun Gold Lens - Prix (API Blizzard)
+## Notes: Prix des hôtels des ventes téléchargés hors du jeu par l'application Shadsun Gold Lens.
+## Author: Shadsun
+## Version: 0.14.0
+## Dependencies: ShadsunGoldLens
+
+Prix.lua
