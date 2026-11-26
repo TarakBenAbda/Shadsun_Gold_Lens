@@ -1,4 +1,4 @@
-# Shadsun Gold Lens — application de bureau 1.6.1
+# Shadsun Gold Lens — application de bureau 1.6.2
 
 Auteur : Tarak Ben Abda — novembre 2026
 
@@ -84,6 +84,7 @@ L'API liste les 15 HDV pour tous les types de serveur : l'application les choisi
 
 - **Add-on** : l'application vérifie une fois par jour la dernière version publiée sur GitHub. Si elle est plus récente que l'add-on installé, le bandeau du panneau d'informations propose « Installer l'add-on ». L'archive téléchargée est vérifiée avant installation : empreinte SHA-256, contenu limité au dossier `ShadsunGoldLens`, version annoncée. En jeu, faites ensuite `/reload`.
 - **Application** : une nouvelle version est signalée dans le même bandeau. Le bouton **Mettre à jour** télécharge le nouvel exe, vérifie son empreinte, ferme l'application, la remplace et la relance : rien à chercher ni à copier. Lancée avec Python (`Lancer_Shadsun_Gold_Lens.bat`), l'application propose seulement « Télécharger ».
+- **Vérifier tout de suite** : lien « ↻ Vérifier » de l'en-tête, ou « Vérifier les nouvelles versions » dans le menu de l'icône près de l'horloge (sinon, vérification automatique une fois par jour).
 - **En-tête** : versions de l'application et de l'add-on, avec leur état : « à jour » (vert), « x.y.z disponible » (doré), « non installé » (rouge).
 - Sans Internet, rien ne change : l'application garde la copie de l'add-on qu'elle contient.
 

@@ -363,6 +363,19 @@ class App:
         if not self.quitting:
             self.root.after(6 * 3600 * 1000, self._check_online)
 
+    def check_updates_now(self):
+        """Vérification manuelle (lien « Vérifier » de l'en-tête, menu de l'icône) :
+        interroge GitHub tout de suite, sans attendre la vérification quotidienne."""
+        if getattr(self, "checking", False):
+            return
+        self.checking = True
+        self._draw_versions()
+
+        def work():
+            info = core.online_info(force=True)
+            self.q.put(("online_manual", info, core.online_error()))
+        threading.Thread(target=work, daemon=True).start()
+
     # ------------------------------------------------------------------ fenêtre
     def _build_window(self):
         r = self.root
@@ -1114,6 +1127,16 @@ class App:
             self.version_texts.append((txt, st))
             bb = c.bbox(item)
             x = (bb[2] if bb else x + 200 * k) + 22 * k
+        # Lien « Vérifier » : vérification immédiate des mises à jour
+        busy = getattr(self, "checking", False)
+        link = c.create_text(x - 6 * k, y, text="Vérification…" if busy else "\u21bb Vérifier", anchor="w",
+                             fill=DIM if busy else GOLD, font=(SANS, -int(13 * k), "underline"), tags="versions")
+        self._ver_items.append(link)
+        self.check_link = link
+        if not busy:
+            c.tag_bind(link, "<Button-1>", lambda e: self.check_updates_now())
+            c.tag_bind(link, "<Enter>", lambda e: c.configure(cursor="hand2"))
+            c.tag_bind(link, "<Leave>", lambda e: c.configure(cursor=""))
 
     def install_addon_now(self):
         action = self._banner_action
@@ -1282,6 +1305,7 @@ class App:
             menu = pystray.Menu(
                 pystray.MenuItem("Ouvrir", lambda: self.q.put(("show",)), default=True),
                 pystray.MenuItem("Mettre à jour maintenant", lambda: self.q.put(("update",))),
+                pystray.MenuItem("Vérifier les nouvelles versions", lambda: self.q.put(("check_versions",))),
                 pystray.MenuItem("Quitter", lambda: self.q.put(("quit",))))
             self.tray = pystray.Icon(core.APP_ID, coin_image(64), core.APP_NAME, menu)
             self.tray.run_detached()
@@ -1381,10 +1405,27 @@ class App:
             self.refresh_main()
         elif kind == "show":
             self.show()
+        elif kind == "check_versions":
+            self.show()
+            self.check_updates_now()
         elif kind == "online":
             if ev[1]:
                 self._online = ev[1]
             self.refresh_main()
+        elif kind == "online_manual":
+            self.checking = False
+            info, err = ev[1], ev[2]
+            if info and not err:
+                self._online = info
+            self.refresh_main()
+            text, action = core.addon_offer(self.cfg["wow"].get("addons", ""), self._online)
+            if err:
+                messagebox.showwarning(core.APP_NAME, "Vérification impossible : %s\nRéessayez plus tard." % err)
+            elif action:
+                messagebox.showinfo(core.APP_NAME, text + "\n\nUtilisez le bouton du bandeau, sous les informations.")
+            else:
+                messagebox.showinfo(core.APP_NAME, "Tout est à jour.\n" + "\n".join(t for t, _ in core.version_status(
+                    self.cfg["wow"].get("addons", ""), self._online)))
         elif kind == "app_ready":
             ok, msg = ev[1]
             if ok:

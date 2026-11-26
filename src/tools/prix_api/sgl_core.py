@@ -38,7 +38,7 @@ import zipfile
 import sgl_prix_api as E
 
 APP_NAME = "Shadsun Gold Lens"
-APP_VERSION = "1.6.1"
+APP_VERSION = "1.6.2"
 APP_ID = "ShadsunGoldLens"
 FLAVOR = "_forever_"
 PORTAL_URL = "https://develop.battle.net/access/clients"

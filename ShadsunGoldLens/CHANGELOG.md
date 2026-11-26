@@ -1,5 +1,12 @@
 # Journal des modifications — Shadsun Gold Lens
 
+## Application 1.6.2 — 25 novembre 2026
+
+Add-on inchangé (0.15.1).
+
+- **Vérifier les nouvelles versions à la demande** : lien « ↻ Vérifier » dans l'en-tête, à côté des versions, et entrée « Vérifier les nouvelles versions » dans le menu de l'icône près de l'horloge. GitHub est interrogé tout de suite, sans attendre la vérification quotidienne ; un message indique ce qui est disponible, ou que tout est à jour.
+- Publication : une version de l'application seule (add-on inchangé) reçoit l'étiquette `vADDON-appAPP`, par exemple `v0.15.1-app1.6.2`.
+
 ## 0.15.1 et application 1.6.1 — 25 novembre 2026
 
 - **Onglet Objet** : boutons « - » et « + » (Maj+clic : ±5), avec la quantité dans la liste active (« 3 dans « Ma liste » »), au lieu du seul bouton « Ajouter à la liste ».

@@ -197,6 +197,25 @@ a.refresh_main()
 pump(root)
 vt = a.version_texts
 check("En-tête : « à jour » quand tout est à jour", vt[0][1] == "ok" and "à jour" in vt[0][0] and vt[1][1] == "ok", vt)
+# Vérification manuelle (lien « Vérifier » de l'en-tête)
+msgs = []
+appmod.messagebox.showinfo = lambda *x, **k: msgs.append(x)
+real_online = appmod.core.online_info
+appmod.core.online_info = lambda force=False, **k: (msgs.append(("force", force)) or
+    {"addon": None, "app": {"version": "9.1.0", "url": "https://x/a.exe", "sha256": "0" * 64}, "page": "https://x"})
+appmod.core.online_error = lambda: None
+check("En-tête : lien « Vérifier » présent", a.canvas.itemcget(a.check_link, "text").endswith("Vérifier"))
+a.canvas.tag_bind(a.check_link, "<Button-1>")      # liaison présente
+a.check_updates_now()
+for _ in range(30):
+    pump(root, 0.05)
+    if not getattr(a, "checking", False):
+        break
+check("Vérifier : interrogation immédiate (sans cache), nouvelle version annoncée et bandeau à jour",
+      ("force", True) in msgs and any("9.1.0" in str(m) for m in msgs) and a._banner_action == "app"
+      and "9.1.0 disponible" in a.version_texts[0][0], msgs)
+appmod.core.online_info = real_online
+appmod.messagebox.showinfo = lambda *x, **k: None
 a._online = None
 a.refresh_main()
 cap = [a.canvas.itemcget(i, "text") for i in a.canvas.find_withtag("caption")]

@@ -1,4 +1,4 @@
-# Rapport de tests — Shadsun Gold Lens 0.15.1 et application 1.6.1
+# Rapport de tests — Shadsun Gold Lens 0.15.1 et application 1.6.2
 
 Auteur : Tarak Ben Abda — 20 novembre 2026.
 
@@ -348,9 +348,10 @@ Premier essai réel (19 novembre, 22 h 43) : identification sur l'API réelle �
 | Mise à jour en un clic : empreinte fausse refusée ; nouvel exe téléchargé, mode `--remplacer`, remplacement, version notée, relance, nettoyage | réussi |
 | Raccourcis (1.6.1) : Bureau réel demandé à Windows (OneDrive compris), menu Démarrer, raccourci égaré de la 1.6.0 retiré, réparation une seule fois | réussi (script vérifié ; création réelle sous Windows non testée) |
 | En-tête : versions et état (disponible / à jour / non installé), affichage vérifié sur capture | réussi |
+| Vérification manuelle (1.6.2) : lien « Vérifier », interrogation sans cache, nouvelle version annoncée, bandeau à jour | réussi |
 | Installation, raccourcis et remplacement réels sous Windows | à vérifier chez vous (1.6 installe ; la mise à jour en un clic se vérifiera avec la version suivante) |
 
-**Total : 423 tests de l'add-on, 52 tests du moteur de prix, 78 tests du cœur de l'application et 30 tests de l'interface, tous réussis.**
+**Total : 423 tests de l'add-on, 52 tests du moteur de prix, 78 tests du cœur de l'application et 32 tests de l'interface, tous réussis.**
 
 **Non vérifiable ici (0.13.0) :** l'affichage réel en jeu des fichiers TGA (logo, icône de la liste des add-ons) et des icônes de faction `Interface\FriendsFrame\PlusManz-*` dans le client Forever ; le rendu de l'application sous Windows (polices Palatino Linotype / Segoe UI, échelle d'affichage).
 
