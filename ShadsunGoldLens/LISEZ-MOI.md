@@ -96,16 +96,16 @@ Deux sens, au choix par un commutateur (« Faction » désigne l'HDV de l'Allian
 - **Faction » Neutre** : acheter à l'HDV de votre faction, revendre à l'HDV neutre (commission 15 %) ;
 - **Neutre » Faction** : acheter à l'HDV neutre, revendre à l'HDV de votre faction (commission 5 %).
 
-**Gain par unité = prix de revente - commission de l'HDV de revente - prix d'achat** (commissions réglables). Colonnes : prix d'achat, prix de revente, **Repère** (prix sur l'HDV de l'autre faction), gain, rentabilité, quantité en vente à l'achat, âge des données, nombre possédé. Filtres : catégorie, qualité, nom, gain minimal, rentabilité minimale.
+**Gain par unité = prix de revente - commission de l'HDV de revente - prix d'achat** (commissions réglables). Colonnes : prix d'achat, prix de revente, **Repère** (prix sur l'HDV de l'autre faction), gain, rentabilité, quantité en vente à l'achat, âge des données, nombre possédé. Filtres : catégorie, qualité, nom, **achat max (po)** (votre budget par unité), gain réaliste minimal, rentabilité minimale. Tri par défaut : gain réaliste décroissant.
 
 **Avis** (colonne et filtre) :
 
 | Sens | Favorable | À vérifier | Défavorable |
 |---|---|---|---|
-| Faction » Neutre | l'autre faction paie au moins votre prix de revente chez elle, et le neutre a au moins « Qté min. » objets en vente | pas de repère, ou trop peu d'objets en vente au neutre | l'autre faction paie moins cher chez elle |
-| Neutre » Faction | l'HDV de revente a au moins « Qté min. » objets en vente (vrai prix de marché) | trop peu d'objets en vente : annonce peut-être isolée | — |
+| Faction » Neutre | gain réaliste positif (en revendant, si besoin, au prix repère de l'autre faction) et au moins « Qté min. » objets en vente au neutre | pas de repère, trop peu d'objets en vente au neutre, ou prix de plus de 24 h | même au prix repère, plus aucun gain |
+| Neutre » Faction | l'HDV de revente a au moins « Qté min. » objets en vente (vrai prix de marché) | trop peu d'objets en vente, ou prix de plus de 24 h | — |
 
-En Neutre » Faction, seuls les joueurs de votre faction achètent à son HDV : le prix de l'autre faction n'entre pas dans l'avis (il reste affiché pour information). « Qté min. (avis) » vaut 3 par défaut. **Gain réal.** : gain calculé sur le plus bas entre votre prix de revente et le repère (Faction » Neutre).
+En Neutre » Faction, seuls les joueurs de votre faction achètent à son HDV : le prix de l'autre faction n'entre pas dans l'avis (il reste affiché pour information). « Qté min. » vaut 3 par défaut. Au survol : la raison de l'avis et l'âge de chaque prix. **Gain réal.** : gain calculé sur le plus bas entre votre prix de revente et le repère (Faction » Neutre).
 
 **Repère** : ce que les joueurs de l'autre faction paient chez eux. C'est le meilleur indice du prix auquel ils achèteront au neutre : en orange quand il est inférieur à votre prix de revente au neutre (ils n'ont aucune raison de payer plus cher au neutre). Explication au survol de la ligne. Disponible grâce aux prix de l'API Blizzard (ci-dessous) ou à un scan par un personnage de l'autre faction.
 
@@ -120,7 +120,9 @@ Listes communes à tous vos personnages du compte, dans l'onglet **Listes** :
 - clic sur un article : modifier la quantité voulue et le prix maximum ;
 - colonne **PNJ** : prix d'achat chez le meilleur marchand connu, comparé aux HDV (le moins cher sous votre maximum en vert, PNJ compris) ; marchand et emplacement au survol ;
 - dans la fenêtre principale : icônes **Aller** (TomTom vers le marchand) et **Copier** (commande `/tway`) ; dans le panneau de l'HDV : **loupe** (recherche de l'article) ; **Rechercher toute la liste** : tous les articles non encore obtenus en une seule recherche (Auctionator) ; icône de retrait ;
-- ajout : icône **+** sur chaque ligne des tableaux d'opportunités (onglet et panneau de l'HDV), **Alt+clic** sur un objet (sacs, liens du chat, HDV ; jamais dans la fenêtre du marchand), ou le champ **Ajouter** (ID, nom, Maj+clic).
+- ajout : icône **+** sur chaque ligne des tableaux d'opportunités (onglet et panneau de l'HDV), **Alt+clic** sur un objet (sacs, liens du chat, HDV ; jamais dans la fenêtre du marchand), le bouton **Ajouter à la liste** de l'onglet Objet (Maj+clic : +5), ou le champ **Ajouter** (ID, nom, ou Maj+clic sur un objet pendant que le champ est actif : ajout immédiat).
+
+Sous le tableau : **Coût de la liste** (tout acheter au meilleur prix connu, case verte), **reste à acheter** (ce qui manque encore) et le nombre d'articles sans prix sous votre maximum.
 
 Infobulle : ligne **Liste** (nom et progression). Chez un marchand, les articles de vos listes sont entourés en **bleu** (prioritaire sur la bordure « rentable »). L'achat reste manuel.
 
@@ -160,11 +162,11 @@ Quand vous ouvrez un marchand, les objets qu'il vend et qui sont rentables à re
 
 Onglets : **Objet**, **Listes**, **Opportunités** (trois sens : PNJ » HDV, HDV » PNJ, HDV » HDV), **Marchés**, **Paramètres**, **Base & diagnostic**. Dans les tableaux, les montants sont compacts (sans cuivre au-delà de 1 po, sans argent au-delà de 100 po) ; le détail complet est au survol. La barre d'état, en bas, rappelle le marché de revente et l'âge de son scan.
 
-Dans l'onglet **Opportunités** (sens PNJ » HDV), deux petites icônes devant chaque objet : la **carte** place un point TomTom vers le marchand ; la **note** ouvre une petite fenêtre avec la commande `/tway #carte x y Marchand` déjà sélectionnée — faites Ctrl+C puis collez-la dans le chat (les add-ons ne peuvent pas écrire eux-mêmes dans le presse-papiers). Toutes les colonnes se trient, y compris « Poss. ».
+Dans l'onglet **Opportunités** (sens PNJ » HDV), deux petites icônes devant chaque objet : la **carte** place un point TomTom vers le marchand ; la **note** ouvre une petite fenêtre avec la commande `/tway #carte x y Marchand` déjà sélectionnée — faites Ctrl+C puis collez-la dans le chat (les add-ons ne peuvent pas écrire eux-mêmes dans le presse-papiers). Toutes les colonnes se trient, y compris « Poss. ». **Maj+clic** sur un objet pendant qu'un champ « Nom de l'objet » est actif y inscrit son nom.
 
 Boutons **Taille** « - » / « + » (de 70 % à 150 %, par pas de 10 %) et « 100 % » en haut à droite ; la taille est mémorisée. Les noms d'objets des tableaux sont colorés selon leur qualité ; une colonne « Poss. » indique le nombre possédé.
 
-- **Objet** : recherche par ID, lien (Maj+clic sur un objet quand le champ est actif) ou nom ; prix, rentabilité, prix sur chaque HDV scanné, nombre possédé par personnage, **tous les marchands** (faction, zone, coordonnées, prix, stock, conditions, source), boutons **TomTom** et **Carte**, commande `/tway` à copier.
+- **Objet** : recherche par ID, lien (Maj+clic sur un objet quand le champ est actif) ou nom ; bouton **Ajouter à la liste** (liste active, Maj+clic : +5, quantité déjà présente affichée) ; prix, rentabilité, prix sur chaque HDV scanné, nombre possédé par personnage, **tous les marchands** (faction, zone, coordonnées, prix, stock, conditions, source), boutons **TomTom** et **Carte**, commande `/tway` à copier.
 - **Opportunités** : tableaux triables (clic sur un en-tête) et filtrables — catégorie, qualité, nom, faction du vendeur, exclusivité, données HDV, zone, statut, prix d'achat maximal, bénéfice minimal, rentabilité minimale. Les filtres s'appliquent dès qu'ils changent ; **Actualiser** recalcule avec les derniers prix. Jamais de calcul pendant le survol.
 - **Marchés** : voir ci-dessus.
 - **Paramètres** : voir § 3.

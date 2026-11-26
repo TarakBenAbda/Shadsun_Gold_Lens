@@ -71,6 +71,42 @@ function W.Check(parent, label, get, set, tooltip)
     return c
 end
 
+-- -----------------------------------------------------------------------------
+-- Maj+clic sur un objet (sacs, HDV, chat, infobulle…) pendant qu'un champ de
+-- recherche a le focus : le lien est envoyé à ce champ. Le jeu passe par
+-- ChatFrameUtil.InsertLink (client actuel) ou ChatEdit_InsertLink (ancien) ;
+-- les deux sont surveillés, un seul passage est pris en compte.
+-- Shift+click item links into whichever registered search box has focus.
+-- -----------------------------------------------------------------------------
+local linkTargets, linkHooked, lastLink = {}, false, { link = nil, t = -1 }
+local function onInsertLink(link)
+    if type(link) ~= "string" or not link:find("item:", 1, true) then return end
+    local now = GetTime and GetTime() or 0
+    if lastLink.link == link and now - lastLink.t < 0.05 then return end   -- double crochet
+    for _, t in ipairs(linkTargets) do
+        if t.box:IsVisible() and t.box:HasFocus() then
+            lastLink.link, lastLink.t = link, now
+            t.fn(t.box, link)
+            return
+        end
+    end
+end
+
+-- Nom d'objet contenu dans un lien « |h[Nom]|h » / item name inside a link
+function W.LinkName(link)
+    return type(link) == "string" and link:match("|h%[(.-)%]|h") or nil
+end
+
+-- fn(box, link) ; par défaut, le lien remplace le texte du champ.
+function W.AcceptLinks(box, fn)
+    linkTargets[#linkTargets + 1] = { box = box, fn = fn or function(b, link) b:SetText(link) end }
+    if linkHooked then return box end
+    linkHooked = true
+    if type(ChatEdit_InsertLink) == "function" then hooksecurefunc("ChatEdit_InsertLink", onInsertLink) end
+    if ChatFrameUtil and type(ChatFrameUtil.InsertLink) == "function" then hooksecurefunc(ChatFrameUtil, "InsertLink", onInsertLink) end
+    return box
+end
+
 function W.Edit(parent, w, onCommit)
     local e = CreateFrame("EditBox", nil, parent, "InputBoxTemplate")
     e:SetSize(w or 120, 20)

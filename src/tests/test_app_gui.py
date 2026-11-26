@@ -183,6 +183,20 @@ pump(root)
 check("Bandeau : version de l'add-on publiée en ligne proposée, bouton « Installer l'add-on »",
       "99.0.0 disponible en ligne" in a.banner_txt.cget("text") and a._banner_action == "online"
       and a.banner_btn.c.itemcget(a.banner_btn.txt, "text") == "Installer l'add-on", a.banner_txt.cget("text"))
+a._online = {"addon": {"version": "99.0.0", "url": "https://x/a.zip", "sha256": "0" * 64},
+             "app": {"version": "9.0.0", "url": "https://x/a.exe", "sha256": "0" * 64}, "page": "https://x"}
+a.refresh_main()
+pump(root)
+vt = getattr(a, "version_texts", [])
+check("En-tête : versions de l'application et de l'add-on, avec leur état",
+      len(vt) == 2 and vt[0][0].startswith("Application " + appmod.core.APP_VERSION) and "9.0.0 disponible" in vt[0][0]
+      and vt[1][0].startswith("Add-on ") and "99.0.0 disponible" in vt[1][0], vt)
+shot(root, "5b_versions_a_mettre_a_jour")
+a._online = {"addon": None, "app": {"version": appmod.core.APP_VERSION, "url": "https://x/a.exe", "sha256": "0" * 64}, "page": "https://x"}
+a.refresh_main()
+pump(root)
+vt = a.version_texts
+check("En-tête : « à jour » quand tout est à jour", vt[0][1] == "ok" and "à jour" in vt[0][0] and vt[1][1] == "ok", vt)
 a._online = None
 a.refresh_main()
 cap = [a.canvas.itemcget(i, "text") for i in a.canvas.find_withtag("caption")]

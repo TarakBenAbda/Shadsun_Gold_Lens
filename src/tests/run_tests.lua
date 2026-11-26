@@ -129,6 +129,7 @@ local function installGlobals(opts)
         RegisterAddOnCategory = function(c) M.settingsCategory = c end,
     }
     _G.ChatEdit_InsertLink = function() return false end
+    _G.ChatFrameUtil = { InsertLink = function() return false end }   -- client actuel (Forever)
     _G.MERCHANT_ITEMS_PER_PAGE = 10
     _G.MerchantFrame = M.CreateFrame("Frame", "MerchantFrame", UIParent)
     rawset(MerchantFrame, "page", 1); rawset(MerchantFrame, "selectedTab", 1)
@@ -1520,14 +1521,17 @@ do
     local a5 = XA({ sellUnit = 600, buyUnit = 200, sellQty = 4 }, "NF", 3, 0.05)
     local a6 = XA({ sellUnit = 600, buyUnit = 200, sellQty = 2 }, "NF", 3, 0.05)
     check("Avis Faction » Neutre : autre faction plus chère, 5 en vente = Favorable (gain 21 pc)", a1 == "fav" and g1 == 21, a1 .. " " .. g1)
-    check("Avis Faction » Neutre : autre faction moins chère = Défavorable, gain réaliste au repère (75 - 12 - 50 = 13 pc)", a2 == "def" and g2 == 13, a2 .. " " .. g2)
+    check("Avis Faction » Neutre : autre faction moins chère mais revente au repère rentable (75 - 12 - 50 = 13 pc) = Favorable « au prix repère » (0.15)",
+        a2 == "fav" and g2 == 13 and select(3, XA({ ref = 75, sellUnit = 200, buyUnit = 50, sellQty = 5 }, "FN", 3, 0.15)) == "atref", a2 .. " " .. g2)
+    local a2b, g2b = XA({ ref = 55, sellUnit = 200, buyUnit = 50, sellQty = 5 }, "FN", 3, 0.15)
+    check("Avis Faction » Neutre : revente au repère sans gain (55 - 9 - 50 = -4 pc) = Défavorable", a2b == "def" and g2b == -4, a2b .. " " .. g2b)
     check("Avis Faction » Neutre : sans repère = À vérifier ; 1 seul en vente = À vérifier", a3 == "chk" and a4 == "chk")
     check("Avis Neutre » Faction : 4 en vente = Favorable ; 2 en vente = À vérifier", a5 == "fav" and a6 == "chk")
     -- Interface : colonne et filtre
     G.markets.Forever = {
         A = { time = time(), total = 3, char = "Aurelia", d = { [7005] = MK.Pack(50, 5), [2589] = MK.Pack(10, 40), [159] = MK.Pack(100, 2) } },
         N = { time = time(), total = 3, char = "Kael", d = { [7005] = MK.Pack(200, 5), [2589] = MK.Pack(40, 1), [159] = MK.Pack(300, 6) } },
-        H = { time = time(), total = 3, char = "Grok", d = { [7005] = MK.Pack(75, 1), [159] = MK.Pack(400, 3) } },
+        H = { time = time(), total = 3, char = "Grok", d = { [7005] = MK.Pack(55, 1), [159] = MK.Pack(400, 3) } },
     }
     ns.UI.Show("opp")
     local opp2 = ns.UI.pages.opp
@@ -1912,6 +1916,103 @@ do
     check("Médaillon : TGA 128×128, 32 bits, non compressé", h and h:byte(13) + h:byte(14) * 256 == 128 and h:byte(15) + h:byte(16) * 256 == 128
         and h:byte(17) == 32 and h:byte(3) == 2)
     check("Aucune erreur interne (bloc v0.14.0)", ns.Diag.counters.errors == 0, ns.Diag.errors[1] and ns.Diag.errors[1].err)
+end
+
+-- =============================================================================
+-- 12. v0.15.0 : Maj+clic partout, ajout à la liste depuis l'onglet Objet,
+--     avis HDV » HDV revus, budget HDV » HDV, coût de la liste
+-- =============================================================================
+do
+    local G = {}
+    local ns = boot({}, G, {})
+    local LS, MK, W = ns.Lists, ns.Market, ns.W
+    local link2589 = "|cffffffff|Hitem:2589::::::::60:::::|h[Étoffe de lin]|h|r"
+    local link159 = "|cffffffff|Hitem:159::::::::60:::::|h[Eau douce]|h|r"
+    -- Onglet Objet : Maj+clic (ChatFrameUtil.InsertLink, client actuel)
+    ns.UI.Show("detail")
+    local dp = ns.UI.pages.detail
+    dp.search:SetFocus()
+    ChatFrameUtil.InsertLink(link2589)
+    check("Onglet Objet : Maj+clic sur un objet (client actuel) → objet affiché", strip(dp.nameText:GetText() or ""):find("Étoffe de lin", 1, true) ~= nil,
+        dp.nameText:GetText())
+    dp.search:ClearFocus()
+    dp.addListButton:Click()
+    check("Onglet Objet : « Ajouter à la liste » → 1 dans la liste active, libellé « Ajouter (1 en liste) »",
+        LS.ActiveQty(2589) == 1 and dp.addListButton:GetText() == "Ajouter (1 en liste)", dp.addListButton:GetText())
+    M.shift = true
+    dp.addListButton:Click()
+    M.shift = false
+    check("Onglet Objet : Maj+clic sur le bouton → +5 (6)", LS.ActiveQty(2589) == 6 and dp.addListButton:GetText() == "Ajouter (6 en liste)")
+    -- Onglet Listes : Maj+clic dans « Ajouter » → ajout direct
+    ns.UI.Show("lists")
+    local v = ns.UI.pages.lists.shopView
+    v.addEdit:SetFocus()
+    ChatFrameUtil.InsertLink(link159)
+    check("Listes : Maj+clic dans « Ajouter » → objet ajouté aussitôt (avant 0.15 : sans effet sur le client actuel)",
+        LS.ActiveQty(159) == 1 and v.addEdit:GetText() == "", v.addEdit:GetText())
+    -- Ancien client (ChatEdit_InsertLink) : un seul ajout, pas deux
+    v.addEdit:SetFocus()
+    M.time = M.time + 1
+    ChatEdit_InsertLink(link159)
+    check("Listes : ancien client (ChatEdit_InsertLink) pris en charge, un seul ajout", LS.ActiveQty(159) == 2, LS.ActiveQty(159))
+    v.addEdit:ClearFocus()
+    -- Champ « Nom de l'objet » des filtres (Opportunités) : le nom est inséré
+    ns.UI.Show("opp")
+    local opp = ns.UI.pages.opp
+    opp.SetDirection("cross")
+    local sb = opp.cross.filters.search
+    sb:SetFocus()
+    M.time = M.time + 1
+    ChatFrameUtil.InsertLink(link2589)
+    check("Filtre « Nom de l'objet » : Maj+clic → nom de l'objet inséré", sb:GetText() == "Étoffe de lin", sb:GetText())
+    check("Le lien ne va qu'au champ actif (onglet Objet inchangé)", dp.search:GetText() == "2589", dp.search:GetText())
+    sb:ClearFocus(); sb:SetText(""); sb.Changed(true)
+    -- Avis HDV » HDV : prix ancien, budget, gain minimal sur le gain réaliste
+    local XA = ns.CrossUI.Assess
+    local now = time()
+    local av, _, why = XA({ ref = 300, sellUnit = 260, buyUnit = 200, sellQty = 5, buyTime = now - 2 * 86400, sellTime = now }, "FN", 3, 0.15, now)
+    check("Avis : prix d'achat de plus de 24 h → À vérifier (raison « prix ancien »)", av == "chk" and why == "old", av .. " " .. tostring(why))
+    check("Avis : raisons lisibles", ns.CrossUI.Reason({ why = "old" }):find("24 h", 1, true) ~= nil
+        and ns.CrossUI.Reason({ why = "atref", dir = "FN" }):find("prix repère", 1, true) ~= nil)
+    G.markets.Forever = {
+        A = { time = now, total = 3, char = "Aurelia", d = { [7005] = MK.Pack(50, 5), [2589] = MK.Pack(10, 40), [159] = MK.Pack(100, 2) } },
+        N = { time = now, total = 3, char = "Kael", d = { [7005] = MK.Pack(200, 5), [2589] = MK.Pack(40, 9), [159] = MK.Pack(300, 6) } },
+        H = { time = now, total = 3, char = "Grok", d = { [7005] = MK.Pack(75, 1), [2589] = MK.Pack(60, 3), [159] = MK.Pack(400, 3) } },
+    }
+    MK.InvalidateSnap()
+    local cp = opp.cross
+    cp.Compute()
+    local function ids()
+        local t = {}
+        for _, d in ipairs(cp.list.data) do t[#t + 1] = d.id end
+        table.sort(t)
+        return table.concat(t, ",")
+    end
+    check("HDV » HDV : 3 lignes avant budget", ids() == "159,2589,7005", ids())
+    cp.maxBuyEdit:SetText("0,005"); cp.maxBuyEdit.__scripts.OnEnterPressed(cp.maxBuyEdit)
+    check("Budget « Achat max (po) » 0,005 po (50 pc) : seuls les achats ≤ 50 pc (couteau, étoffe)", ids() == "2589,7005", ids())
+    cp.maxBuyEdit:SetText(""); cp.maxBuyEdit.__scripts.OnEnterPressed(cp.maxBuyEdit)
+    check("Budget effacé : 3 lignes", ids() == "159,2589,7005", ids())
+    -- Couteau : revente 200 au neutre, mais 75 chez la Horde → gain réaliste 75 - 12 - 50 = 13 pc
+    local knife
+    for _, d in ipairs(cp.list.data) do if d.id == 7005 then knife = d end end
+    check("Couteau : Favorable au prix repère (gain réaliste 13 pc), plus « Défavorable »", knife and knife.avis == "fav" and knife.why == "atref"
+        and knife.realGain == 13, knife and (knife.avis .. " " .. knife.realGain))
+    check("Tri par défaut : gain réaliste décroissant", cp.list.data[1] and cp.list.data[1].realGain >= cp.list.data[#cp.list.data].realGain)
+    check("Âge de chaque prix porté par la ligne (photos fusionnées)", knife and knife.buyTime == now and knife.sellTime == now)
+    -- Coût de la liste : 6 étoffes (moins chère : 10 pc à l'Alliance), 2 eaux (5 pc chez le marchand), 1 objet sans prix
+    LS.Add(50002, 1)
+    M.owned = { [2589] = { 2, 0 } }
+    ns.UI.Show("lists")
+    v.Refresh()
+    local T = v.totals
+    check("Coût de la liste au meilleur prix : 6 × 10 + 2 × 5 (PNJ) = 70 pc ; reste à acheter (2 étoffes possédées) : 4 × 10 + 2 × 5 = 50 pc ; 1 article sans prix",
+        T and T.cost == 70 and T.remain == 50 and T.remainItems == 2 and T.missing == 1,
+        T and (T.cost .. "/" .. T.remain .. "/" .. T.missing))
+    check("Ligne du coût affichée sous la liste", strip(v.totalText:GetText() or ""):find("Coût de la liste : 70\194\160pc  ·  reste à acheter : 50\194\160pc", 1, true) ~= nil
+        and strip(v.totalText:GetText()):find("1 sans prix", 1, true) ~= nil, strip(v.totalText:GetText() or ""))
+    M.owned = nil
+    check("Aucune erreur interne (bloc v0.15.0)", ns.Diag.counters.errors == 0, ns.Diag.errors[1] and ns.Diag.errors[1].err)
 end
 
 rprint("")

@@ -448,6 +448,92 @@ check("Adresse non HTTPS refusée", _raises(lambda: core._http_get("http://examp
 core.install_addon(addons)   # remet l'add-on livré pour la suite
 gh.shutdown()
 
+# --- Installation fixe et mise à jour de l'application (1.6) ---------------------------
+os.environ["SGL_INSTALL_DIR"] = os.path.join(TMP, "Programs", "ShadsunGoldLens")
+dl = os.path.join(TMP, "Telechargements")
+os.makedirs(dl, exist_ok=True)
+fake_exe = os.path.join(dl, "ShadsunGoldLens.exe")
+with open(fake_exe, "wb") as f:
+    f.write(b"EXE-1.6")
+launched = []
+saved = (core.FROZEN, sys.executable)
+core.FROZEN, sys.executable = True, fake_exe
+try:
+    check("Installation : rien d'installé au départ", core.installed_version() is None)
+    stop = core.bootstrap_install([], launcher=launched.append)
+    check("Exe téléchargé lancé : copié à l'emplacement fixe, version notée, copie installée relancée (avec le chemin du fichier téléchargé)",
+          stop and open(core.installed_exe(), "rb").read() == b"EXE-1.6" and core.installed_version() == core.APP_VERSION
+          and launched and launched[-1][0] == core.installed_exe() and launched[-1][-2:] == ["--installe-depuis", fake_exe], launched)
+    launched.clear()
+    stop = core.bootstrap_install(["--arriere-plan"], launcher=launched.append)
+    check("Même version déjà installée : pas de recopie, simple relance de la copie installée",
+          stop and launched == [[core.installed_exe()]], launched)
+    # Un vieil exe (plus ancien que la copie installée) ouvre simplement la copie installée
+    with open(core._install_state_path(), "w") as f:
+        json.dump({"version": "99.0.0"}, f)
+    launched.clear()
+    with open(fake_exe, "wb") as f:
+        f.write(b"VIEUX")
+    stop = core.bootstrap_install([], launcher=launched.append)
+    check("Vieil exe téléchargé : la copie installée (plus récente) est ouverte, sans être écrasée",
+          stop and open(core.installed_exe(), "rb").read() == b"EXE-1.6" and launched == [[core.installed_exe()]], launched)
+    sys.executable = core.installed_exe()
+    check("Copie installée : aucune réinstallation", core.bootstrap_install([], launcher=launched.append) is False
+          and core.running_from_install() and core.can_self_update())
+    check("Modes --maj et --remplacer : jamais d'installation", core.bootstrap_install(["--maj"]) is False)
+    # Mise à jour en un clic : téléchargement contrôlé, remplacement, relance
+    GH2 = {"exe": b"EXE-1.7"}
+
+    class FakeGH2(BaseHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+
+        def do_GET(self):
+            body = GH2["exe"]
+            self.send_response(200); self.send_header("Content-Length", str(len(body))); self.end_headers()
+            self.wfile.write(body)
+    g2 = HTTPServer(("127.0.0.1", 0), FakeGH2)
+    threading.Thread(target=g2.serve_forever, daemon=True).start()
+    url = "http://127.0.0.1:%d/ShadsunGoldLens.exe" % g2.server_address[1]
+    good = {"app": {"version": "1.7.0", "url": url, "sha256": hashlib.sha256(b"EXE-1.7").hexdigest()}}
+    try:
+        core.download_app({"app": dict(good["app"], sha256="0" * 64)})
+        err = None
+    except E.Erreur as ex:
+        err = str(ex)
+    check("Mise à jour de l'application : empreinte différente → annulée", err and "empreinte" in err, err)
+    new = core.download_app(good)
+    check("Nouvel exe téléchargé à côté de la copie installée", open(new, "rb").read() == b"EXE-1.7"
+          and os.path.dirname(new) == core.install_dir())
+    starts = []
+    core.start_self_update(new, launcher=starts.append)
+    check("Remplacement lancé : nouvel exe en mode --remplacer, avec la cible et le processus à attendre",
+          starts and starts[0][0] == new and starts[0][1:3] == ["--remplacer", core.installed_exe()] and starts[0][3] == "--pid")
+    relaunch = []
+    core.replace_and_relaunch(new, core.installed_exe(), pid=None, version="1.7.0", launcher=relaunch.append)
+    check("Le nouvel exe prend la place de l'ancien, version notée 1.7.0, application relancée",
+          open(core.installed_exe(), "rb").read() == b"EXE-1.7" and core.installed_version() == "1.7.0"
+          and relaunch == [[core.installed_exe(), "--mis-a-jour"]], relaunch)
+    core.cleanup_update_leftovers()
+    check("Fichiers de mise à jour restants supprimés au démarrage suivant", not os.path.exists(new))
+    g2.shutdown()
+finally:
+    core.FROZEN, sys.executable = saved
+check("Hors exe (Python) : pas d'installation ni de mise à jour automatique", core.bootstrap_install([]) is False
+      and not core.can_self_update())
+sc = core._shortcut_script(r"C:\Users\Vous\Desktop\Shadsun Gold Lens.lnk", r"C:\Users\Vous\AppData\Local\Programs\ShadsunGoldLens\ShadsunGoldLens.exe")
+check("Raccourci : cible, dossier de travail et icône de la copie installée", "TargetPath='C:\\Users\\Vous\\AppData\\Local\\Programs\\ShadsunGoldLens\\ShadsunGoldLens.exe'" in sc
+      and "WorkingDirectory='C:\\Users\\Vous\\AppData\\Local\\Programs\\ShadsunGoldLens'" in sc and ".exe,0'" in sc, sc)
+# État des versions dans l'en-tête
+st = core.version_status(addons, {"app": {"version": "9.9.9"}, "addon": None})
+check("En-tête : application « 9.9.9 disponible », add-on « à jour »", st[0][1] == "maj" and "9.9.9 disponible" in st[0][0]
+      and st[1][1] == "ok" and "à jour" in st[1][0], st)
+st = core.version_status(addons, {"app": {"version": core.APP_VERSION}, "addon": {"version": "99.0.0"}})
+check("En-tête : application à jour, add-on « 99.0.0 disponible »", st[0][1] == "ok" and st[1][1] == "maj" and "99.0.0" in st[1][0], st)
+st = core.version_status(os.path.join(TMP, "vide"), None)
+check("En-tête : sans vérification en ligne, version seule ; add-on non installé signalé", st[0] == ("Application %s" % core.APP_VERSION, "dim")
+      and st[1] == ("Add-on non installé", "bad"), st)
+
 srv.shutdown()
 ok = sum(1 for r in RESULTS if r[1])
 for name, good, detail in RESULTS:

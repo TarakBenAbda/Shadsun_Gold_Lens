@@ -1,4 +1,4 @@
-# Shadsun Gold Lens — application de bureau 1.5
+# Shadsun Gold Lens — application de bureau 1.6
 
 Auteur : Tarak Ben Abda — novembre 2026
 
@@ -13,6 +13,8 @@ L'application remplace les fichiers `.bat` de l'ancien outil de prix. Une fenêt
 2. **Le fichier `ShadsunGoldLens.exe`**, téléchargé sur la page des versions : https://github.com/TarakBenAbda/Shadsun_Gold_Lens/releases/latest. Il contient l'add-on et Python, il n'y a rien d'autre à installer.
 
 C'est tout : pas de compte développeur, pas de Python, pas de dossier à copier.
+
+**Où que vous ayez enregistré l'exe**, au premier lancement il s'installe lui-même dans `%LOCALAPPDATA%\Programs\ShadsunGoldLens` et crée le raccourci « Shadsun Gold Lens » sur le Bureau et dans le menu Démarrer. Utilisez ensuite ce raccourci ; le fichier téléchargé peut être supprimé. Relancer un ancien exe téléchargé ouvre simplement la version installée.
 
 ### Premier lancement
 
@@ -81,7 +83,8 @@ L'API liste les 15 HDV pour tous les types de serveur : l'application les choisi
 ## Mises à jour
 
 - **Add-on** : l'application vérifie une fois par jour la dernière version publiée sur GitHub. Si elle est plus récente que l'add-on installé, le bandeau du panneau d'informations propose « Installer l'add-on ». L'archive téléchargée est vérifiée avant installation : empreinte SHA-256, contenu limité au dossier `ShadsunGoldLens`, version annoncée. En jeu, faites ensuite `/reload`.
-- **Application** : une nouvelle version est signalée dans le même bandeau. Le bouton « Télécharger » ouvre la page de la version ; remplacez l'ancien exe par le nouveau.
+- **Application** : une nouvelle version est signalée dans le même bandeau. Le bouton **Mettre à jour** télécharge le nouvel exe, vérifie son empreinte, ferme l'application, la remplace et la relance : rien à chercher ni à copier. Lancée avec Python (`Lancer_Shadsun_Gold_Lens.bat`), l'application propose seulement « Télécharger ».
+- **En-tête** : versions de l'application et de l'add-on, avec leur état : « à jour » (vert), « x.y.z disponible » (doré), « non installé » (rouge).
 - Sans Internet, rien ne change : l'application garde la copie de l'add-on qu'elle contient.
 
 ## Pour Tarak : passer de l'ancien outil à l'application
@@ -93,7 +96,7 @@ L'API liste les 15 HDV pour tous les types de serveur : l'application les choisi
 
 ### Fabriquer l'exe à partager (une seule fois)
 
-- **Sur votre PC :** double-clic sur `construire_exe.bat`. Il ferme d'abord tout ce qui peut bloquer l'ancien exe (application, mise à jour en cours) ; si l'exe reste bloqué, il est mis de côté sous le nom `ShadsunGoldLens_ancien_….exe` et supprimé à la fabrication suivante. Il installe PyInstaller, pystray et Pillow dans votre Python, puis produit `dist\ShadsunGoldLens.exe` en 1 à 3 minutes.
+- **Sur votre PC :** double-clic sur `construire_exe.bat`. Au premier lancement, l'exe produit s'installe à l'emplacement fixe, comme celui de GitHub. Il ferme d'abord tout ce qui peut bloquer l'ancien exe (application, mise à jour en cours) ; si l'exe reste bloqué, il est mis de côté sous le nom `ShadsunGoldLens_ancien_….exe` et supprimé à la fabrication suivante. Il installe PyInstaller, pystray et Pillow dans votre Python, puis produit `dist\ShadsunGoldLens.exe` en 1 à 3 minutes.
 - **Ou sur GitHub :** chaque version publiée (onglet « Actions » > « Publier une version », voir `.github/workflows/publier.yml`) fabrique l'exe et le met sur la page de version, après avoir lancé tous les tests. Le fichier `construire-application.yml` fabrique un exe d'essai à la demande (onglet « Actions »).
 
 Taille : 20 à 30 Mo (Python intégré). Certains antivirus se méfient des exe fabriqués avec PyInstaller. En cas de blocage, ajoutez une exception ou envoyez le fichier par un lien de téléchargement plutôt qu'en pièce jointe.

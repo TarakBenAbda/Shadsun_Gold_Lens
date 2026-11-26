@@ -16,8 +16,9 @@ ns.UI.RegisterTab("detail", "Objet", function(page)
     -- --- Recherche / search -------------------------------------------------
     local lbl = W.Text(page, "GameFontNormal", "Objet (ID, lien Maj+clic ou nom) :")
     lbl:SetPoint("TOPLEFT", 4, -4)
-    local search = W.Edit(page, 260)
+    local search = W.Edit(page, 200)
     search:SetPoint("LEFT", lbl, "RIGHT", 12, 0)
+    page.search = search
     local results -- liste des correspondances / matches list
 
     local select -- forward
@@ -51,14 +52,31 @@ ns.UI.RegisterTab("detail", "Objet", function(page)
     last:SetPoint("LEFT", go, "RIGHT", 6, 0)
 
     -- Insertion d'un lien par Maj+clic quand le champ a le focus.
-    local function onInsertLink(link)
-        if search:HasFocus() and type(link) == "string" then
-            search:SetText(link)
-            lookup()
-        end
+    W.AcceptLinks(search, function(box, link)
+        box:SetText(link)
+        lookup()
+    end)
+
+    -- Ajout à la liste d'achats active (Maj+clic : +5) / add to the active list
+    local addList = W.Button(page, "Ajouter à la liste", 150, 22, function()
+        if not current then U.Print("choisissez d'abord un objet.") return end
+        local _, msg = ns.Lists.Step(current, (IsShiftKeyDown and IsShiftKeyDown()) and 5 or 1)
+        U.Print(msg)
+    end)
+    addList:SetPoint("LEFT", last, "RIGHT", 6, 0)
+    addList:SetScript("OnEnter", function(self)
+        local l = ns.Lists.Active()
+        W.ShowTip(self, "Ajouter à la liste d'achats", "Ajoute 1 exemplaire de l'objet affiché à la liste active"
+            .. (l and (" (« " .. l.name .. " »)") or "") .. ". Maj+clic : +5. Choix de la liste et quantités : onglet Listes.")
+    end)
+    addList:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    page.addListButton = addList
+    -- Le libellé indique la quantité déjà dans la liste active.
+    local function refreshListState()
+        local q = (current and ns.Lists) and ns.Lists.ActiveQty(current) or 0
+        addList:SetText(q > 0 and ("Ajouter (" .. q .. " en liste)") or "Ajouter à la liste")
     end
-    if ChatEdit_InsertLink then hooksecurefunc("ChatEdit_InsertLink", onInsertLink) end
-    if ChatFrameUtil and ChatFrameUtil.InsertLink then hooksecurefunc(ChatFrameUtil, "InsertLink", onInsertLink) end
+    ns.On("LISTS_CHANGED", function() if page:IsVisible() then refreshListState() end end)
 
     -- --- En-tête objet / item header ----------------------------------------
     local icon = page:CreateTexture(nil, "ARTWORK")
@@ -278,6 +296,7 @@ ns.UI.RegisterTab("detail", "Objet", function(page)
         search:SetText(tostring(id))
         U.RequestItem(id)
         refresh()
+        refreshListState()
     end
 
     -- Liste des résultats de recherche par nom / name search results

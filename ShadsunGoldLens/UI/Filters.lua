@@ -106,6 +106,11 @@ function F.Bar(parent, st, onChange, widths)
         onChange()
     end)
     search:SetPoint("LEFT", quality, "RIGHT", 10, 0)
+    -- Maj+clic sur un objet : son nom devient le texte recherché.
+    W.AcceptLinks(search, function(box, link)
+        box:SetText(W.LinkName(link) or "")
+        box.Changed(true)
+    end)
     holder.cat, holder.quality, holder.search = cat, quality, search
     function holder:Refresh() cat:Refresh(); quality:Refresh() end
     function holder:Reset()

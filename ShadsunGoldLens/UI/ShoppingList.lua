@@ -119,11 +119,11 @@ function SUI.Build(parent, mode)
     addBtn:SetPoint("LEFT", addEdit, "RIGHT", 8, 0)
     local addHint = W.Text(view, "GameFontDisableSmall", "ID, nom, ou Maj+clic sur un objet", "LEFT", 220)
     addHint:SetPoint("LEFT", addBtn, "RIGHT", 10, 0)
-    if type(ChatEdit_InsertLink) == "function" then
-        hooksecurefunc("ChatEdit_InsertLink", function(link)
-            if addEdit:HasFocus() and link then addEdit:SetText(link) end
-        end)
-    end
+    -- Maj+clic sur un objet pendant que le champ a le focus : ajout direct.
+    W.AcceptLinks(addEdit, function(box, link)
+        box:SetText(link)
+        doAdd()
+    end)
 
     -- --- Filtre « Meilleur achat » / best-buy filter -------------------------------------
     local FILTERS = { { "all", "Tous" }, { "pnj", "PNJ" }, { "A", "HDV Alliance" }, { "H", "HDV Horde" },
@@ -337,6 +337,11 @@ function SUI.Build(parent, mode)
     local summary = W.Text(view, "GameFontHighlightSmall", "", "LEFT", WIDTH - 10)
     summary:SetPoint("TOPLEFT", 0, yEdit - 30)
     summary:SetWordWrap(false)
+    -- Coût de la liste au meilleur prix connu (case verte) / list cost line
+    local totalText = W.Text(view, "GameFontHighlightSmall", "", "LEFT", WIDTH - 10)
+    totalText:SetPoint("TOPLEFT", 0, yEdit - 46)
+    totalText:SetWordWrap(false)
+    view.totalText = totalText
 
     -- --- Rafraîchissement / refresh ---------------------------------------------------
     function view.Refresh()
@@ -348,6 +353,9 @@ function SUI.Build(parent, mode)
         header.cells[8].text:SetText(MK.Short(other()))
         wipe(rows)
         local done, total = 0, 0
+        -- Totaux sur toute la liste (indépendants du filtre d'affichage) :
+        -- cost = tout acheter, remain = ce qui manque encore, missing = sans prix.
+        local T = { cost = 0, remain = 0, remainItems = 0, missing = 0 }
         local filter = ns.settings.lists.bestFilter or "all"
         local buyableOnly = ns.settings.lists.buyableOnly and true or false
         for _, e in ipairs(l and l.items or {}) do
@@ -359,6 +367,13 @@ function SUI.Build(parent, mode)
                 name = (info and info.name) or ns.Data.names[e.id], prices = {} }
             for _, k in ipairs({ "A", "H", "N" }) do d.prices[k] = priceOn(k, e.id) end
             d.best, d.bestKey = bestOffer(d, buyableOnly)
+            if d.best then
+                T.cost = T.cost + d.best * want
+                local need = math.max(0, want - owned)
+                if need > 0 then T.remain = T.remain + d.best * need; T.remainItems = T.remainItems + 1 end
+            elseif not isDone then
+                T.missing = T.missing + 1
+            end
             total = total + 1
             if isDone then done = done + 1 end
             local keep = filter == "all" or (filter == "none" and d.bestKey == nil) or (filter ~= "none" and d.bestKey == filter)
@@ -403,6 +418,15 @@ function SUI.Build(parent, mode)
         summary:SetText(string.format("%s · %d / %d article(s) obtenu(s)%s%s", U.Color(U.colors.title, l and l.name or ""), done, total,
             shownTxt, A.ahOpen and "" or U.Color(U.colors.dim, " · ouvrez l'HDV pour rechercher")))
         searchAll:SetEnabled(A.ahOpen and total > done)
+        view.totals = T
+        if total == 0 then
+            totalText:SetText("")
+        else
+            totalText:SetText(U.Color(U.colors.title, "Coût de la liste : ") .. U.Money(T.cost)
+                .. U.Color(U.colors.title, "  ·  reste à acheter : ") .. (T.remain > 0 and U.Money(T.remain) or U.Color(U.colors.good, "rien"))
+                .. (T.remainItems > 0 and U.Color(U.colors.dim, " (" .. T.remainItems .. " article(s))") or "")
+                .. (T.missing > 0 and U.Color(U.colors.warn, "  ·  " .. T.missing .. " sans prix sous le maximum") or ""))
+        end
     end
 
     ns.On("LISTS_CHANGED", function() if view:IsVisible() then view.Refresh() end end)

@@ -1,5 +1,25 @@
 # Journal des modifications — Shadsun Gold Lens
 
+## 0.15.0 et application 1.6 — 25 novembre 2026
+
+### Add-on
+- **Onglet Objet : « Ajouter à la liste »**. Le bouton ajoute l'objet affiché à la liste active (Maj+clic : +5) et indique la quantité déjà présente, par exemple « Ajouter (3 en liste) ».
+- **Maj+clic dans toutes les zones de recherche d'objet** : champ « Ajouter » des listes (ajout immédiat), champs « Nom de l'objet » des filtres (Opportunités, panneau de l'HDV), onglet Objet.
+  - Cause : seul l'onglet Objet suivait la fonction du client actuel (`ChatFrameUtil.InsertLink`) ; le champ des listes ne suivait que l'ancienne.
+  - Désormais, un mécanisme commun suit les deux fonctions et ne traite chaque lien qu'une fois.
+- **Avis HDV » HDV revus** :
+  - « Défavorable » ne sert plus que lorsque, même en revendant au prix de l'autre faction (repère), il n'y a plus de gain. Avant, un repère plus bas suffisait, même si la revente au repère restait rentable : ces lignes sont maintenant « Favorable », avec l'explication « au prix repère ».
+  - « À vérifier » si un des deux prix a plus de 24 h ; l'âge des prix était ignoré.
+  - Au survol : la raison de l'avis et l'âge de chaque prix.
+  - Le gain minimal filtre sur le gain réaliste ; le tri par défaut se fait sur le gain réaliste.
+- **HDV » HDV : « Achat max (po) »**, budget par unité comme en PNJ » HDV.
+- **Listes : coût de la liste** sous le tableau : tout acheter au meilleur prix connu, reste à acheter, nombre d'articles sans prix sous le maximum.
+
+### Application 1.6
+- **Emplacement fixe** : au premier lancement, d'où qu'il vienne, l'exe s'installe dans `%LOCALAPPDATA%\Programs\ShadsunGoldLens`, crée les raccourcis « Shadsun Gold Lens » (Bureau et menu Démarrer), ferme une ancienne version encore ouverte et met le démarrage avec Windows à jour. Le fichier téléchargé peut ensuite être supprimé. Relancer un vieil exe ouvre simplement la version installée.
+- **Mise à jour de l'application en un clic** (bouton « Mettre à jour » du bandeau) : téléchargement du nouvel exe, contrôle de l'empreinte, fermeture, remplacement, redémarrage.
+- **En-tête : versions de l'application et de l'add-on**, avec leur état : « à jour » en vert, « x.y.z disponible » en doré, « non installé » en rouge.
+
 ## 0.14.0 et application 1.5 — 25 novembre 2026
 
 Première version publiée sur GitHub : https://github.com/TarakBenAbda/Shadsun_Gold_Lens

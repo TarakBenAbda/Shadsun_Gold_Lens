@@ -461,10 +461,12 @@ function MK.Cross(pairFilter)
                     if gain > 0 then
                         local ref, refQty
                         if RD and RD[id] then ref, refQty = unpackV(RD[id]) end
+                        -- Âge et source réels de chaque prix (photos fusionnées scan / API)
+                        local bs, ss = MK.ItemSnap(B, id), MK.ItemSnap(S, id)
                         rows[#rows + 1] = { id = id, buy = pr.buy, sell = pr.sell, pair = tag, direct = pr.direct,
                             buyUnit = buyUnit, sellUnit = sellUnit, cut = cut, gain = gain, roi = roi,
                             qty = qty, sellQty = sellQty, time = oldest, ref = ref, refQty = refQty, refKey = R and refKey or nil,
-                            buySrc = B.source, sellSrc = S.source }
+                            buySrc = bs.source, sellSrc = ss.source, buyTime = bs.time, sellTime = ss.time }
                     end
                 end
             end

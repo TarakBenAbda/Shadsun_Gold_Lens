@@ -38,31 +38,54 @@ local AVIS = {
 }
 XUI.AVIS = AVIS
 
--- Avis et gain réaliste d'une ligne. dir = "FN" (faction » neutre) ou "NF".
--- FN : l'autre faction peut acheter au neutre ; son prix chez elle est un
---      plafond crédible. Favorable si elle paie au moins votre prix de
---      revente et qu'au moins minQty objets sont en vente au neutre ;
---      Défavorable si elle paie moins ; À vérifier sans repère ou si le
---      neutre a moins de minQty objets en vente.
--- NF : seuls les joueurs de votre faction achètent à son HDV. Favorable si
---      au moins minQty objets y sont en vente (vrai prix de marché), sinon
---      À vérifier (annonce peut-être isolée).
--- Gain réaliste (FN) : calculé sur min(prix de revente, repère).
-function XUI.Assess(r, dir, minQty, rate)
-    local avis, realSell
+-- Âge maximal d'un prix pour un avis « Favorable » (les prix d'HDV bougent vite).
+XUI.AVIS_MAX_AGE = 24 * 3600
+
+-- Avis, gain réaliste et raison d'une ligne. dir = "FN" (faction » neutre)
+-- ou "NF" (neutre » faction). Ordre des règles :
+--  1. un des deux prix a plus de 24 h → À vérifier (prix ancien) ;
+--  2. FN : l'autre faction achète aussi au neutre ; son prix chez elle (repère)
+--     plafonne ce qu'elle paiera. Gain réaliste = revente au plus bas entre
+--     votre prix et le repère. Sans repère → À vérifier. Gain réaliste nul ou
+--     négatif → Défavorable. Sinon, moins de minQty objets en vente au neutre
+--     → À vérifier (prix peut-être isolé), sinon Favorable, éventuellement
+--     « au prix repère » s'il faut descendre au repère ;
+--  3. NF : seuls les joueurs de votre faction achètent à son HDV : Favorable si
+--     au moins minQty objets y sont en vente (vrai prix de marché), sinon À vérifier.
+-- Avant 0.15 : un repère plus bas que la revente donnait « Défavorable » même
+-- quand la revente au repère restait rentable, et l'âge des prix était ignoré.
+-- Returns verdict, realistic gain, reason key.
+function XUI.Assess(r, dir, minQty, rate, now)
     local sellQty = r.sellQty or 0
-    if dir == "FN" then
-        if not r.ref then avis = "chk"
-        elseif r.ref < r.sellUnit then avis = "def"
-        elseif sellQty < minQty then avis = "chk"
-        else avis = "fav" end
-        realSell = r.ref and math.min(r.sellUnit, r.ref) or r.sellUnit
-    else
-        avis = (sellQty >= minQty) and "fav" or "chk"
-        realSell = r.sellUnit
-    end
+    local realSell = r.sellUnit
+    if dir == "FN" and r.ref then realSell = math.min(r.sellUnit, r.ref) end
     local realGain = realSell - math.ceil(realSell * rate - 1e-9) - r.buyUnit
-    return avis, realGain
+    now = now or time()
+    local oldest = math.min(r.buyTime or r.time or now, r.sellTime or r.time or now)
+    if now - oldest > XUI.AVIS_MAX_AGE then return "chk", realGain, "old" end
+    if dir == "FN" then
+        if not r.ref then return "chk", realGain, "noref" end
+        if realGain <= 0 then return "def", realGain, "refcheap" end
+        if sellQty < minQty then return "chk", realGain, "few" end
+        return "fav", realGain, (r.ref < r.sellUnit) and "atref" or "ok"
+    end
+    if sellQty < minQty then return "chk", realGain, "few" end
+    return "fav", realGain, "ok"
+end
+
+-- Explication d'un avis (infobulle) / verdict explanation
+function XUI.Reason(d)
+    local q = tostring(d.sellQty or 0)
+    local R = {
+        old = "un des prix date de plus de 24 h : relisez les annonces avant d'acheter.",
+        noref = "aucun prix connu pour l'autre faction : impossible de savoir si elle achètera au neutre.",
+        refcheap = "l'autre faction paie moins cher chez elle ; même en revendant à son prix, il n'y a plus de gain.",
+        few = "seulement " .. q .. " objet(s) en vente à l'HDV de revente : prix peut-être isolé.",
+        atref = "rentable en revendant au prix repère de l'autre faction (plus bas que l'annonce actuelle).",
+        ok = (d.dir == "FN") and ("l'autre faction paie au moins ce prix chez elle et " .. q .. " objets sont en vente au neutre.")
+            or (q .. " objets en vente à l'HDV de revente : vrai prix de marché."),
+    }
+    return R[d.why] or ""
 end
 
 local function shortAgo(ts)
@@ -74,11 +97,11 @@ function XUI.Build(parent, mode)
     local MK = ns.Market
     local page = CreateFrame("Frame", nil, parent)
     page:SetSize(layout.width, 120 + layout.rows * 20)
-    local f = { dir = "FN", minGain = nil, minROI = nil, avis = "ALL" }
+    local f = { dir = "FN", minGain = nil, minROI = nil, maxBuy = nil, avis = "ALL" }
     local filt = ns.Filters.New()
     local rows = {}
     local list, header
-    local sortKey, sortDesc = "gain", true
+    local sortKey, sortDesc = "realGain", true
 
     local function otherKey() return MK.PlayerKey() == "A" and "H" or "A" end
 
@@ -99,31 +122,39 @@ function XUI.Build(parent, mode)
     local refreshBtn = W.Button(page, "Actualiser", 100, 22, function() page.Compute() end)
     refreshBtn:SetPoint("TOPRIGHT", -14, 0)
 
-    local function numEdit(label, key, anchor)
+    local function numEdit(label, key, anchor, tip)
         local fs = W.Text(page, "GameFontNormalSmall", label)
-        if anchor then fs:SetPoint("LEFT", anchor, "RIGHT", 16, 0) else fs:SetPoint("TOPLEFT", 0, -60) end
+        if anchor then fs:SetPoint("LEFT", anchor, "RIGHT", 12, 0) else fs:SetPoint("TOPLEFT", 0, -60) end
         local e = W.Edit(page, 46, function(self) f[key] = U.ParseNumber(self:GetText()); page.Compute() end)
-        e:SetPoint("LEFT", fs, "RIGHT", 8, 0)
+        e:SetPoint("LEFT", fs, "RIGHT", 6, 0)
+        if tip then
+            e:SetScript("OnEnter", function(self) W.ShowTip(self, label:gsub(" :$", ""), tip) end)
+            e:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        end
         return e
     end
-    local e1 = numEdit("Gain min. / u. (po) :", "minGain")
+    -- Budget : prix d'achat unitaire maximal, comme « Achat max » de PNJ » HDV.
+    local e0 = numEdit("Achat max (po) :", "maxBuy", nil,
+        "Prix d'achat maximal par unité sur l'HDV d'achat, en pièces d'or (ex. 2,5). Vide : pas de limite.")
+    page.maxBuyEdit = e0
+    local e1 = numEdit("Gain min. (po) :", "minGain", e0, "Gain réaliste minimal par unité, en pièces d'or.")
     local e2 = numEdit("Rentab. min (%) :", "minROI", e1)
-    local qLbl = W.Text(page, "GameFontNormalSmall", "Qté min. (avis) :")
-    qLbl:SetPoint("LEFT", e2, "RIGHT", 16, 0)
+    local qLbl = W.Text(page, "GameFontNormalSmall", "Qté min. :")
+    qLbl:SetPoint("LEFT", e2, "RIGHT", 12, 0)
     local qEdit = W.Edit(page, 34, function(self)
         local v = math.max(1, math.floor(U.ParseNumber(self:GetText()) or 3))
         ns.settings.economy.avisMinQty = v
         self:SetText(tostring(v))
         page.Compute()
     end)
-    qEdit:SetPoint("LEFT", qLbl, "RIGHT", 8, 0)
+    qEdit:SetPoint("LEFT", qLbl, "RIGHT", 6, 0)
     qEdit:SetText(tostring(ns.settings.economy.avisMinQty or 3))
     qEdit:SetScript("OnEnter", function(self)
         W.ShowTip(self, "Quantité minimale pour l'avis", "Nombre d'objets en vente à l'HDV de revente en dessous duquel le prix peut être une annonce isolée : avis « À vérifier ».")
     end)
     qEdit:SetScript("OnLeave", function() GameTooltip:Hide() end)
     page.minQtyEdit = qEdit
-    local avisSel = W.Cycle(page, 170, "Avis : ", {
+    local avisSel = W.Cycle(page, 150, "Avis : ", {
         { "ALL", "Tous" }, { "fav", "Favorable", U.colors.good }, { "chk", "À vérifier", U.colors.warn }, { "def", "Défavorable", U.colors.bad },
     }, function() return f.avis end, function(v) f.avis = v; page.Compute() end,
         "Faction » Neutre : l'autre faction paie-t-elle autant chez elle ? Neutre » Faction : assez d'objets en vente à l'HDV de revente ?")
@@ -223,20 +254,12 @@ function XUI.Build(parent, mode)
                 end
                 local a = AVIS[d.avis]
                 if a then
-                    local why
-                    if d.dir == "FN" then
-                        why = (d.avis == "fav" and "l'autre faction paie au moins ce prix chez elle et le neutre a assez d'objets en vente.")
-                            or (d.avis == "def" and "l'autre faction paie moins cher chez elle.")
-                            or (not d.ref and "aucun prix connu pour l'autre faction.")
-                            or ("seulement " .. tostring(d.sellQty or 0) .. " objet(s) en vente au neutre : prix peut-être isolé.")
-                    else
-                        why = (d.avis == "fav" and (tostring(d.sellQty or 0) .. " objets en vente à l'HDV de revente : vrai prix de marché."))
-                            or ("seulement " .. tostring(d.sellQty or 0) .. " objet(s) en vente à l'HDV de revente : prix peut-être isolé.")
-                    end
-                    GameTooltip:AddLine("Avis : " .. a[1] .. " — " .. why, 1, 1, 1, true)
+                    GameTooltip:AddLine("Avis : " .. a[1] .. " — " .. XUI.Reason(d), 1, 1, 1, true)
                     if d.dir == "FN" and d.ref and d.ref < d.sellUnit then
                         GameTooltip:AddDoubleLine("Gain en revendant au repère", U.Money(d.realGain, true, true), 1, 0.82, 0, 1, 1, 1)
                     end
+                    GameTooltip:AddDoubleLine("Âge des prix (achat / revente)", shortAgo(d.buyTime or d.time) .. " / " .. shortAgo(d.sellTime or d.time),
+                        1, 0.82, 0, 1, 1, 1)
                 end
                 GameTooltip:AddLine("Prix au moment des relevés : vérifiez dans l'HDV avant d'acheter. Revendre suppose de rester sous l'annonce la moins chère.", 0.63, 0.66, 0.71, true)
                 GameTooltip:Show()
@@ -282,10 +305,11 @@ function XUI.Build(parent, mode)
         local rate = MK.Rate(sellKey)
         for _, r in ipairs(MK.Cross(buyKey .. ">" .. sellKey)) do
             r.dir = f.dir
-            r.avis, r.realGain = XUI.Assess(r, f.dir, minQty, rate)
+            r.avis, r.realGain, r.why = XUI.Assess(r, f.dir, minQty, rate)
             r.avisRank = AVIS[r.avis][3]
             local keep = (f.avis == "ALL" or f.avis == r.avis)
-            if f.minGain and r.gain < f.minGain * 10000 then keep = false end
+            if f.maxBuy and r.buyUnit > f.maxBuy * 10000 then keep = false end
+            if keep and f.minGain and r.realGain < f.minGain * 10000 then keep = false end
             if keep and f.minROI and (r.roi or -1e9) < f.minROI then keep = false end
             if keep then
                 local info = U.ItemInfo(r.id)

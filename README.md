@@ -29,7 +29,7 @@ Créé par Shadsun (Tarak Ben Abda).
 ## Installation
 
 1. Téléchargez la dernière version : **[page des versions](https://github.com/TarakBenAbda/Shadsun_Gold_Lens/releases/latest)**.
-   - `ShadsunGoldLens.exe` : l'application, qui installe aussi l'add-on. C'est le plus simple.
+   - `ShadsunGoldLens.exe` : l'application, qui installe aussi l'add-on. C'est le plus simple. Au premier lancement, elle s'installe elle-même (raccourci « Shadsun Gold Lens » sur le Bureau) et se met ensuite à jour en un clic.
    - `Shadsun_Gold_Lens_vX.Y.Z_WoW_Forever.zip` : l'add-on seul, à décompresser dans `World of Warcraft\_forever_\Interface\AddOns\`.
 2. Windows peut afficher « Windows a protégé votre ordinateur », car l'exe n'est pas signé : cliquez **Informations complémentaires**, puis **Exécuter quand même**.
 3. En jeu : `/sgl`, ou le bouton de la mini-carte.

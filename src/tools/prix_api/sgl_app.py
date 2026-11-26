@@ -313,7 +313,8 @@ KEY_GUIDE = [
 class App:
     STEPS = ["Installation", "Source des prix", "Mon marché", "Mise à jour automatique"]
 
-    def __init__(self, root, background=False, scheduler_runner=None, start_scheduler=True, check_online=True):
+    def __init__(self, root, background=False, scheduler_runner=None, start_scheduler=True, check_online=True,
+                 installed_from=None, updated=False):
         self.root = root
         self.q = queue.Queue()
         # Dernière version publiée sur GitHub (information gardée en cache, 1 vérification / jour)
@@ -344,6 +345,13 @@ class App:
         self.root.after(400, self._poll)
         if check_online:
             self.root.after(5000, self._check_online)
+        if installed_from:
+            self.root.after(900, lambda: messagebox.showinfo(core.APP_NAME,
+                "Shadsun Gold Lens est installé dans :\n%s\n\nUtilisez le raccourci « %s » du Bureau ou du menu Démarrer. "
+                "Les prochaines mises à jour se feront depuis l'application.\n\nLe fichier téléchargé peut être supprimé :\n%s"
+                % (core.install_dir(), core.APP_NAME, installed_from)))
+        elif updated:
+            self.root.after(900, lambda: messagebox.showinfo(core.APP_NAME, "Application mise à jour : version %s." % core.APP_VERSION))
 
     # ------------------------------------------------------------------ mises à jour en ligne
     def _check_online(self, force=False):
@@ -554,7 +562,11 @@ class App:
         TH.frame(bg, k)
         c = self.canvas
         c.create_image(0, 0, image=self._photo(bg), anchor="nw")
-        self._header_texts(k, X, Y, "Prix des hôtels des ventes", "WoW Forever · v" + core.APP_VERSION)
+        self._header_texts(k, X, Y, "Prix des hôtels des ventes", "")
+        # Versions de l'application et de l'add-on, avec leur état (mis à jour par refresh_main)
+        hx, hy = self.HB[0], self.HB[1]
+        self._ver_anchor = (X(hx + 154), Y(hy + 70), k)
+        self._ver_items = []
         self._caption_text(k, X, Y, CAPTION_MAIN)
         # État
         self._state_imgs = {n: self._photo(TH.icon(n, int(28 * k))) for n in ("check", "warn", "error")}
@@ -1073,17 +1085,53 @@ class App:
         self.lbl_info.configure(text="\n".join(lines))
         text, action = core.addon_offer(addons, self._online)
         if self.busy_online:
-            text, action = "Téléchargement de l'add-on…", None
+            text, action = "Téléchargement en cours…", None
         self._banner_action = action
         self.banner_txt.configure(text=text)
-        self.banner_btn.configure(text="Télécharger" if action == "app" else "Installer l'add-on")
+        self.banner_btn.configure(text=("Mettre à jour" if core.can_self_update() else "Télécharger")
+                                  if action == "app" else "Installer l'add-on")
+        self._draw_versions()
         self.banner_btn.set_visible(action is not None)
         self.btn_update.configure(state="disabled" if (self.busy_update or sch.running) else "normal")
+
+    def _draw_versions(self):
+        """« Application 1.6.0 · à jour   Add-on 0.15.0 · 0.16.0 disponible » en couleurs."""
+        anchor = getattr(self, "_ver_anchor", None)
+        if not anchor:
+            return
+        c = self.canvas
+        for i in getattr(self, "_ver_items", []):
+            c.delete(i)
+        self._ver_items = []
+        x, y, k = anchor
+        colors = {"ok": GREEN, "maj": GOLD, "dim": DIM, "bad": RED}
+        self.version_texts = []
+        for txt, st in core.version_status(self.cfg["wow"].get("addons", ""), self._online):
+            mark = {"ok": "\u2713 ", "maj": "\u2191 ", "bad": "\u2717 "}.get(st, "")
+            item = c.create_text(x, y, text=mark + txt, anchor="w", fill=colors.get(st, DIM),
+                                 font=(SANS, -int(13 * k), "bold" if st in ("maj", "bad") else "normal"), tags="versions")
+            self._ver_items.append(item)
+            self.version_texts.append((txt, st))
+            bb = c.bbox(item)
+            x = (bb[2] if bb else x + 200 * k) + 22 * k
 
     def install_addon_now(self):
         action = self._banner_action
         if action == "app":
-            webbrowser.open((self._online or {}).get("page") or core.RELEASE_PAGE)
+            if core.can_self_update():
+                # Mise à jour en un clic : téléchargement, contrôle, remplacement, redémarrage.
+                self.busy_online = True
+                info = self._online
+
+                def work():
+                    try:
+                        self.q.put(("app_ready", (True, core.download_app(info))))
+                    except Exception as ex:
+                        self.q.put(("app_ready", (False, str(ex))))
+                threading.Thread(target=work, daemon=True).start()
+                self.refresh_main()
+            else:
+                webbrowser.open((self._online or {}).get("page") or core.RELEASE_PAGE)
             return
         if action == "online":
             # Téléchargement en arrière-plan : la fenêtre reste utilisable.
@@ -1337,6 +1385,15 @@ class App:
             if ev[1]:
                 self._online = ev[1]
             self.refresh_main()
+        elif kind == "app_ready":
+            ok, msg = ev[1]
+            if ok:
+                core.start_self_update(msg)
+                self.quit()
+                return
+            self.busy_online = False
+            messagebox.showerror(core.APP_NAME, "Mise à jour impossible : %s" % msg)
+            self.refresh_main()
         elif kind == "online_done":
             self.busy_online = False
             ok, msg = ev[1]
@@ -1359,13 +1416,30 @@ def main(argv=None):
             ctypes.windll.shcore.SetProcessDpiAwareness(1)
         except Exception:
             pass
+    def arg(name):
+        if name in argv:
+            i = argv.index(name)
+            return argv[i + 1] if i + 1 < len(argv) else ""
+        return None
+    # Mode remplacement (lancé par l'ancienne version pour se mettre à jour)
+    if "--remplacer" in argv:
+        core.replace_and_relaunch(sys.executable, arg("--remplacer"), int(arg("--pid") or 0))
+        return 0
+    # Exe lancé ailleurs qu'à son emplacement fixe : installation puis relance
+    if core.bootstrap_install(argv):
+        return 0
     lock = core.acquire_instance_lock()
     if lock is None:
         core.signal_show()          # l'application est déjà ouverte : on la fait réapparaître
         return 0
     core.take_show_signal()
+    if core.FROZEN and core.running_from_install():
+        core.cleanup_update_leftovers()
+        if core.startup_enabled():
+            core.set_startup(True)  # le démarrage avec Windows pointe vers la copie installée
     root = tk.Tk()
-    App(root, background="--arriere-plan" in argv)
+    App(root, background="--arriere-plan" in argv, installed_from=arg("--installe-depuis"),
+        updated="--mis-a-jour" in argv)
     root.mainloop()
     return 0
 

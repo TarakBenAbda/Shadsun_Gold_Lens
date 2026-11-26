@@ -24,6 +24,7 @@ import glob
 import hashlib
 import io
 import json
+import ntpath
 import os
 import re
 import shutil
@@ -37,7 +38,7 @@ import zipfile
 import sgl_prix_api as E
 
 APP_NAME = "Shadsun Gold Lens"
-APP_VERSION = "1.5.0"
+APP_VERSION = "1.6.0"
 APP_ID = "ShadsunGoldLens"
 FLAVOR = "_forever_"
 PORTAL_URL = "https://develop.battle.net/access/clients"
@@ -518,6 +519,242 @@ def install_addon_online(addons, info, timeout=60):
         return install_addon(addons, src)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
+
+
+# -----------------------------------------------------------------------------
+# Installation à un emplacement fixe et mise à jour de l'application elle-même
+# Fixed per-user install location and self-update.
+#   L'exe s'installe dans %LOCALAPPDATA%\Programs\ShadsunGoldLens, avec des
+#   raccourcis sur le Bureau et dans le menu Démarrer. Où que soit l'exe
+#   téléchargé, c'est cette copie qui tourne ; l'utilisateur n'a jamais à
+#   retrouver l'ancien fichier. Mise à jour : le nouvel exe est téléchargé à
+#   côté (empreinte vérifiée), lancé avec --remplacer ; il attend la fermeture
+#   de l'ancien, prend sa place, puis relance l'application.
+# -----------------------------------------------------------------------------
+EXE_NAME = "ShadsunGoldLens.exe"
+
+
+def install_dir():
+    d = os.environ.get("SGL_INSTALL_DIR")
+    if not d:
+        base = os.environ.get("LOCALAPPDATA") if IS_WIN else os.path.expanduser("~/.local/share")
+        d = os.path.join(base or os.path.expanduser("~"), "Programs", APP_ID)
+    return d
+
+
+def installed_exe():
+    return os.path.join(install_dir(), EXE_NAME)
+
+
+def _install_state_path():
+    return os.path.join(install_dir(), "installation.json")
+
+
+def installed_version():
+    """Version de la copie installée (None si aucune)."""
+    if not os.path.isfile(installed_exe()):
+        return None
+    try:
+        with open(_install_state_path(), encoding="utf-8") as f:
+            return json.load(f).get("version")
+    except (OSError, ValueError):
+        return None
+
+
+def _same_path(a, b):
+    return bool(a and b) and os.path.normcase(os.path.abspath(a)) == os.path.normcase(os.path.abspath(b))
+
+
+def running_from_install(exe=None):
+    return _same_path(exe or sys.executable, installed_exe())
+
+
+def install_copy(src_exe, version=APP_VERSION, retries=20, pause=0.5):
+    """Copie l'exe à l'emplacement fixe (remplace l'ancien) et note sa version.
+    Réessaie quelques secondes si l'ancien est encore en train de se fermer."""
+    os.makedirs(install_dir(), exist_ok=True)
+    dst = installed_exe()
+    tmp = dst + ".copie"
+    shutil.copyfile(src_exe, tmp)
+    for i in range(retries):
+        try:
+            os.replace(tmp, dst)
+            break
+        except OSError:
+            if i == retries - 1:
+                raise
+            time.sleep(pause)
+    with open(_install_state_path(), "w", encoding="utf-8") as f:
+        json.dump({"version": version, "installe": time.strftime("%Y-%m-%d %H:%M")}, f)
+    return dst
+
+
+def shortcut_paths():
+    """Raccourcis : Bureau et menu Démarrer (Windows)."""
+    home = os.path.expanduser("~")
+    desk = os.path.join(os.environ.get("USERPROFILE", home), "Desktop")
+    menu = os.path.join(os.environ.get("APPDATA", home), "Microsoft", "Windows", "Start Menu", "Programs")
+    return [os.path.join(desk, APP_NAME + ".lnk"), os.path.join(menu, APP_NAME + ".lnk")]
+
+
+def _shortcut_script(lnk, target):
+    q = lambda x: x.replace("'", "''")   # noqa: E731 - guillemets PowerShell
+    return ("$s=(New-Object -ComObject WScript.Shell).CreateShortcut('%s');$s.TargetPath='%s';"
+            "$s.WorkingDirectory='%s';$s.IconLocation='%s,0';$s.Description='%s';$s.Save()"
+            % (q(lnk), q(target), q(ntpath.dirname(target)), q(target), q(APP_NAME + " : prix des HDV de WoW Forever")))
+
+
+def create_shortcuts(target=None):
+    """Crée ou met à jour les raccourcis (Windows uniquement). Retourne ceux créés."""
+    target = target or installed_exe()
+    done = []
+    if not IS_WIN:
+        return done
+    for lnk in shortcut_paths():
+        try:
+            os.makedirs(os.path.dirname(lnk), exist_ok=True)
+            subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", _shortcut_script(lnk, target)],
+                           creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), timeout=30, check=True,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            done.append(lnk)
+        except Exception:
+            pass
+    return done
+
+
+def stop_other_instances():
+    """Ferme les autres copies de l'application (y compris d'anciennes versions
+    qui ne connaissent pas les signaux), sans toucher au processus courant."""
+    if not IS_WIN:
+        return
+    flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+    # Un exe PyInstaller « onefile » tourne en deux processus du même nom :
+    # le lanceur (parent) et Python (courant). Les deux sont épargnés.
+    spare = ["/FI", "PID ne %d" % os.getpid(), "/FI", "PID ne %d" % os.getppid()]
+    for extra in ([], ["/F"]):
+        subprocess.run(["taskkill", "/IM", EXE_NAME] + spare + extra, creationflags=flags,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        time.sleep(1.5)
+
+
+def bootstrap_install(argv, launcher=None):
+    """Au lancement d'un exe qui n'est pas la copie installée : installe (si plus
+    récent ou absent) puis lance la copie installée. Retourne True si ce
+    processus doit s'arrêter là. Sans effet hors exe (Python) ou si
+    SGL_PORTABLE=1. / Returns True when this process should exit."""
+    if not FROZEN or os.environ.get("SGL_PORTABLE") == "1" or running_from_install():
+        return False
+    if any(a in argv for a in ("--maj", "--remplacer")):
+        return False
+    launcher = launcher or (lambda cmd: subprocess.Popen(cmd, close_fds=True))
+    cur = installed_version()
+    extra = []
+    if not cur or is_newer(APP_VERSION, cur):
+        stop_other_instances()
+        install_copy(sys.executable)
+        create_shortcuts()
+        extra = ["--installe-depuis", sys.executable]
+    elif not os.path.isfile(installed_exe()):
+        return False
+    launcher([installed_exe()] + [a for a in argv if a != "--arriere-plan"] + extra)
+    return True
+
+
+def download_app(info, timeout=180):
+    """Télécharge le nouvel exe à côté de la copie installée, vérifie son
+    empreinte. Retourne son chemin. / Downloads and verifies the new exe."""
+    a = (info or {}).get("app")
+    if not a:
+        raise E.Erreur("Aucune version de l'application en ligne connue.")
+    blob = _http_get(a["url"], timeout, limit=200 * 1024 * 1024)
+    if hashlib.sha256(blob).hexdigest() != a["sha256"]:
+        raise E.Erreur("Fichier téléchargé altéré (empreinte différente) : mise à jour annulée.")
+    os.makedirs(install_dir(), exist_ok=True)
+    new = os.path.join(install_dir(), "ShadsunGoldLens.nouveau.exe")
+    with open(new, "wb") as f:
+        f.write(blob)
+    with open(new + ".version", "w", encoding="utf-8") as f:
+        f.write(a["version"])
+    return new
+
+
+def start_self_update(new_exe, launcher=None):
+    """Lance le nouvel exe en mode remplacement ; l'application doit ensuite se fermer."""
+    launcher = launcher or (lambda cmd: subprocess.Popen(cmd, close_fds=True))
+    launcher([new_exe, "--remplacer", installed_exe(), "--pid", str(os.getpid())])
+
+
+def _pid_alive(pid):
+    if not pid:
+        return False
+    if IS_WIN:
+        import ctypes
+        h = ctypes.windll.kernel32.OpenProcess(0x00100000, False, int(pid))   # SYNCHRONIZE
+        if not h:
+            return False
+        r = ctypes.windll.kernel32.WaitForSingleObject(h, 0)
+        ctypes.windll.kernel32.CloseHandle(h)
+        return r == 0x102   # WAIT_TIMEOUT : toujours en vie
+    try:
+        os.kill(int(pid), 0)
+        return True
+    except OSError:
+        return False
+
+
+def replace_and_relaunch(src, target, pid=None, version=APP_VERSION, wait=60, launcher=None):
+    """Mode --remplacer (exécuté par le nouvel exe) : attend la fin de l'ancien
+    processus, prend sa place, puis relance l'application installée."""
+    launcher = launcher or (lambda cmd: subprocess.Popen(cmd, close_fds=True))
+    t0 = time.time()
+    while pid and _pid_alive(pid) and time.time() - t0 < wait:
+        time.sleep(0.3)
+    if _same_path(os.path.dirname(target), install_dir()):
+        install_copy(src, version)
+    else:
+        shutil.copyfile(src, target)
+    launcher([target, "--mis-a-jour"])
+    return target
+
+
+def cleanup_update_leftovers():
+    """Supprime l'exe de mise à jour resté à côté (il ne pouvait pas s'effacer lui-même)."""
+    for p in (os.path.join(install_dir(), "ShadsunGoldLens.nouveau.exe"),
+              os.path.join(install_dir(), "ShadsunGoldLens.nouveau.exe.version"),
+              installed_exe() + ".copie"):
+        try:
+            os.remove(p)
+        except OSError:
+            pass
+
+
+def can_self_update():
+    return FROZEN and running_from_install()
+
+
+def version_status(addons, info):
+    """État affiché dans l'en-tête : [(texte, couleur)] pour l'application et l'add-on.
+    couleur : « ok » (à jour), « maj » (nouvelle version), « dim » (non vérifié), « bad »."""
+    online = info or {}
+    app = online.get("app") or {}
+    if app.get("version") and is_newer(app["version"], APP_VERSION):
+        a = ("Application %s · %s disponible" % (APP_VERSION, app["version"]), "maj")
+    elif online:
+        a = ("Application %s · à jour" % APP_VERSION, "ok")
+    else:
+        a = ("Application %s" % APP_VERSION, "dim")
+    inst, bundled = addon_status(addons)
+    ov = (online.get("addon") or {}).get("version")
+    best = ov if (ov and not is_newer(bundled, ov)) else bundled
+    if not inst:
+        b = ("Add-on non installé", "bad")
+    elif best and is_newer(best, inst):
+        b = ("Add-on %s · %s disponible" % (inst, best), "maj")
+    elif online or bundled:
+        b = ("Add-on %s · à jour" % inst, "ok")
+    else:
+        b = ("Add-on %s" % inst, "dim")
+    return [a, b]
 
 
 def addon_offer(addons, info):
