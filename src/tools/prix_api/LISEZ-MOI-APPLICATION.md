@@ -1,4 +1,4 @@
-# Shadsun Gold Lens — application de bureau 1.6
+# Shadsun Gold Lens — application de bureau 1.6.1
 
 Auteur : Tarak Ben Abda — novembre 2026
 

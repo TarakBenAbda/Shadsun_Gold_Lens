@@ -521,9 +521,15 @@ finally:
     core.FROZEN, sys.executable = saved
 check("Hors exe (Python) : pas d'installation ni de mise à jour automatique", core.bootstrap_install([]) is False
       and not core.can_self_update())
-sc = core._shortcut_script(r"C:\Users\Vous\Desktop\Shadsun Gold Lens.lnk", r"C:\Users\Vous\AppData\Local\Programs\ShadsunGoldLens\ShadsunGoldLens.exe")
-check("Raccourci : cible, dossier de travail et icône de la copie installée", "TargetPath='C:\\Users\\Vous\\AppData\\Local\\Programs\\ShadsunGoldLens\\ShadsunGoldLens.exe'" in sc
-      and "WorkingDirectory='C:\\Users\\Vous\\AppData\\Local\\Programs\\ShadsunGoldLens'" in sc and ".exe,0'" in sc, sc)
+sc = core._shortcut_script(r"C:\Users\Vous\AppData\Local\Programs\ShadsunGoldLens\ShadsunGoldLens.exe")
+check("Raccourcis : Bureau réel demandé à Windows (OneDrive compris) et menu Démarrer ; cible, dossier de travail, icône",
+      "GetFolderPath('Desktop')" in sc and "GetFolderPath('Programs')" in sc
+      and "$t='C:\\Users\\Vous\\AppData\\Local\\Programs\\ShadsunGoldLens\\ShadsunGoldLens.exe'" in sc
+      and "$w='C:\\Users\\Vous\\AppData\\Local\\Programs\\ShadsunGoldLens'" in sc and "$t+',0'" in sc, sc)
+check("Raccourci laissé par la 1.6.0 dans un faux dossier « Desktop » : retiré", "Remove-Item $old" in sc)
+st0 = core.ensure_shortcuts()
+check("Réparation des raccourcis notée une fois (pas de recréation à chaque démarrage)",
+      json.load(open(core._install_state_path())).get("raccourcis") == core.SHORTCUT_VERSION and core.ensure_shortcuts() is False)
 # État des versions dans l'en-tête
 st = core.version_status(addons, {"app": {"version": "9.9.9"}, "addon": None})
 check("En-tête : application « 9.9.9 disponible », add-on « à jour »", st[0][1] == "maj" and "9.9.9 disponible" in st[0][0]

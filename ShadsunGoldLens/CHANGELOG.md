@@ -1,5 +1,13 @@
 # Journal des modifications — Shadsun Gold Lens
 
+## 0.15.1 et application 1.6.1 — 25 novembre 2026
+
+- **Onglet Objet** : boutons « - » et « + » (Maj+clic : ±5), avec la quantité dans la liste active (« 3 dans « Ma liste » »), au lieu du seul bouton « Ajouter à la liste ».
+- **Listes** : « - » et « + » sur chaque ligne, comme dans les tableaux d'opportunités. Le « X » de retrait reste. Les colonnes sont légèrement resserrées.
+- **Raccourci du Bureau** : la 1.6.0 cherchait le Bureau à l'emplacement classique (`Utilisateur\Desktop`). Il est souvent redirigé vers OneDrive (`OneDrive\Bureau`) : le raccourci y était invisible.
+  - Le Bureau réel est maintenant demandé à Windows.
+  - Les raccourcis sont réparés une fois au démarrage de la copie installée, et le raccourci égaré est retiré.
+
 ## 0.15.0 et application 1.6 — 25 novembre 2026
 
 ### Add-on

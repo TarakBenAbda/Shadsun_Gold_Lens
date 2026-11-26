@@ -57,24 +57,29 @@ ns.UI.RegisterTab("detail", "Objet", function(page)
         lookup()
     end)
 
-    -- Ajout à la liste d'achats active (Maj+clic : +5) / add to the active list
-    local addList = W.Button(page, "Ajouter à la liste", 150, 22, function()
-        if not current then U.Print("choisissez d'abord un objet.") return end
-        local _, msg = ns.Lists.Step(current, (IsShiftKeyDown and IsShiftKeyDown()) and 5 or 1)
-        U.Print(msg)
-    end)
-    addList:SetPoint("LEFT", last, "RIGHT", 6, 0)
-    addList:SetScript("OnEnter", function(self)
-        local l = ns.Lists.Active()
-        W.ShowTip(self, "Ajouter à la liste d'achats", "Ajoute 1 exemplaire de l'objet affiché à la liste active"
-            .. (l and (" (« " .. l.name .. " »)") or "") .. ". Maj+clic : +5. Choix de la liste et quantités : onglet Listes.")
-    end)
-    addList:SetScript("OnLeave", function() GameTooltip:Hide() end)
-    page.addListButton = addList
-    -- Le libellé indique la quantité déjà dans la liste active.
+    -- Liste d'achats active : « - » et « + » comme dans les tableaux (Maj+clic : ±5),
+    -- avec la quantité déjà dans la liste. / Active list: minus/plus buttons.
+    local listBox = CreateFrame("Frame", nil, page)
+    listBox:SetSize(220, 22)
+    listBox:SetPoint("LEFT", last, "RIGHT", 10, 0)
+    local listLbl = W.Text(listBox, "GameFontNormalSmall", "Liste :")
+    listLbl:SetPoint("LEFT", 0, 0)
+    local plus = W.AddButton(listBox, function() return current end)
+    plus:SetPoint("LEFT", listLbl, "RIGHT", 26, 0)
+    page.listPlus, page.listMinus = plus, plus.minus
+    local listState = W.Text(listBox, "GameFontHighlightSmall", "", "LEFT", 150)
+    listState:SetPoint("LEFT", plus, "RIGHT", 6, 0)
+    listState:SetWordWrap(false)
+    page.listState = listState
     local function refreshListState()
+        listBox.data = current and { id = current } or nil
+        plus:SetUsable(current ~= nil)
+        if current then plus:Refresh() else plus.minus:SetUsable(false); plus.badge:SetText("") end
+        local l = ns.Lists and ns.Lists.Active()
         local q = (current and ns.Lists) and ns.Lists.ActiveQty(current) or 0
-        addList:SetText(q > 0 and ("Ajouter (" .. q .. " en liste)") or "Ajouter à la liste")
+        if not current or not l then listState:SetText("")
+        elseif q > 0 then listState:SetText(U.Color(U.colors.good, q .. " dans « " .. l.name .. " »"))
+        else listState:SetText(U.Color(U.colors.dim, "pas dans « " .. l.name .. " »")) end
     end
     ns.On("LISTS_CHANGED", function() if page:IsVisible() then refreshListState() end end)
 

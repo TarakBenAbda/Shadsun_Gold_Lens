@@ -119,8 +119,8 @@ Listes communes à tous vos personnages du compte, dans l'onglet **Listes** :
 - à droite, les articles : quantité voulue, **Possédé** (« 3 / 5 », vos personnages du serveur, en vert une fois atteint), prix maximum, prix sur l'HDV de votre faction, de l'autre faction et neutre ; en vert, le moins cher sous votre prix maximum ;
 - clic sur un article : modifier la quantité voulue et le prix maximum ;
 - colonne **PNJ** : prix d'achat chez le meilleur marchand connu, comparé aux HDV (le moins cher sous votre maximum en vert, PNJ compris) ; marchand et emplacement au survol ;
-- dans la fenêtre principale : icônes **Aller** (TomTom vers le marchand) et **Copier** (commande `/tway`) ; dans le panneau de l'HDV : **loupe** (recherche de l'article) ; **Rechercher toute la liste** : tous les articles non encore obtenus en une seule recherche (Auctionator) ; icône de retrait ;
-- ajout : icône **+** sur chaque ligne des tableaux d'opportunités (onglet et panneau de l'HDV), **Alt+clic** sur un objet (sacs, liens du chat, HDV ; jamais dans la fenêtre du marchand), le bouton **Ajouter à la liste** de l'onglet Objet (Maj+clic : +5), ou le champ **Ajouter** (ID, nom, ou Maj+clic sur un objet pendant que le champ est actif : ajout immédiat).
+- dans la fenêtre principale : icônes **Aller** (TomTom vers le marchand) et **Copier** (commande `/tway`) ; dans le panneau de l'HDV : **loupe** (recherche de l'article) ; **Rechercher toute la liste** : tous les articles non encore obtenus en une seule recherche (Auctionator) ; **-** / **+** sur chaque ligne (Maj+clic : ±5) et icône de retrait ;
+- ajout : icône **+** sur chaque ligne des tableaux d'opportunités (onglet et panneau de l'HDV), **Alt+clic** sur un objet (sacs, liens du chat, HDV ; jamais dans la fenêtre du marchand), les boutons **-** / **+** de l'onglet Objet (Maj+clic : ±5), ou le champ **Ajouter** (ID, nom, ou Maj+clic sur un objet pendant que le champ est actif : ajout immédiat).
 
 Sous le tableau : **Coût de la liste** (tout acheter au meilleur prix connu, case verte), **reste à acheter** (ce qui manque encore) et le nombre d'articles sans prix sous votre maximum.
 
@@ -166,7 +166,7 @@ Dans l'onglet **Opportunités** (sens PNJ » HDV), deux petites icônes devant c
 
 Boutons **Taille** « - » / « + » (de 70 % à 150 %, par pas de 10 %) et « 100 % » en haut à droite ; la taille est mémorisée. Les noms d'objets des tableaux sont colorés selon leur qualité ; une colonne « Poss. » indique le nombre possédé.
 
-- **Objet** : recherche par ID, lien (Maj+clic sur un objet quand le champ est actif) ou nom ; bouton **Ajouter à la liste** (liste active, Maj+clic : +5, quantité déjà présente affichée) ; prix, rentabilité, prix sur chaque HDV scanné, nombre possédé par personnage, **tous les marchands** (faction, zone, coordonnées, prix, stock, conditions, source), boutons **TomTom** et **Carte**, commande `/tway` à copier.
+- **Objet** : recherche par ID, lien (Maj+clic sur un objet quand le champ est actif) ou nom ; boutons **-** et **+** de la liste active (Maj+clic : ±5), avec la quantité déjà présente ; prix, rentabilité, prix sur chaque HDV scanné, nombre possédé par personnage, **tous les marchands** (faction, zone, coordonnées, prix, stock, conditions, source), boutons **TomTom** et **Carte**, commande `/tway` à copier.
 - **Opportunités** : tableaux triables (clic sur un en-tête) et filtrables — catégorie, qualité, nom, faction du vendeur, exclusivité, données HDV, zone, statut, prix d'achat maximal, bénéfice minimal, rentabilité minimale. Les filtres s'appliquent dès qu'ils changent ; **Actualiser** recalcule avec les derniers prix. Jamais de calcul pendant le survol.
 - **Marchés** : voir ci-dessus.
 - **Paramètres** : voir § 3.

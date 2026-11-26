@@ -1,4 +1,4 @@
-# Rapport de tests — Shadsun Gold Lens 0.15.0 et application 1.6
+# Rapport de tests — Shadsun Gold Lens 0.15.1 et application 1.6.1
 
 Auteur : Tarak Ben Abda — 20 novembre 2026.
 
@@ -335,7 +335,8 @@ Premier essai réel (19 novembre, 22 h 43) : identification sur l'API réelle �
 | Vérification | Résultat |
 |---|---|
 | Onglet Objet : Maj+clic (fonction du client actuel `ChatFrameUtil.InsertLink`) → objet affiché | réussi |
-| Onglet Objet : « Ajouter à la liste » → 1, libellé « Ajouter (1 en liste) » ; Maj+clic → +5 | réussi |
+| Onglet Objet (0.15.1) : « + » → 1 ; Maj+clic « + » → 6 ; « - » → 5 ; Maj+clic « - » → retiré, « - » grisé | réussi |
+| Listes (0.15.1) : « + » et « - » sur une ligne, badge à jour | réussi |
 | Listes : Maj+clic dans « Ajouter » → ajout immédiat (avant : sans effet sur le client actuel) ; ancien client pris en charge, un seul ajout | réussi |
 | Filtre « Nom de l'objet » : Maj+clic → nom inséré ; le lien ne va qu'au champ actif | réussi |
 | Avis : prix de plus de 24 h → À vérifier ; raisons lisibles | réussi |
@@ -345,11 +346,11 @@ Premier essai réel (19 novembre, 22 h 43) : identification sur l'API réelle �
 | Application : exe téléchargé → copié à l'emplacement fixe, version notée, copie installée relancée | réussi |
 | Même version installée : simple relance ; vieil exe : ouvre la copie installée sans l'écraser ; Python et modes `--maj` / `--remplacer` : jamais d'installation | réussi |
 | Mise à jour en un clic : empreinte fausse refusée ; nouvel exe téléchargé, mode `--remplacer`, remplacement, version notée, relance, nettoyage | réussi |
-| Raccourcis : cible, dossier de travail et icône de la copie installée | réussi (script vérifié ; création réelle sous Windows non testée) |
+| Raccourcis (1.6.1) : Bureau réel demandé à Windows (OneDrive compris), menu Démarrer, raccourci égaré de la 1.6.0 retiré, réparation une seule fois | réussi (script vérifié ; création réelle sous Windows non testée) |
 | En-tête : versions et état (disponible / à jour / non installé), affichage vérifié sur capture | réussi |
 | Installation, raccourcis et remplacement réels sous Windows | à vérifier chez vous (1.6 installe ; la mise à jour en un clic se vérifiera avec la version suivante) |
 
-**Total : 419 tests de l'add-on, 52 tests du moteur de prix, 76 tests du cœur de l'application et 30 tests de l'interface, tous réussis.**
+**Total : 423 tests de l'add-on, 52 tests du moteur de prix, 78 tests du cœur de l'application et 30 tests de l'interface, tous réussis.**
 
 **Non vérifiable ici (0.13.0) :** l'affichage réel en jeu des fichiers TGA (logo, icône de la liste des add-ons) et des icônes de faction `Interface\FriendsFrame\PlusManz-*` dans le client Forever ; le rendu de l'application sous Windows (polices Palatino Linotype / Segoe UI, échelle d'affichage).
 

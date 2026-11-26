@@ -38,7 +38,7 @@ import zipfile
 import sgl_prix_api as E
 
 APP_NAME = "Shadsun Gold Lens"
-APP_VERSION = "1.6.0"
+APP_VERSION = "1.6.1"
 APP_ID = "ShadsunGoldLens"
 FLAVOR = "_forever_"
 PORTAL_URL = "https://develop.battle.net/access/clients"
@@ -584,42 +584,69 @@ def install_copy(src_exe, version=APP_VERSION, retries=20, pause=0.5):
             if i == retries - 1:
                 raise
             time.sleep(pause)
+    try:
+        with open(_install_state_path(), encoding="utf-8") as f:
+            st = json.load(f)
+    except (OSError, ValueError):
+        st = {}
+    st.update({"version": version, "installe": time.strftime("%Y-%m-%d %H:%M")})
     with open(_install_state_path(), "w", encoding="utf-8") as f:
-        json.dump({"version": version, "installe": time.strftime("%Y-%m-%d %H:%M")}, f)
+        json.dump(st, f)
     return dst
 
 
-def shortcut_paths():
-    """Raccourcis : Bureau et menu Démarrer (Windows)."""
-    home = os.path.expanduser("~")
-    desk = os.path.join(os.environ.get("USERPROFILE", home), "Desktop")
-    menu = os.path.join(os.environ.get("APPDATA", home), "Microsoft", "Windows", "Start Menu", "Programs")
-    return [os.path.join(desk, APP_NAME + ".lnk"), os.path.join(menu, APP_NAME + ".lnk")]
+SHORTCUT_VERSION = 2   # 2 : Bureau réel (OneDrive compris), réparation au démarrage
 
 
-def _shortcut_script(lnk, target):
+def _shortcut_script(target):
+    """Script PowerShell : raccourcis sur le Bureau réel de l'utilisateur et dans le
+    menu Démarrer. Le Bureau est demandé à Windows (GetFolderPath) : il peut être
+    redirigé vers OneDrive (…\\OneDrive\\Bureau), ce qui faisait échouer la 1.6.0.
+    Un raccourci laissé par la 1.6.0 dans un faux dossier « Desktop » est retiré."""
     q = lambda x: x.replace("'", "''")   # noqa: E731 - guillemets PowerShell
-    return ("$s=(New-Object -ComObject WScript.Shell).CreateShortcut('%s');$s.TargetPath='%s';"
-            "$s.WorkingDirectory='%s';$s.IconLocation='%s,0';$s.Description='%s';$s.Save()"
-            % (q(lnk), q(target), q(ntpath.dirname(target)), q(target), q(APP_NAME + " : prix des HDV de WoW Forever")))
+    name = q(APP_NAME + ".lnk")
+    return (
+        "$t='%s';$w='%s';$sh=New-Object -ComObject WScript.Shell;"
+        "$d=[Environment]::GetFolderPath('Desktop');$p=[Environment]::GetFolderPath('Programs');"
+        "foreach($f in @($d,$p)){if($f){$s=$sh.CreateShortcut((Join-Path $f '%s'));$s.TargetPath=$t;"
+        "$s.WorkingDirectory=$w;$s.IconLocation=$t+',0';$s.Description='%s';$s.Save();Write-Output (Join-Path $f '%s')}};"
+        "$old=Join-Path $env:USERPROFILE 'Desktop\\%s';if(($old -ne (Join-Path $d '%s')) -and (Test-Path $old)){Remove-Item $old}"
+        % (q(target), q(ntpath.dirname(target)), name, q(APP_NAME + " : prix des HDV de WoW Forever"), name, name, name))
 
 
 def create_shortcuts(target=None):
-    """Crée ou met à jour les raccourcis (Windows uniquement). Retourne ceux créés."""
+    """Crée ou met à jour les raccourcis (Windows uniquement). Retourne leurs chemins."""
     target = target or installed_exe()
-    done = []
     if not IS_WIN:
-        return done
-    for lnk in shortcut_paths():
+        return []
+    try:
+        r = subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", _shortcut_script(target)],
+                           creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), timeout=60,
+                           capture_output=True, text=True)
+        return [l.strip() for l in (r.stdout or "").splitlines() if l.strip().lower().endswith(".lnk")]
+    except Exception:
+        return []
+
+
+def ensure_shortcuts():
+    """Copie installée : (re)crée les raccourcis une fois par génération de
+    raccourcis (corrige le Bureau manquant de la 1.6.0)."""
+    try:
+        with open(_install_state_path(), encoding="utf-8") as f:
+            st = json.load(f)
+    except (OSError, ValueError):
+        st = {}
+    if st.get("raccourcis") == SHORTCUT_VERSION:
+        return False
+    made = create_shortcuts()
+    if made or not IS_WIN:
+        st["raccourcis"] = SHORTCUT_VERSION
         try:
-            os.makedirs(os.path.dirname(lnk), exist_ok=True)
-            subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-Command", _shortcut_script(lnk, target)],
-                           creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), timeout=30, check=True,
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            done.append(lnk)
-        except Exception:
+            with open(_install_state_path(), "w", encoding="utf-8") as f:
+                json.dump(st, f)
+        except OSError:
             pass
-    return done
+    return bool(made)
 
 
 def stop_other_instances():
@@ -652,7 +679,7 @@ def bootstrap_install(argv, launcher=None):
     if not cur or is_newer(APP_VERSION, cur):
         stop_other_instances()
         install_copy(sys.executable)
-        create_shortcuts()
+        ensure_shortcuts()
         extra = ["--installe-depuis", sys.executable]
     elif not os.path.isfile(installed_exe()):
         return False

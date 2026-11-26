@@ -1435,6 +1435,7 @@ def main(argv=None):
     core.take_show_signal()
     if core.FROZEN and core.running_from_install():
         core.cleanup_update_leftovers()
+        core.ensure_shortcuts()     # répare le raccourci du Bureau (1.6.0 : Bureau OneDrive non trouvé)
         if core.startup_enabled():
             core.set_startup(True)  # le démarrage avec Windows pointe vers la copie installée
     root = tk.Tk()

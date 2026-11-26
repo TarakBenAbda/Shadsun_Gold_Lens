@@ -25,12 +25,13 @@ ns.ShopUI = SUI
 -- name = { x, largeur } ; nameX = décalage de l'icône d'objet (icônes Aller
 -- et Copier devant le nom en mode "window").
 local LAYOUTS = {
+    -- Colonnes resserrées en 0.15.1 pour loger « - » et « + » en fin de ligne.
     window = { width = 602, rows = 12, nameX = 42,
-        cols = { name = { 42, 110 }, qty = { 154, 36 }, prog = { 192, 54 }, sale = { 248, 36 }, max = { 286, 56 }, pnj = { 344, 54 },
-            m1 = { 400, 54 }, m2 = { 456, 54 }, m3 = { 512, 54 } } },
+        cols = { name = { 42, 94 }, qty = { 138, 32 }, prog = { 172, 52 }, sale = { 226, 34 }, max = { 262, 50 }, pnj = { 314, 52 },
+            m1 = { 368, 52 }, m2 = { 422, 52 }, m3 = { 476, 52 } } },
     ah = { width = 730, rows = 15, nameX = 0,
-        cols = { name = { 0, 166 }, qty = { 168, 44 }, prog = { 214, 62 }, sale = { 278, 40 }, max = { 320, 70 }, pnj = { 392, 68 },
-            m1 = { 462, 68 }, m2 = { 532, 68 }, m3 = { 602, 66 } } },
+        cols = { name = { 0, 150 }, qty = { 152, 40 }, prog = { 194, 60 }, sale = { 256, 40 }, max = { 298, 64 }, pnj = { 364, 64 },
+            m1 = { 430, 64 }, m2 = { 496, 64 }, m3 = { 562, 64 } } },
 }
 
 -- Meilleure offre d'un marchand pour un objet : prix unitaire, offre.
@@ -224,6 +225,9 @@ function SUI.Build(parent, mode)
                 LS.Remove(LS.ActiveId(), self:GetParent().data.id)
             end, 16, false)
             row.remove:SetPoint("RIGHT", -2, 0)
+            -- « - » / « + » : quantité voulue (Maj+clic : ±5), comme dans les tableaux.
+            row.add = W.AddButton(row, function(self) return self:GetParent().data.id end)
+            row.add:SetPoint("RIGHT", mode == "ah" and -42 or -22, 0)
             if mode == "ah" then
                 -- À l'HDV : loupe / at the AH: search icon
                 row.search = W.IconButton(row, W.ICON_SEARCH, "Rechercher dans l'HDV",
@@ -300,6 +304,7 @@ function SUI.Build(parent, mode)
                 c[col]:SetText(U.Color(U.colors.good, U.MoneyShort(d.best, true)))
             end
             row.sel:SetShown(d.id == selectedItem)
+            row.add:Refresh()
             if row.search then row.search:SetUsable(A.ahOpen) end
             if row.go then
                 local valid = d.offer and ns.Navigation.Validate(d.offer) and true or false

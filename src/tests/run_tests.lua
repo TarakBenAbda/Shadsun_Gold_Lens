@@ -1936,13 +1936,21 @@ do
     check("Onglet Objet : Maj+clic sur un objet (client actuel) → objet affiché", strip(dp.nameText:GetText() or ""):find("Étoffe de lin", 1, true) ~= nil,
         dp.nameText:GetText())
     dp.search:ClearFocus()
-    dp.addListButton:Click()
-    check("Onglet Objet : « Ajouter à la liste » → 1 dans la liste active, libellé « Ajouter (1 en liste) »",
-        LS.ActiveQty(2589) == 1 and dp.addListButton:GetText() == "Ajouter (1 en liste)", dp.addListButton:GetText())
+    dp.listPlus:Click()
+    check("Onglet Objet : « + » → 1 dans la liste active, état « 1 dans « Ma liste » »",
+        LS.ActiveQty(2589) == 1 and strip(dp.listState:GetText() or ""):find("1 dans", 1, true) ~= nil, dp.listState:GetText())
     M.shift = true
-    dp.addListButton:Click()
+    dp.listPlus:Click()
     M.shift = false
-    check("Onglet Objet : Maj+clic sur le bouton → +5 (6)", LS.ActiveQty(2589) == 6 and dp.addListButton:GetText() == "Ajouter (6 en liste)")
+    check("Onglet Objet : Maj+clic sur « + » → +5 (6)", LS.ActiveQty(2589) == 6 and dp.listPlus.badge:GetText() == "6")
+    dp.listMinus:Click()
+    check("Onglet Objet : « - » → 5", LS.ActiveQty(2589) == 5 and strip(dp.listState:GetText()):find("5 dans", 1, true) ~= nil)
+    M.shift = true
+    dp.listMinus:Click()
+    M.shift = false
+    check("Onglet Objet : Maj+clic sur « - » → retiré de la liste, « - » grisé", LS.ActiveQty(2589) == 0
+        and strip(dp.listState:GetText()):find("pas dans", 1, true) ~= nil and not dp.listMinus:IsEnabled(), dp.listState:GetText())
+    LS.Add(2589, 6)
     -- Onglet Listes : Maj+clic dans « Ajouter » → ajout direct
     ns.UI.Show("lists")
     local v = ns.UI.pages.lists.shopView
@@ -2011,6 +2019,14 @@ do
         T and (T.cost .. "/" .. T.remain .. "/" .. T.missing))
     check("Ligne du coût affichée sous la liste", strip(v.totalText:GetText() or ""):find("Coût de la liste : 70\194\160pc  ·  reste à acheter : 50\194\160pc", 1, true) ~= nil
         and strip(v.totalText:GetText()):find("1 sans prix", 1, true) ~= nil, strip(v.totalText:GetText() or ""))
+    -- « - » / « + » sur les lignes de la liste
+    local row2589
+    for _, r in ipairs(v.itemsList.rows) do if r.data and r.data.id == 2589 then row2589 = r end end
+    row2589.add:Click()
+    check("Liste : « + » sur une ligne → quantité voulue 7", LS.ActiveQty(2589) == 7)
+    for _, r in ipairs(v.itemsList.rows) do if r.data and r.data.id == 2589 then row2589 = r end end
+    row2589.add.minus:Click()
+    check("Liste : « - » sur une ligne → 6 ; badge à jour", LS.ActiveQty(2589) == 6 and row2589.add.badge:GetText() == "6", row2589.add.badge:GetText())
     M.owned = nil
     check("Aucune erreur interne (bloc v0.15.0)", ns.Diag.counters.errors == 0, ns.Diag.errors[1] and ns.Diag.errors[1].err)
 end

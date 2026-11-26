@@ -32,9 +32,9 @@ ERREUR : Clé refusée (401) : vérifiez client_id et client_secret.
  Auteur : Tarak Ben Abda
 ======================================================================
 
-ERREUR : Fichier de configuration introuvable : /tmp/sgl_api_zmlyy_hx/absent.ini
+ERREUR : Fichier de configuration introuvable : /tmp/sgl_api_q1k3r_dv/absent.ini
 Copiez sgl_prix_api.exemple.ini en sgl_prix_api.ini et remplissez-le (voir GUIDE-API.md).
-===== 2026-11-25 19:22:23 · mise à jour manuelle =====
+===== 2026-11-25 20:01:02 · mise à jour manuelle =====
 Python : /usr/local/bin/python3
 ======================================================================
  Shadsun Gold Lens — prix des HDV v0.14.0
@@ -104,7 +104,7 @@ Objet 7005 — prix unitaire le plus bas et quantité dans chaque HDV :
    123  HDV Alliance    -
    124  HDV Horde       -
    125  HDV neutre      -
-===== 2026-11-25 19:22:23 · mise à jour manuelle =====
+===== 2026-11-25 20:01:02 · mise à jour manuelle =====
 Python : /usr/local/bin/python3
 ======================================================================
  Shadsun Gold Lens — prix des HDV v0.14.0
@@ -117,10 +117,10 @@ Téléchargement HDV Horde (HDV 114)…
   65 annonces, 32 objets, données du 19/11 19:53 (0 s)
 Téléchargement HDV neutre (HDV 115)…
   64 annonces, 31 objets, données du 19/11 19:53 (0 s)
-Module écrit : /tmp/sgl_api_zmlyy_hx/AddOns/ShadsunGoldLens_Prix
+Module écrit : /tmp/sgl_api_q1k3r_dv/AddOns/ShadsunGoldLens_Prix
 En jeu : /reload (ou reconnectez-vous). Vérifiez le module « Shadsun Gold Lens - Prix » dans la liste des add-ons.
 RÉSULTAT : OK
-===== 2026-11-25 19:22:23 · tâche planifiée =====
+===== 2026-11-25 20:01:02 · tâche planifiée =====
 Python : /usr/local/bin/python3
 ======================================================================
  Shadsun Gold Lens — prix des HDV v0.14.0
@@ -144,12 +144,12 @@ RÉSULTAT : ERREUR — ZeroDivisionError: division by zero
 ERREUR : La mise à jour horaire utilise le Planificateur de tâches de Windows.
   nouvelle tentative 2/3 (connexion interrompue : timed out)…
   nouvelle tentative 3/3 (connexion interrompue : timed out)…
-===== 2026-11-25 19:22:23 · tâche planifiée =====
+===== 2026-11-25 20:01:02 · tâche planifiée =====
 Python : /usr/local/bin/python3
 
 RÉSULTAT : ERREUR — délai global dépassé (0 min), mise à jour abandonnée
 RÉSULTAT : OK
-===== 2026-11-25 19:22:23 · mise à jour horaire =====
+===== 2026-11-25 20:01:02 · mise à jour horaire =====
 Python : /usr/local/bin/python3
 ======================================================================
  Shadsun Gold Lens — prix des HDV v0.14.0
@@ -162,7 +162,7 @@ Téléchargement HDV Horde (HDV 114)…
   65 annonces, 32 objets, données du 19/11 19:53 (0 s)
 Téléchargement HDV neutre (HDV 115)…
   64 annonces, 31 objets, données du 19/11 19:53 (0 s)
-Module écrit : /tmp/sgl_api_zmlyy_hx/AddOns/ShadsunGoldLens_Prix
+Module écrit : /tmp/sgl_api_q1k3r_dv/AddOns/ShadsunGoldLens_Prix
 En jeu : /reload (ou reconnectez-vous). Vérifiez le module « Shadsun Gold Lens - Prix » dans la liste des add-ons.
 RÉSULTAT : OK
 
@@ -296,7 +296,7 @@ Résultat outil API : 52 réussis, 0 échoués
   OK    Sous-catégorie générique : aucun métier supposé
   OK    Recette : profession toujours affichée
   OK    Lien d'objet du chat (ItemRefTooltip) : bloc présent
-  OK    Coût d'un rendu en cache < 1 ms (mesuré 0.064 ms, hors client)
+  OK    Coût d'un rendu en cache < 1 ms (mesuré 0.066 ms, hors client)
   OK    Test 8 — relevé marchand enregistré (prix payé 36 pc, PNJ 5494)
   OK    Test 8 — l'observation personnelle prime dans l'infobulle
   OK    Test 9 — TomTom : waypoint ajouté avec uiMapID et coordonnées 0–1
@@ -629,8 +629,10 @@ Résultat outil API : 52 réussis, 0 échoués
   OK    Médaillon : TGA 128×128, 32 bits, non compressé
   OK    Aucune erreur interne (bloc v0.14.0)
   OK    Onglet Objet : Maj+clic sur un objet (client actuel) → objet affiché
-  OK    Onglet Objet : « Ajouter à la liste » → 1 dans la liste active, libellé « Ajouter (1 en liste) »
-  OK    Onglet Objet : Maj+clic sur le bouton → +5 (6)
+  OK    Onglet Objet : « + » → 1 dans la liste active, état « 1 dans « Ma liste » »
+  OK    Onglet Objet : Maj+clic sur « + » → +5 (6)
+  OK    Onglet Objet : « - » → 5
+  OK    Onglet Objet : Maj+clic sur « - » → retiré de la liste, « - » grisé
   OK    Listes : Maj+clic dans « Ajouter » → objet ajouté aussitôt (avant 0.15 : sans effet sur le client actuel)
   OK    Listes : ancien client (ChatEdit_InsertLink) pris en charge, un seul ajout
   OK    Filtre « Nom de l'objet » : Maj+clic → nom de l'objet inséré
@@ -645,11 +647,13 @@ Résultat outil API : 52 réussis, 0 échoués
   OK    Âge de chaque prix porté par la ligne (photos fusionnées)
   OK    Coût de la liste au meilleur prix : 6 × 10 + 2 × 5 (PNJ) = 70 pc ; reste à acheter (2 étoffes possédées) : 4 × 10 + 2 × 5 = 50 pc ; 1 article sans prix
   OK    Ligne du coût affichée sous la liste
+  OK    Liste : « + » sur une ligne → quantité voulue 7
+  OK    Liste : « - » sur une ligne → 6 ; badge à jour
   OK    Aucune erreur interne (bloc v0.15.0)
 
-Résultat : 419 réussis, 0 échoués
+Résultat : 423 réussis, 0 échoués
 
-===== 2026-11-25 19:22:28 · test =====
+===== 2026-11-25 20:01:07 · test =====
 Python : /usr/local/bin/python3
 ======================================================================
  Shadsun Gold Lens — prix des HDV v0.14.0
@@ -662,7 +666,7 @@ Téléchargement HDV Horde (HDV 113)…
   52 annonces, 12 objets, données du 24/11 12:23 (0 s)
 Téléchargement HDV neutre (HDV 116)…
   52 annonces, 12 objets, données du 24/11 12:23 (0 s)
-Module écrit : /tmp/sgl_core_5n_pjaj8/World of Warcraft/_forever_/Interface/AddOns/ShadsunGoldLens_Prix
+Module écrit : /tmp/sgl_core_q3gmxpmm/World of Warcraft/_forever_/Interface/AddOns/ShadsunGoldLens_Prix
 En jeu : /reload (ou reconnectez-vous). Vérifiez le module « Shadsun Gold Lens - Prix » dans la liste des add-ons.
 RÉSULTAT : OK
 OK    Types de serveur : PvP = 110/113/116, Normal = 111/114/117, JdR = 119/120/121, JdR-PvP = 123/124/125
@@ -737,11 +741,13 @@ OK    Remplacement lancé : nouvel exe en mode --remplacer, avec la cible et le 
 OK    Le nouvel exe prend la place de l'ancien, version notée 1.7.0, application relancée
 OK    Fichiers de mise à jour restants supprimés au démarrage suivant
 OK    Hors exe (Python) : pas d'installation ni de mise à jour automatique
-OK    Raccourci : cible, dossier de travail et icône de la copie installée
+OK    Raccourcis : Bureau réel demandé à Windows (OneDrive compris) et menu Démarrer ; cible, dossier de travail, icône
+OK    Raccourci laissé par la 1.6.0 dans un faux dossier « Desktop » : retiré
+OK    Réparation des raccourcis notée une fois (pas de recréation à chaque démarrage)
 OK    En-tête : application « 9.9.9 disponible », add-on « à jour »
 OK    En-tête : application à jour, add-on « 99.0.0 disponible »
 OK    En-tête : sans vérification en ligne, version seule ; add-on non installé signalé
-Résultat application : 76 réussis, 0 échoués
+Résultat application : 78 réussis, 0 échoués
 
 OK    Premier lancement : assistant, étape 1
 OK    Étape 1 : WoW Forever trouvé, région EU détectée
