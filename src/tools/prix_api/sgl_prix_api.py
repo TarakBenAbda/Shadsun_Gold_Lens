@@ -80,7 +80,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-TOOL_VERSION = "0.16.0"
+TOOL_VERSION = "0.16.1"
 AUTHOR = "Tarak Ben Abda"
 HERE = os.path.dirname(os.path.abspath(__file__))
 JOURNAL = os.path.join(HERE, "journal_maj.txt")   # une ligne par étape de chaque mise à jour
@@ -108,6 +108,9 @@ CACHE_ROOT = HERE         # dossier du cache (l'application le place dans %APPDA
 SOURCES = {"foreverah": "Forever AH", "blizzard": "API Blizzard"}
 FAH_BASE = "https://forever-ah.com"
 FAH_PAUSE = 1.1           # s entre deux requêtes à Forever AH (demande du site : ~1 par seconde)
+FAH_PAGE = 200            # lignes par page de /market (maximum accepté par le site ; 50 par défaut)
+FAH_CACHE_VERSION = 2     # cache 1.7.0 et avant : 50 premières lignes seulement → ignoré
+FAH_STATS_MINUTES = 360   # indicateurs (moyennes sur 14 jours) : relus au plus toutes les 6 h
 FAH_CREDIT = "Prix : Forever AH (forever-ah.com), données de l'API Battle.net de Blizzard"
 
 # Types de serveur et leurs HDV (Alliance, Horde, neutre). L'identifiant de
@@ -429,19 +432,31 @@ class ForeverAH(Http):
         if self.cache_minutes > 0 and os.path.exists(cache) and time.time() - os.path.getmtime(cache) < self.cache_minutes * 60:
             with gzip.open(cache, "rt", encoding="utf-8") as f:
                 out = json.load(f)
-            out["items"] = {int(k): tuple(v) for k, v in out["items"].items()}
-            out["stats"] = {int(k): tuple(v) for k, v in (out.get("stats") or {}).items()}
-            return out
+            if out.get("v") == FAH_CACHE_VERSION:
+                out["items"] = {int(k): tuple(v) for k, v in out["items"].items()}
+                out["stats"] = {int(k): tuple(v) for k, v in (out.get("stats") or {}).items()}
+                return out
         key = None
         for h in self.houses():
             if h["id"] == hid:
                 key = h["key"]
         if key is None:
             raise Erreur("HDV %d absent de Forever AH pour la région %s." % (hid, self.region.upper()))
-        obj = self._get("/v1/houses/%s/market" % key)
-        rows = obj.get("rows") if isinstance(obj, dict) else None
-        if not isinstance(rows, list):
-            raise Erreur("Réponse inattendue de Forever AH (pas de table « rows ») pour l'HDV %d." % hid)
+        # La table est paginée : 50 lignes par défaut, 200 au plus (limit / offset).
+        # Avant 1.7.1, seule la 1re page était lue : 50 objets par HDV.
+        rows, offset, obj, announced = [], 0, None, 0
+        for _ in range(1000):
+            page = self._get("/v1/houses/%s/market?limit=%d&offset=%d" % (key, FAH_PAGE, offset))
+            prow = page.get("rows") if isinstance(page, dict) else None
+            if not isinstance(prow, list):
+                raise Erreur("Réponse inattendue de Forever AH (pas de table « rows ») pour l'HDV %d." % hid)
+            if obj is None:
+                obj = page
+                announced = page.get("total") if isinstance(page.get("total"), int) else 0
+            rows.extend(prow)
+            offset += len(prow)
+            if not prow or len(prow) < FAH_PAGE or (announced and offset >= announced):
+                break
         items, total, newest, stats = {}, 0, 0, {}
         for r in rows:
             it, cur = r.get("item") or {}, r.get("current") or {}
@@ -461,13 +476,13 @@ class ForeverAH(Http):
             items[iid] = (int(round(unit)), qty)
             total += int(cur.get("listings") or qty or 0)
             newest = max(newest, iso_time(cur.get("ts")))
-        if isinstance(obj.get("total"), int) and obj["total"] > len(rows):
-            print("  (Forever AH : %d lignes reçues sur %d annoncées)" % (len(rows), obj["total"]))
+        if announced > len(rows):
+            print("  (Forever AH : %d lignes reçues sur %d annoncées)" % (len(rows), announced))
         when = iso_time(obj.get("as_of")) or newest or int(time.time())
         out = {"time": when, "total": total, "items": items, "stats": stats}
         os.makedirs(self.cache_dir, exist_ok=True)
         with gzip.open(cache, "wt", encoding="utf-8") as f:
-            json.dump({"time": when, "total": total, "items": {str(k): v for k, v in items.items()},
+            json.dump({"v": FAH_CACHE_VERSION, "time": when, "total": total, "items": {str(k): v for k, v in items.items()},
                        "stats": {str(k): v for k, v in stats.items()}}, f)
         return out
 
@@ -520,6 +535,8 @@ def fetch_stats(cfg, ids, fah=None, log=print):
     try:
         fah = fah or ForeverAH(dict_cfg_for_fah(cfg))
         fah.attempts = 1
+        # Moyennes sur 14 jours : inutile de relire toute la table chaque heure
+        fah.cache_minutes = max(fah.cache_minutes, FAH_STATS_MINUTES)
     except Exception as e:
         log("  (indicateurs Forever AH indisponibles : %s)" % e)
         return out

@@ -2,7 +2,7 @@
 ## Title: Shadsun Gold Lens - Prix (API Blizzard)
 ## Notes: Prix des hôtels des ventes téléchargés hors du jeu par l'application Shadsun Gold Lens.
 ## Author: Shadsun
-## Version: 0.16.0
+## Version: 0.16.1
 ## Dependencies: ShadsunGoldLens
 
 Prix.lua

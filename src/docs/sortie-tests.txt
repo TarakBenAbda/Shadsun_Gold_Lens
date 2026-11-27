@@ -2,7 +2,7 @@
  Shadsun Gold Lens — tests hors jeu / offline tests
  Auteur : Tarak Ben Abda
 ======================================================================
-  (mesure) 2 HDV × 25 000 objets : 1281 Ko en mémoire Lua · HDV » HDV calculé en 25 ms · ≈ 554 Ko par HDV dans les SavedVariables
+  (mesure) 2 HDV × 25 000 objets : 1281 Ko en mémoire Lua · HDV » HDV calculé en 23 ms · ≈ 554 Ko par HDV dans les SavedVariables
 
   OK    Chargement complet de l'add-on (ordre du .toc, ADDON_LOADED, PLAYER_LOGIN)
   OK    Post-call d'infobulle enregistré une seule fois
@@ -73,7 +73,7 @@
   OK    Sous-catégorie générique : aucun métier supposé
   OK    Recette : profession toujours affichée
   OK    Lien d'objet du chat (ItemRefTooltip) : bloc présent
-  OK    Coût d'un rendu en cache < 1 ms (mesuré 0.067 ms, hors client)
+  OK    Coût d'un rendu en cache < 1 ms (mesuré 0.046 ms, hors client)
   OK    Test 8 — relevé marchand enregistré (prix payé 36 pc, PNJ 5494)
   OK    Test 8 — l'observation personnelle prime dans l'infobulle
   OK    Test 9 — TomTom : waypoint ajouté avec uiMapID et coordonnées 0–1
@@ -256,7 +256,7 @@
   OK    Autre serveur : aucun scan de « Forever » utilisé
   OK    Scans de plus de 30 jours supprimés au démarrage
   OK    Migrations v0.8.0 et v0.11.0 : infobulle portée de 9 à 12 lignes
-  OK    Volume : 2 × 25 000 objets, HDV » HDV en moins de 500 ms (25 ms)
+  OK    Volume : 2 × 25 000 objets, HDV » HDV en moins de 500 ms (23 ms)
   OK    Volume : mémoire des deux scans sous 3 Mo (1281 Ko)
   OK    Interface v0.8.0 : aucun caractère absent de la police du jeu
   OK    Aucune erreur interne (bloc v0.8.0)
@@ -468,7 +468,7 @@
 
 Résultat : 461 réussis, 0 échoués
 ======================================================================
- Shadsun Gold Lens — prix des HDV v0.16.0
+ Shadsun Gold Lens — prix des HDV v0.16.1
  Auteur : Tarak Ben Abda
 ======================================================================
 Clé acceptée : jeton d'accès obtenu.
@@ -491,29 +491,29 @@ Hôtels des ventes (EU, dynamic-forever-eu) :
    125  Blackwater Auction House      HDV neutre
 Étape suivante : python sgl_prix_api.py identifier
 ======================================================================
- Shadsun Gold Lens — prix des HDV v0.16.0
+ Shadsun Gold Lens — prix des HDV v0.16.1
  Auteur : Tarak Ben Abda
 ======================================================================
 
 ERREUR : Clé refusée (401) : vérifiez client_id et client_secret.
 ======================================================================
- Shadsun Gold Lens — prix des HDV v0.16.0
+ Shadsun Gold Lens — prix des HDV v0.16.1
  Auteur : Tarak Ben Abda
 ======================================================================
 
-ERREUR : Fichier de configuration introuvable : /tmp/sgl_api_qi6z7dcq/absent.ini
+ERREUR : Fichier de configuration introuvable : /tmp/sgl_api_lfdq7xio/absent.ini
 Copiez sgl_prix_api.exemple.ini en sgl_prix_api.ini et remplissez-le (voir GUIDE-API.md).
-===== 2026-11-26 19:46:39 · mise à jour manuelle =====
+===== 2026-11-26 20:44:37 · mise à jour manuelle =====
 Python : /usr/local/bin/python3
 ======================================================================
- Shadsun Gold Lens — prix des HDV v0.16.0
+ Shadsun Gold Lens — prix des HDV v0.16.1
  Auteur : Tarak Ben Abda
 ======================================================================
 
 ERREUR : Aucun HDV configuré : choisissez votre type de serveur dans l'application (ou lancez « python sgl_prix_api.py identifier »).
 RÉSULTAT : ERREUR — Aucun HDV configuré : choisissez votre type de serveur dans l'application (ou lancez « python sgl_prix_api.py identifier »).
 ======================================================================
- Shadsun Gold Lens — prix des HDV v0.16.0
+ Shadsun Gold Lens — prix des HDV v0.16.1
  Auteur : Tarak Ben Abda
 ======================================================================
 Scans utilisés : serveur « Forever » — HDV Alliance (30 objets), HDV neutre (30 objets)
@@ -548,13 +548,13 @@ Prix des annonces : « prix du lot entier ».
 
 Enregistré dans sgl_prix_api.ini. Étape suivante : python sgl_prix_api.py maj
 ======================================================================
- Shadsun Gold Lens — prix des HDV v0.16.0
+ Shadsun Gold Lens — prix des HDV v0.16.1
  Auteur : Tarak Ben Abda
 ======================================================================
 
 ERREUR : La mise à jour horaire utilise le Planificateur de tâches de Windows.
 ======================================================================
- Shadsun Gold Lens — prix des HDV v0.16.0
+ Shadsun Gold Lens — prix des HDV v0.16.1
  Auteur : Tarak Ben Abda
 ======================================================================
 Objet 7005 — prix unitaire le plus bas et quantité dans chaque HDV :
@@ -573,10 +573,10 @@ Objet 7005 — prix unitaire le plus bas et quantité dans chaque HDV :
    123  HDV Alliance    -
    124  HDV Horde       -
    125  HDV neutre      -
-===== 2026-11-26 19:46:39 · mise à jour manuelle =====
+===== 2026-11-26 20:44:37 · mise à jour manuelle =====
 Python : /usr/local/bin/python3
 ======================================================================
- Shadsun Gold Lens — prix des HDV v0.16.0
+ Shadsun Gold Lens — prix des HDV v0.16.1
  Auteur : Tarak Ben Abda
 ======================================================================
 Source : API Blizzard
@@ -589,20 +589,20 @@ Téléchargement HDV neutre (HDV 115)…
 Indicateurs de marché (Forever AH)…
   (indicateurs Forever AH indisponibles pour l'HDV 113 : Échec après 1 tentative (connexion impossible : [Errno 111] Connection refused) : Forever AH /v1/houses)
   aucun indicateur reçu
-Module écrit : /tmp/sgl_api_qi6z7dcq/AddOns/ShadsunGoldLens_Prix
-Historique local : 95 relevés ajoutés (/tmp/sgl_api_qi6z7dcq/cache/historique.sqlite)
+Module écrit : /tmp/sgl_api_lfdq7xio/AddOns/ShadsunGoldLens_Prix
+Historique local : 95 relevés ajoutés (/tmp/sgl_api_lfdq7xio/cache/historique.sqlite)
 En jeu : /reload (ou reconnectez-vous). Vérifiez le module « Shadsun Gold Lens - Prix » dans la liste des add-ons.
 RÉSULTAT : OK
-===== 2026-11-26 19:46:39 · tâche planifiée =====
+===== 2026-11-26 20:44:37 · tâche planifiée =====
 Python : /usr/local/bin/python3
 ======================================================================
- Shadsun Gold Lens — prix des HDV v0.16.0
+ Shadsun Gold Lens — prix des HDV v0.16.1
  Auteur : Tarak Ben Abda
 ======================================================================
 Traceback (most recent call last):
-  File "/home/claude/shadsun_gold_lens/src/tests/../tools/prix_api/sgl_prix_api.py", line 1303, in run_logged
+  File "/home/claude/shadsun_gold_lens/src/tests/../tools/prix_api/sgl_prix_api.py", line 1320, in run_logged
     code = fn()
-  File "/home/claude/shadsun_gold_lens/src/tests/../tools/prix_api/sgl_prix_api.py", line 1660, in job
+  File "/home/claude/shadsun_gold_lens/src/tests/../tools/prix_api/sgl_prix_api.py", line 1677, in job
     return cmd_update(load_config(args.config), args)
   File "/home/claude/shadsun_gold_lens/src/tests/test_sgl_prix_api.py", line 333, in <lambda>
     T.cmd_update = lambda cfg, args: 1 / 0
@@ -610,22 +610,22 @@ Traceback (most recent call last):
 ZeroDivisionError: division by zero
 RÉSULTAT : ERREUR — ZeroDivisionError: division by zero
 ======================================================================
- Shadsun Gold Lens — prix des HDV v0.16.0
+ Shadsun Gold Lens — prix des HDV v0.16.1
  Auteur : Tarak Ben Abda
 ======================================================================
 
 ERREUR : La mise à jour horaire utilise le Planificateur de tâches de Windows.
   nouvelle tentative 2/3 (connexion interrompue : timed out)…
   nouvelle tentative 3/3 (connexion interrompue : timed out)…
-===== 2026-11-26 19:46:39 · tâche planifiée =====
+===== 2026-11-26 20:44:37 · tâche planifiée =====
 Python : /usr/local/bin/python3
 
 RÉSULTAT : ERREUR — délai global dépassé (0 min), mise à jour abandonnée
 RÉSULTAT : OK
-===== 2026-11-26 19:46:39 · mise à jour horaire =====
+===== 2026-11-26 20:44:37 · mise à jour horaire =====
 Python : /usr/local/bin/python3
 ======================================================================
- Shadsun Gold Lens — prix des HDV v0.16.0
+ Shadsun Gold Lens — prix des HDV v0.16.1
  Auteur : Tarak Ben Abda
 ======================================================================
 Source : API Blizzard
@@ -638,8 +638,8 @@ Téléchargement HDV neutre (HDV 115)…
 Indicateurs de marché (Forever AH)…
   (indicateurs Forever AH indisponibles pour l'HDV 113 : Échec après 1 tentative (connexion impossible : [Errno 111] Connection refused) : Forever AH /v1/houses)
   aucun indicateur reçu
-Module écrit : /tmp/sgl_api_qi6z7dcq/AddOns/ShadsunGoldLens_Prix
-Historique local : 95 relevés ajoutés (/tmp/sgl_api_qi6z7dcq/cache/historique.sqlite)
+Module écrit : /tmp/sgl_api_lfdq7xio/AddOns/ShadsunGoldLens_Prix
+Historique local : 95 relevés ajoutés (/tmp/sgl_api_lfdq7xio/cache/historique.sqlite)
 En jeu : /reload (ou reconnectez-vous). Vérifiez le module « Shadsun Gold Lens - Prix » dans la liste des add-ons.
 RÉSULTAT : OK
 
@@ -701,10 +701,10 @@ RÉSULTAT : OK
   OK    Journal : libellé « mise à jour horaire »
 
 Résultat outil API : 56 réussis, 0 échoués
-===== 2026-11-26 19:46:40 · test =====
+===== 2026-11-26 20:44:37 · test =====
 Python : /usr/local/bin/python3
 ======================================================================
- Shadsun Gold Lens — prix des HDV v0.16.0
+ Shadsun Gold Lens — prix des HDV v0.16.1
  Auteur : Tarak Ben Abda
 ======================================================================
 Source : Forever AH — Prix : Forever AH (forever-ah.com), données de l'API Battle.net de Blizzard
@@ -715,8 +715,8 @@ Téléchargement HDV Horde (HDV 113)…
 Téléchargement HDV neutre (HDV 116)…
   52 annonces, 12 objets, données du 24/11 12:23 (0 s)
   36 objets avec ventes par jour et valeur habituelle
-Module écrit : /tmp/sgl_core_3w8qpsfs/World of Warcraft/_forever_/Interface/AddOns/ShadsunGoldLens_Prix
-Historique local : 36 relevés ajoutés (/tmp/sgl_core_3w8qpsfs/appdata/cache/historique.sqlite)
+Module écrit : /tmp/sgl_core_rcsj43bg/World of Warcraft/_forever_/Interface/AddOns/ShadsunGoldLens_Prix
+Historique local : 36 relevés ajoutés (/tmp/sgl_core_rcsj43bg/appdata/cache/historique.sqlite)
 En jeu : /reload (ou reconnectez-vous). Vérifiez le module « Shadsun Gold Lens - Prix » dans la liste des add-ons.
 RÉSULTAT : OK
 OK    Types de serveur : PvP = 110/113/116, Normal = 111/114/117, JdR = 119/120/121, JdR-PvP = 123/124/125
@@ -727,6 +727,8 @@ OK    Forever AH : l'application s'identifie (User-Agent)
 OK    Configuration du moteur : HDV déduits du type de serveur
 OK    Table du marché : prix unitaire minimum et quantité ; ligne sans prix ignorée
 OK    Table du marché : date des données (as_of) et nombre d'annonces
+OK    Table paginée (50 lignes par défaut sur le site) : toutes les pages lues — 13 lignes en pages de 5 = 3 requêtes (1.7.1)
+OK    Cache d'avant 1.7.1 (sans version, tronqué) : ignoré, table relue en entier
 OK    Table du marché : cache local (pas de nouvelle requête dans les 50 min)
 OK    Mise à jour (source Forever AH) : module écrit, journal « OK »
 OK    Module : source « Forever AH » et attribution
@@ -800,7 +802,7 @@ OK    Réparation des raccourcis notée une fois (pas de recréation à chaque d
 OK    En-tête : application « 9.9.9 disponible », add-on « à jour »
 OK    En-tête : application à jour, add-on « 99.0.0 disponible »
 OK    En-tête : sans vérification en ligne, version seule ; add-on non installé signalé
-Résultat application : 81 réussis, 0 échoués
+Résultat application : 83 réussis, 0 échoués
 OK    Premier lancement : assistant, étape 1
 OK    Étape 1 : WoW Forever trouvé, région EU détectée
 OK    Étape 1 : add-on pas encore installé, installation cochée

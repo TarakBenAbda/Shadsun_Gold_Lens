@@ -69,6 +69,7 @@ def price(hid, iid):
 
 
 SEEN = {"ua": True, "count": 0}
+FAH_MAX_PAGE = 5    # le site réel plafonne à 200 lignes par page ; ici 5 pour tester la pagination
 
 
 class FakeFAH(BaseHTTPRequestHandler):
@@ -96,8 +97,14 @@ class FakeFAH(BaseHTTPRequestHandler):
             rows.append({"house_key": 99, "region": "us", "ruleset_id": 2, "house_id": 110, "name": "Alliance Auction House",
                          "last_snapshot": "2026-11-24T12:22:56Z", "house_type": "real"})
             return self.send_json(rows)
-        if self.path.startswith("/v1/houses/") and self.path.endswith("/market"):
-            key = int(self.path.split("/")[3])
+        path, _, query = self.path.partition("?")
+        if path.startswith("/v1/houses/") and path.endswith("/market"):
+            # Comme le site réel : table paginée (limit, 50 par défaut, plafonnée ; offset)
+            qs = dict(kv.split("=", 1) for kv in query.split("&") if "=" in kv)
+            limit = min(int(qs.get("limit", 50)), FAH_MAX_PAGE)
+            offset = int(qs.get("offset", 0))
+            SEEN["pages"] = SEEN.get("pages", 0) + 1
+            key = int(path.split("/")[3])
             hid = HOUSE_IDS[key - 18] if 18 <= key < 18 + len(HOUSE_IDS) else 110
             rows = []
             for iid in (2589, 2592, 2318, 4306, 2770, 2771, 2772, 3576, 2840, 2841, 2842, 3575):
@@ -108,7 +115,7 @@ class FakeFAH(BaseHTTPRequestHandler):
                              "stats": {"market_value": p + 4, "sold_per_day": 12.5}})
             rows.append({"item": {"item_id": 9999}, "current": {"min_unit": None, "quantity": 0}})   # ligne vide ignorée
             return self.send_json({"house": {"house_id": hid}, "as_of": "2026-11-24T17:23:11Z", "change_window_hours": 24,
-                                   "total": len(rows), "rows": rows})
+                                   "total": len(rows), "rows": rows[offset:offset + limit]})
         self.send_json({"error": "not found"}, 404)
 
 
@@ -116,6 +123,7 @@ srv = HTTPServer(("127.0.0.1", 0), FakeFAH)
 threading.Thread(target=srv.serve_forever, daemon=True).start()
 E.FAH_BASE = "http://127.0.0.1:%d" % srv.server_address[1]
 E.FAH_PAUSE = 0
+E.FAH_PAGE = 5
 core.setup_engine()
 
 # --- Types de serveur ----------------------------------------------------------
@@ -147,6 +155,15 @@ check("Table du marché : prix unitaire minimum et quantité ; ligne sans prix i
       mk["items"][2589] == (95, 20 + 2589 % 7) and 9999 not in mk["items"] and len(mk["items"]) == 12, mk["items"].get(2589))
 check("Table du marché : date des données (as_of) et nombre d'annonces",
       mk["time"] == E.iso_time("2026-11-24T17:23:11Z") and mk["total"] == sum(3 + i % 4 for i in mk["items"]), mk["time"])
+check("Table paginée (50 lignes par défaut sur le site) : toutes les pages lues — 13 lignes en pages de 5 = 3 requêtes (1.7.1)",
+      len(mk["items"]) == 12 and len(mk["stats"]) == 12, (len(mk["items"]), len(mk["stats"])))
+import gzip as _gz, json as _js
+_c = os.path.join(E.CACHE_ROOT, ecfg["outil"].get("dossier_cache", "cache"), "fah_eu_113.json.gz")
+_d = _js.load(_gz.open(_c, "rt", encoding="utf-8"))
+_d.pop("v", None); _d["items"] = {"2589": [1, 1]}
+with _gz.open(_c, "wt", encoding="utf-8") as _f:
+    _js.dump(_d, _f)
+check("Cache d'avant 1.7.1 (sans version, tronqué) : ignoré, table relue en entier", len(E.ForeverAH(ecfg).market(113)["items"]) == 12)
 n_before = SEEN["count"]
 E.ForeverAH(ecfg).market(113)
 check("Table du marché : cache local (pas de nouvelle requête dans les 50 min)", SEEN["count"] == n_before)

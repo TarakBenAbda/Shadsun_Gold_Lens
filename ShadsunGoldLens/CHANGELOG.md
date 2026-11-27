@@ -1,5 +1,15 @@
 # Journal des modifications — Shadsun Gold Lens
 
+## Application 1.7.1 — 26 novembre 2026
+
+Add-on inchangé (0.16.1).
+
+- **Ventes par jour presque toujours vides** : Forever AH découpe la table de chaque HDV en pages (50 lignes par défaut, 200 au plus). L'application ne lisait que la première page : 50 objets par HDV sur plusieurs milliers (journal : « 50 lignes reçues sur 7254 annoncées »). Toutes les pages sont maintenant lues, par 200 lignes.
+  - En mode Simple (source Forever AH), cela touchait aussi les **prix** : seuls 50 objets par HDV étaient importés.
+  - Durée : environ 25 secondes par HDV avec le rythme demandé par le site (une requête par seconde).
+  - En mode Avancé (API Blizzard), les indicateurs sont des moyennes sur 14 jours : ils sont relus au plus toutes les 6 heures.
+  - Les fichiers de cache incomplets des versions précédentes sont ignorés.
+
 ## 0.16.1 — 26 novembre 2026
 
 Application inchangée (1.7.0).

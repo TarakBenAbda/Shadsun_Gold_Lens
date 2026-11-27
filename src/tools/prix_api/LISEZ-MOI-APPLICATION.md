@@ -67,7 +67,7 @@ Le décor reprend le personnage et le logo de Shadsun Gold Lens : fond bleu nuit
 | Simple (par défaut) | Forever AH (forever-ah.com) | Rien | Site gratuit qui lit l'API Battle.net. Environ une requête par seconde au plus, comme le site le demande. La mention « Prix : Forever AH (forever-ah.com) » est affichée dans l'application et dans l'add-on. |
 | Avancé | API Blizzard | Un compte développeur (gratuit) | Ne dépend d'aucun site tiers. Chaque joueur crée sa propre clé : une clé secrète ne se partage pas. |
 
-Les **indicateurs** (ventes par jour, valeur habituelle) viennent toujours de Forever AH, même en mode Avancé : l'API Blizzard ne les fournit pas. Si Forever AH ne répond pas, les prix sont écrits sans indicateurs. Pour ne pas les télécharger : `indicateurs = 0` dans la section `[outil]`.
+Les **indicateurs** (ventes par jour, valeur habituelle) viennent toujours de Forever AH, même en mode Avancé : l'API Blizzard ne les fournit pas. Si Forever AH ne répond pas, les prix sont écrits sans indicateurs. Pour ne pas les télécharger : `indicateurs = 0` dans la section `[outil]`. Ils sont relus au plus toutes les 6 heures en mode Avancé ; la première lecture prend environ 25 secondes par HDV (le site sert sa table par pages de 200 lignes, au rythme d'une requête par seconde).
 
 Si Forever AH change ou ferme, le journal l'indique. Il suffit alors de passer en mode Avancé dans « Paramètres ».
 
