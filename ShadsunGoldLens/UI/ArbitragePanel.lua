@@ -36,7 +36,7 @@ do
 end
 AUI.PRESETS = {
     { "ess", "Essentiel", { "name", "minUnit", "sell", "gainUnit", "gain" } },
-    { "std", "Standard", { "name", "minUnit", "sell", "gainUnit", "qty", "gain", "value", "source", "bags", "sale" } },
+    { "std", "Standard", { "name", "minUnit", "sell", "gainUnit", "qty", "gain", "value", "bags", "sale" } },
     { "all", "Complet" },
 }
 AUI.WIDTH = 730

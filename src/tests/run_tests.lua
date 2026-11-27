@@ -2106,7 +2106,8 @@ do
     check("Colonne verrouillée (Objet) : jamais masquée", cs.IsShown("name"))
     local vis = cs.Layout()
     local last = vis[#vis]
-    check("Disposition : colonnes visibles dans la largeur du tableau", last.vx + last.vw <= 812 - 14 + 1, last.vx + last.vw)
+    check("Disposition : colonnes visibles avant la zone des icônes de ligne (0.16.1)", cs.reserve > 0 and last.vx + last.vw <= 812 - 14 - cs.reserve + 1,
+        (last.vx + last.vw) .. " / réserve " .. cs.reserve)
     headerCell(fw, "profit").__scripts.OnClick(headerCell(fw, "profit"), "RightButton")
     check("Clic droit sur l'en-tête : fenêtre « Colonnes affichées »", cs.menu and cs.menu:IsShown())
     local ck
@@ -2137,6 +2138,24 @@ do
     check("Avis : 0,2 vente/j à l'HDV de revente → À vérifier (vente lente)", cloth and cloth.avis == "chk" and cloth.why == "slow",
         cloth and (cloth.avis .. " " .. tostring(cloth.why)))
     check("Raison lisible de l'avis lent", ns.CrossUI.Reason(cloth):find("se vend très peu", 1, true) ~= nil)
+    do
+        local ccs = cp.columns
+        ccs.ApplyPreset("std")
+        local cv = ccs.Layout()
+        local cl = cv[#cv]
+        check("HDV » HDV, modèle Standard : « Vente » affichée, rien sous les icônes « - », « + » et loupe (0.16.1)",
+            ccs.IsShown("sale") and cl.vx + cl.vw <= 812 - 14 - ccs.reserve + 1 and ccs.reserve >= 60, (cl.vx + cl.vw) .. " / " .. ccs.reserve)
+        local nameCol = ccs.cols[1]
+        check("Colonne « Objet » resserrée en premier (au moins 100 px), autres colonnes à leur largeur", nameCol.vw >= 100 and cv[2].vw == cv[2].w,
+            nameCol.vw .. " " .. cv[2].vw)
+        -- Ancien choix « Standard » (0.16.0, sans « Vente ») : réappliqué
+        ns.settings.columns.cross_window = { hidden = { sale = true }, preset = "std" }
+        check("Modèle « Standard » enregistré en 0.16.0 : mis à jour (« Vente » réaffichée)", ccs.IsShown("sale"))
+        ns.settings.columns.cross_window = { hidden = { sale = true } }
+        check("Choix personnalisé : conservé tel quel", not ccs.IsShown("sale"))
+        ccs.ApplyPreset("std")
+    end
+    check("Indicateurs présents : pas d'avertissement dans le résumé", MK.StatsNote("N") == "")
     check("HDV » HDV : choix des colonnes séparé (cross_window)", cp.columns and cp.columns.key == "cross_window" and ns.settings.columns.cross_window ~= nil)
     -- Listes : couleurs selon l'écart
     ns.Lists.Add(2589, 1)
@@ -2158,6 +2177,12 @@ do
     -- HDV » PNJ : colonne Valeur
     local rv = opp.reverse
     check("HDV » PNJ : choix des colonnes (arb) avec « Valeur »", rv.columns and rv.columns.key == "arb" and rv.columns.IsShown("value"))
+    MK.ext.N.s = nil
+    MK.InvalidateSnap()
+    check("Prix sans indicateurs (application d'avant 1.7) : avertissement « ventes/j indisponibles »", strip(MK.StatsNote("N")):find("ventes/j indisponibles", 1, true) ~= nil)
+    cp.Compute()
+    check("HDV » HDV : l'avertissement apparaît dans le résumé", strip(cp.summaryText and cp.summaryText:GetText() or ""):find("ventes/j indisponibles", 1, true) ~= nil,
+        cp.summaryText and cp.summaryText:GetText())
     check("Aucune erreur interne (bloc v0.16.0)", ns.Diag.counters.errors == 0, ns.Diag.errors[1] and ns.Diag.errors[1].err)
 end
 

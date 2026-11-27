@@ -1,5 +1,15 @@
 # Journal des modifications — Shadsun Gold Lens
 
+## 0.16.1 — 26 novembre 2026
+
+Application inchangée (1.7.0).
+
+- **Colonnes sous les icônes** : en 0.16.0, les colonnes occupaient toute la largeur du tableau et passaient sous les boutons « - », « + » et la loupe en fin de ligne (« Avis » et « Sacs » illisibles). La zone des icônes est maintenant réservée. S'il y a trop de colonnes, la colonne « Objet » est resserrée d'abord (jusqu'à 100 px).
+- **« Vente » (exemplaires mis en vente) revient dans le modèle « Standard »** de PNJ » HDV et HDV » HDV. Si vous utilisiez le modèle tel quel, il est mis à jour ; un choix personnalisé est conservé.
+- HDV » PNJ : « Source » quitte le modèle « Standard » (toujours disponible avec « Complet » ou la case à cocher ; détail au survol).
+- **Ventes/j vides** : le résumé au-dessus du tableau l'explique désormais (« ventes/j indisponibles (mettez à jour les prix avec l'application 1.7) »). Les prix produits par l'application 1.6.2 ou plus ancienne ne contiennent pas les indicateurs.
+- Colonnes « Ventes/j » et « Gain/j » un peu plus étroites.
+
 ## 0.16.0 et application 1.7.0 — 26 novembre 2026
 
 ### Indicateurs de marché (Forever AH)

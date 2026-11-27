@@ -33,7 +33,7 @@ local LAYOUTS = {
 -- Avis : libellés, couleurs et rang de tri / verdict labels
 XUI.PRESETS = {
     { "ess", "Essentiel", { "name", "buyUnit", "sellUnit", "realGain", "roi", "avisRank" } },
-    { "std", "Standard", { "name", "buyUnit", "sellUnit", "ref", "realGain", "roi", "qty", "sales", "gainDay", "avisRank", "bags" } },
+    { "std", "Standard", { "name", "buyUnit", "sellUnit", "ref", "realGain", "roi", "qty", "sales", "gainDay", "avisRank", "bags", "sale" } },
     { "fast", "Revente rapide", { "name", "buyUnit", "sellUnit", "realGain", "sales", "gainDay", "advice", "value", "avisRank" } },
     { "all", "Complet" },
 }
@@ -177,6 +177,7 @@ function XUI.Build(parent, mode)
     local summary = W.Text(page, "GameFontHighlightSmall", "", "LEFT", layout.width - 110)
     summary:SetPoint("TOPLEFT", 0, -84)
     summary:SetWordWrap(false)
+    page.summaryText = summary
 
     -- --- Colonnes (libellés selon le sens) / columns -------------------------------
     local X, Wd = layout.x, layout.w
@@ -195,8 +196,8 @@ function XUI.Build(parent, mode)
         { key = "bags", label = "Sacs", x = X.bags, w = Wd.bags, right = true, tip = W.TIP_BAGS },
         { key = "sale", label = "Vente", x = X.sale, w = Wd.sale, right = true, tip = W.TIP_SALE },
         -- 0.16 : indicateurs de marché
-        { key = "sales", label = "Ventes/j", w = 52, right = true, tip = "Ventes estimées par jour à l'HDV de revente (Forever AH : annonces disparues entre deux relevés, achetées ou annulées)." },
-        { key = "gainDay", label = "Gain/j", w = 64, right = true, tip = "Gain par jour estimé : gain réaliste par unité × ventes par jour à l'HDV de revente." },
+        { key = "sales", label = "Ventes/j", w = 44, right = true, tip = "Ventes estimées par jour à l'HDV de revente (Forever AH : annonces disparues entre deux relevés, achetées ou annulées)." },
+        { key = "gainDay", label = "Gain/j", w = 56, right = true, tip = "Gain par jour estimé : gain réaliste par unité × ventes par jour à l'HDV de revente." },
         { key = "advice", label = "Conseil", w = 46, right = true, menuLabel = "Quantité conseillée", tip = "Quantité conseillée : environ 3 jours de ventes à l'HDV de revente, sans dépasser la quantité disponible." },
         { key = "value", label = "Valeur", w = 50, right = true, menuLabel = "Écart à la valeur habituelle", tip = "Prix d'achat comparé à la valeur habituelle de l'HDV d'achat (moyenne sur 14 jours). Vert : vraie bonne affaire." },
     }
@@ -390,7 +391,7 @@ function XUI.Build(parent, mode)
                     " (" .. MK.SourceText(s) .. (key == sellKey and (", commission " .. tostring(pct) .. " %") or "") .. ")")
             end
         end
-        summary:SetText(U.Color(U.colors.title, #rows .. " ligne(s)") .. " · "
+        summary:SetText(U.Color(U.colors.title, #rows .. " ligne(s)") .. " · " .. MK.StatsNote(sellKey)
             .. (#parts > 0 and table.concat(parts, " · ") or U.Color(U.colors.dim, "aucune donnée")))
     end
 

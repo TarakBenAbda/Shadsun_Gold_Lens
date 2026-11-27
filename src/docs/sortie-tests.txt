@@ -73,7 +73,7 @@
   OK    Sous-catégorie générique : aucun métier supposé
   OK    Recette : profession toujours affichée
   OK    Lien d'objet du chat (ItemRefTooltip) : bloc présent
-  OK    Coût d'un rendu en cache < 1 ms (mesuré 0.046 ms, hors client)
+  OK    Coût d'un rendu en cache < 1 ms (mesuré 0.067 ms, hors client)
   OK    Test 8 — relevé marchand enregistré (prix payé 36 pc, PNJ 5494)
   OK    Test 8 — l'observation personnelle prime dans l'infobulle
   OK    Test 9 — TomTom : waypoint ajouté avec uiMapID et coordonnées 0–1
@@ -443,7 +443,7 @@
   OK    Modèle « Complet » : toutes les colonnes, dont « Conseil »
   OK    Case décochée : « Zone » masquée, mémorisée, modèle personnalisé
   OK    Colonne verrouillée (Objet) : jamais masquée
-  OK    Disposition : colonnes visibles dans la largeur du tableau
+  OK    Disposition : colonnes visibles avant la zone des icônes de ligne (0.16.1)
   OK    Clic droit sur l'en-tête : fenêtre « Colonnes affichées »
   OK    Fenêtre : décocher « Rentab. » masque la colonne
   OK    Bouton « Colonnes » : ouvre la même fenêtre
@@ -452,14 +452,21 @@
   OK    HDV » HDV : gain par jour et conseil (12, plafonné à la quantité disponible : 5)
   OK    Avis : 0,2 vente/j à l'HDV de revente → À vérifier (vente lente)
   OK    Raison lisible de l'avis lent
+  OK    HDV » HDV, modèle Standard : « Vente » affichée, rien sous les icônes « - », « + » et loupe (0.16.1)
+  OK    Colonne « Objet » resserrée en premier (au moins 100 px), autres colonnes à leur largeur
+  OK    Modèle « Standard » enregistré en 0.16.0 : mis à jour (« Vente » réaffichée)
+  OK    Choix personnalisé : conservé tel quel
+  OK    Indicateurs présents : pas d'avertissement dans le résumé
   OK    HDV » HDV : choix des colonnes séparé (cross_window)
   OK    Listes : prix de l'étoffe au neutre (40 pc pour 40 habituels) sans couleur d'écart ; Alliance la moins chère en vert
   OK    Listes : choix des colonnes (lists_window)
   OK    Listes : 20 pc au neutre pour 40 habituels → bleu (bonne affaire)
   OK    HDV » PNJ : choix des colonnes (arb) avec « Valeur »
+  OK    Prix sans indicateurs (application d'avant 1.7) : avertissement « ventes/j indisponibles »
+  OK    HDV » HDV : l'avertissement apparaît dans le résumé
   OK    Aucune erreur interne (bloc v0.16.0)
 
-Résultat : 454 réussis, 0 échoués
+Résultat : 461 réussis, 0 échoués
 ======================================================================
  Shadsun Gold Lens — prix des HDV v0.16.0
  Auteur : Tarak Ben Abda
@@ -494,9 +501,9 @@ ERREUR : Clé refusée (401) : vérifiez client_id et client_secret.
  Auteur : Tarak Ben Abda
 ======================================================================
 
-ERREUR : Fichier de configuration introuvable : /tmp/sgl_api_75zfzjpr/absent.ini
+ERREUR : Fichier de configuration introuvable : /tmp/sgl_api_qi6z7dcq/absent.ini
 Copiez sgl_prix_api.exemple.ini en sgl_prix_api.ini et remplissez-le (voir GUIDE-API.md).
-===== 2026-11-26 19:19:57 · mise à jour manuelle =====
+===== 2026-11-26 19:46:39 · mise à jour manuelle =====
 Python : /usr/local/bin/python3
 ======================================================================
  Shadsun Gold Lens — prix des HDV v0.16.0
@@ -566,7 +573,7 @@ Objet 7005 — prix unitaire le plus bas et quantité dans chaque HDV :
    123  HDV Alliance    -
    124  HDV Horde       -
    125  HDV neutre      -
-===== 2026-11-26 19:19:57 · mise à jour manuelle =====
+===== 2026-11-26 19:46:39 · mise à jour manuelle =====
 Python : /usr/local/bin/python3
 ======================================================================
  Shadsun Gold Lens — prix des HDV v0.16.0
@@ -582,11 +589,11 @@ Téléchargement HDV neutre (HDV 115)…
 Indicateurs de marché (Forever AH)…
   (indicateurs Forever AH indisponibles pour l'HDV 113 : Échec après 1 tentative (connexion impossible : [Errno 111] Connection refused) : Forever AH /v1/houses)
   aucun indicateur reçu
-Module écrit : /tmp/sgl_api_75zfzjpr/AddOns/ShadsunGoldLens_Prix
-Historique local : 95 relevés ajoutés (/tmp/sgl_api_75zfzjpr/cache/historique.sqlite)
+Module écrit : /tmp/sgl_api_qi6z7dcq/AddOns/ShadsunGoldLens_Prix
+Historique local : 95 relevés ajoutés (/tmp/sgl_api_qi6z7dcq/cache/historique.sqlite)
 En jeu : /reload (ou reconnectez-vous). Vérifiez le module « Shadsun Gold Lens - Prix » dans la liste des add-ons.
 RÉSULTAT : OK
-===== 2026-11-26 19:19:57 · tâche planifiée =====
+===== 2026-11-26 19:46:39 · tâche planifiée =====
 Python : /usr/local/bin/python3
 ======================================================================
  Shadsun Gold Lens — prix des HDV v0.16.0
@@ -610,12 +617,12 @@ RÉSULTAT : ERREUR — ZeroDivisionError: division by zero
 ERREUR : La mise à jour horaire utilise le Planificateur de tâches de Windows.
   nouvelle tentative 2/3 (connexion interrompue : timed out)…
   nouvelle tentative 3/3 (connexion interrompue : timed out)…
-===== 2026-11-26 19:19:57 · tâche planifiée =====
+===== 2026-11-26 19:46:39 · tâche planifiée =====
 Python : /usr/local/bin/python3
 
 RÉSULTAT : ERREUR — délai global dépassé (0 min), mise à jour abandonnée
 RÉSULTAT : OK
-===== 2026-11-26 19:19:58 · mise à jour horaire =====
+===== 2026-11-26 19:46:39 · mise à jour horaire =====
 Python : /usr/local/bin/python3
 ======================================================================
  Shadsun Gold Lens — prix des HDV v0.16.0
@@ -631,8 +638,8 @@ Téléchargement HDV neutre (HDV 115)…
 Indicateurs de marché (Forever AH)…
   (indicateurs Forever AH indisponibles pour l'HDV 113 : Échec après 1 tentative (connexion impossible : [Errno 111] Connection refused) : Forever AH /v1/houses)
   aucun indicateur reçu
-Module écrit : /tmp/sgl_api_75zfzjpr/AddOns/ShadsunGoldLens_Prix
-Historique local : 95 relevés ajoutés (/tmp/sgl_api_75zfzjpr/cache/historique.sqlite)
+Module écrit : /tmp/sgl_api_qi6z7dcq/AddOns/ShadsunGoldLens_Prix
+Historique local : 95 relevés ajoutés (/tmp/sgl_api_qi6z7dcq/cache/historique.sqlite)
 En jeu : /reload (ou reconnectez-vous). Vérifiez le module « Shadsun Gold Lens - Prix » dans la liste des add-ons.
 RÉSULTAT : OK
 
@@ -694,7 +701,7 @@ RÉSULTAT : OK
   OK    Journal : libellé « mise à jour horaire »
 
 Résultat outil API : 56 réussis, 0 échoués
-===== 2026-11-26 19:19:58 · test =====
+===== 2026-11-26 19:46:40 · test =====
 Python : /usr/local/bin/python3
 ======================================================================
  Shadsun Gold Lens — prix des HDV v0.16.0
@@ -708,8 +715,8 @@ Téléchargement HDV Horde (HDV 113)…
 Téléchargement HDV neutre (HDV 116)…
   52 annonces, 12 objets, données du 24/11 12:23 (0 s)
   36 objets avec ventes par jour et valeur habituelle
-Module écrit : /tmp/sgl_core_xay27zbq/World of Warcraft/_forever_/Interface/AddOns/ShadsunGoldLens_Prix
-Historique local : 36 relevés ajoutés (/tmp/sgl_core_xay27zbq/appdata/cache/historique.sqlite)
+Module écrit : /tmp/sgl_core_3w8qpsfs/World of Warcraft/_forever_/Interface/AddOns/ShadsunGoldLens_Prix
+Historique local : 36 relevés ajoutés (/tmp/sgl_core_3w8qpsfs/appdata/cache/historique.sqlite)
 En jeu : /reload (ou reconnectez-vous). Vérifiez le module « Shadsun Gold Lens - Prix » dans la liste des add-ons.
 RÉSULTAT : OK
 OK    Types de serveur : PvP = 110/113/116, Normal = 111/114/117, JdR = 119/120/121, JdR-PvP = 123/124/125

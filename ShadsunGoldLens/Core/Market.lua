@@ -279,6 +279,15 @@ function MK.Stats(s, itemID)
 end
 function MK.KeyStats(key, itemID) return MK.Stats(MK.Snap(key), itemID) end
 
+-- Avertissement quand l'HDV n'a aucun indicateur (prix produits avant
+-- l'application 1.7, ou Forever AH injoignable) : sinon les colonnes « Ventes/j »
+-- restent vides sans explication. "" si les indicateurs sont présents.
+function MK.StatsNote(key)
+    local s = MK.Snap(key)
+    if s and s.s and next(s.s) then return "" end
+    return U.Color(U.colors.warn, "ventes/j indisponibles (mettez à jour les prix avec l'application 1.7)") .. " · "
+end
+
 -- Écart (%) d'un prix à la valeur habituelle / deviation from usual value
 function MK.ValueDelta(unit, usual)
     if not unit or not usual or usual <= 0 then return nil end

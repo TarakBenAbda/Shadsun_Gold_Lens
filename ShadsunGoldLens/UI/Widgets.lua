@@ -723,10 +723,18 @@ end
 --            default = id, iconPad = décalage du texte de la 1re colonne }
 -- -----------------------------------------------------------------------------
 local COL_GAP = 2
+W.COLSET_VERSION = 2
+W.FLEX_MIN = 100
 
 function W.ColumnSet(tableKey, cols, opts)
     local cs = { key = tableKey, cols = cols, opts = opts, binds = {} }
     ns.settings.columns = ns.settings.columns or {}
+    -- Zone réservée à droite pour les icônes des lignes (« - », « + », loupe) :
+    -- l'espace laissé par la disposition d'origine (colonnes avec x).
+    -- Avant 0.16.1, les colonnes occupaient toute la largeur et passaient sous les icônes.
+    local right = 0
+    for _, c in ipairs(cols) do if c.x then right = math.max(right, c.x + c.w) end end
+    cs.reserve = opts.reserve or math.max(0, (opts.width or 600) - right)
     local function store()
         local st = ns.settings.columns[tableKey]
         if type(st) ~= "table" then
@@ -735,6 +743,12 @@ function W.ColumnSet(tableKey, cols, opts)
             cs.ApplyPreset(opts.default, true)
         end
         st.hidden = st.hidden or {}
+        -- Modèles revus (0.16.1 : « Vente » ajoutée à « Standard ») : un modèle
+        -- choisi tel quel est réappliqué ; un choix personnalisé est conservé.
+        if st.v ~= W.COLSET_VERSION then
+            st.v = W.COLSET_VERSION
+            if st.preset then cs.ApplyPreset(st.preset, true) end
+        end
         return st
     end
     function cs.IsShown(key)
@@ -770,8 +784,9 @@ function W.ColumnSet(tableKey, cols, opts)
         for i, c in ipairs(cols) do c._i = i; order[#order + 1] = c end
         table.sort(order, function(a, b) return (a.order or a._i) < (b.order or b._i) end)
         local start = cols[1].x or 0
-        local avail = (opts.width or 600) - start
+        local avail = (opts.width or 600) - start - cs.reserve
         local vis, sum, flex = {}, 0, nil
+        local flexCut = 0
         for _, c in ipairs(order) do
             c.hidden = not cs.IsShown(c.key)
             if not c.hidden then
@@ -782,14 +797,20 @@ function W.ColumnSet(tableKey, cols, opts)
         end
         local extra = avail - sum
         local scale = 1
+        if extra < 0 and flex then
+            -- Trop de colonnes : on resserre d'abord la colonne « Objet » (jusqu'à 100 px)
+            local give = math.min(-extra, math.max(0, flex.w - W.FLEX_MIN))
+            extra = extra + give
+            flexCut = give
+        end
         if extra < 0 then
-            scale = math.max(0.6, (avail - COL_GAP * #vis) / math.max(1, sum - COL_GAP * #vis))
+            scale = math.max(0.75, (avail - COL_GAP * #vis) / math.max(1, sum - COL_GAP * #vis))
             extra = 0
         end
         local x = start
         for _, c in ipairs(vis) do
             local w = math.floor(c.w * scale)
-            if c == flex then w = w + extra end
+            if c == flex then w = w + extra - flexCut end
             c.vx, c.vw = x, math.max(20, w)
             x = x + c.vw + COL_GAP
         end

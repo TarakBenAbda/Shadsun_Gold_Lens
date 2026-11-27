@@ -34,8 +34,8 @@ local LAYOUTS = {
             { key = "sale", label = "Vente", x = 724, w = 32, right = true, tip = W.TIP_SALE },
             -- 0.16 : indicateurs de marché (colonnes au choix)
             { key = "where", label = "Où", w = 40, menuLabel = "Revendre à", tip = "HDV de revente conseillé : celui qui rapporte le plus par jour (gain par unité × ventes par jour). Sans vitesse de vente connue : votre marché de revente." },
-            { key = "sales", label = "Ventes/j", w = 52, right = true, tip = "Ventes estimées par jour à l'HDV de revente (Forever AH : annonces disparues entre deux relevés, achetées ou annulées)." },
-            { key = "gainDay", label = "Gain/j", w = 68, right = true, tip = "Gain par jour estimé : bénéfice par unité × ventes par jour." },
+            { key = "sales", label = "Ventes/j", w = 44, right = true, tip = "Ventes estimées par jour à l'HDV de revente (Forever AH : annonces disparues entre deux relevés, achetées ou annulées)." },
+            { key = "gainDay", label = "Gain/j", w = 56, right = true, tip = "Gain par jour estimé : bénéfice par unité × ventes par jour." },
             { key = "advice", label = "Conseil", w = 46, right = true, menuLabel = "Quantité conseillée", tip = "Quantité conseillée : environ 3 jours de ventes, pour ne pas inonder le marché (paramètre « jours de ventes »)." },
             { key = "value", label = "Valeur", w = 50, right = true, menuLabel = "Écart à la valeur habituelle", tip = "Prix de revente comparé à la valeur habituelle de l'HDV (moyenne sur 14 jours). Orange : prix gonflé, prudence." },
         },
@@ -56,8 +56,8 @@ local LAYOUTS = {
             { key = "bags", label = "Sacs", x = 582, w = 34, right = true, tip = W.TIP_BAGS },
             { key = "sale", label = "Vente", x = 618, w = 34, right = true, tip = W.TIP_SALE },
             { key = "where", label = "Où", w = 40, menuLabel = "Revendre à", tip = "HDV de revente conseillé : celui qui rapporte le plus par jour (gain par unité × ventes par jour). Sans vitesse de vente connue : votre marché de revente." },
-            { key = "sales", label = "Ventes/j", w = 52, right = true, tip = "Ventes estimées par jour à l'HDV de revente (Forever AH : annonces disparues entre deux relevés, achetées ou annulées)." },
-            { key = "gainDay", label = "Gain/j", w = 64, right = true, tip = "Gain par jour estimé : bénéfice par unité × ventes par jour." },
+            { key = "sales", label = "Ventes/j", w = 44, right = true, tip = "Ventes estimées par jour à l'HDV de revente (Forever AH : annonces disparues entre deux relevés, achetées ou annulées)." },
+            { key = "gainDay", label = "Gain/j", w = 56, right = true, tip = "Gain par jour estimé : bénéfice par unité × ventes par jour." },
             { key = "advice", label = "Conseil", w = 44, right = true, menuLabel = "Quantité conseillée", tip = "Quantité conseillée : environ 3 jours de ventes, pour ne pas inonder le marché (paramètre « jours de ventes »)." },
             { key = "value", label = "Valeur", w = 48, right = true, menuLabel = "Écart à la valeur habituelle", tip = "Prix de revente comparé à la valeur habituelle de l'HDV (moyenne sur 14 jours). Orange : prix gonflé, prudence." },
         },
@@ -378,7 +378,7 @@ function OUI.Build(parent, mode)
         summary:SetText(string.format("%s · %d objets filtrés · %d avec prix HDV · %d d'après %s%s",
             U.Color(U.colors.title, #rows .. " ligne(s)"), counted, withAH, live,
             MK.ColorLabel(sell) .. (snap and U.Color(U.colors.dim, " (" .. MK.SourceText(snap) .. ")") or U.Color(U.colors.dim, " (aucun)")),
-            state == "OK" and "" or " · Auctionator indisponible"))
+            state == "OK" and "" or " · Auctionator indisponible") .. (MK.StatsNote(sell) ~= "" and (" · " .. MK.StatsNote(sell):gsub(" · $", "")) or ""))
     end
 
     local refreshBtn = W.Button(page, "Actualiser", 100, 22, function() page.Compute() end)

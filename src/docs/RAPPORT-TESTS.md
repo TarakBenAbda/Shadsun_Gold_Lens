@@ -1,4 +1,4 @@
-# Rapport de tests — Shadsun Gold Lens 0.16.0 et application 1.7.0
+# Rapport de tests — Shadsun Gold Lens 0.16.1 et application 1.7.0
 
 Auteur : Tarak Ben Abda — 26 novembre 2026.
 
@@ -351,7 +351,7 @@ Premier essai réel (19 novembre, 22 h 43) : identification sur l'API réelle �
 | Vérification manuelle (1.6.2) : lien « Vérifier », interrogation sans cache, nouvelle version annoncée, bandeau à jour | réussi |
 | Installation, raccourcis et remplacement réels sous Windows | à vérifier chez vous (1.6 installe ; la mise à jour en un clic se vérifiera avec la version suivante) |
 
-**Total : 454 tests de l'add-on, 56 tests du moteur de prix, 81 tests du cœur de l'application et 32 tests de l'interface, tous réussis.**
+**Total : 461 tests de l'add-on, 56 tests du moteur de prix, 81 tests du cœur de l'application et 32 tests de l'interface, tous réussis.**
 
 **Non vérifiable ici (0.13.0) :** l'affichage réel en jeu des fichiers TGA (logo, icône de la liste des add-ons) et des icônes de faction `Interface\FriendsFrame\PlusManz-*` dans le client Forever ; le rendu de l'application sous Windows (polices Palatino Linotype / Segoe UI, échelle d'affichage).
 
@@ -402,6 +402,15 @@ Premier essai réel (19 novembre, 22 h 43) : identification sur l'API réelle �
 | Aucune erreur interne (bloc v0.16.0) | réussi |
 | Application : indicateurs Forever AH écrits dans `Prix.lua` (table `s`, `statsSource`) ; absents si Forever AH est injoignable, sans bloquer les prix | réussi |
 | Application : historique SQLite (relevés dédoublonnés, résumé par jour après 14 jours) | réussi |
+
+### Add-on 0.16.1
+
+| Vérification | Résultat |
+|---|---|
+| Disposition : aucune colonne sous la zone des icônes de ligne (« - », « + », loupe), dans les quatre tableaux | réussi |
+| HDV » HDV, modèle Standard : « Vente » affichée ; « Objet » resserrée en premier (au moins 100 px), autres colonnes à leur largeur | réussi |
+| Modèle « Standard » enregistré en 0.16.0 : réappliqué ; choix personnalisé conservé | réussi |
+| Prix sans indicateurs : avertissement « ventes/j indisponibles » dans le résumé ; aucun avertissement si présents | réussi |
 
 ## 2. Tests exécutés et échoués
 

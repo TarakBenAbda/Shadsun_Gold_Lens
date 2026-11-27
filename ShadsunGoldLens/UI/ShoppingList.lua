@@ -157,7 +157,7 @@ function SUI.Build(parent, mode)
         { key = "m3", label = "Neutre", x = C.m3[1], w = C.m3[2], right = true },
     }
     COLS[1].flex = true
-    local cs = W.ColumnSet("lists_" .. (mode == "ah" and "ah" or "window"), COLS, { width = WIDTH - 14 - (mode == "ah" and 62 or 42),
+    local cs = W.ColumnSet("lists_" .. (mode == "ah" and "ah" or "window"), COLS, { width = WIDTH - 14,
         locked = { name = true, qty = true }, default = "all", iconPad = 20, presets = {
             { "ess", "Essentiel", { "name", "qty", "prog", "pnj", "m1", "m3" } },
             { "all", "Complet" },
