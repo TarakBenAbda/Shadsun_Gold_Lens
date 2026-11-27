@@ -8,7 +8,7 @@ local addonName, ns = ...
 
 ns.name = addonName
 ns.title = "Shadsun Gold Lens"
-ns.version = "0.15.1"
+ns.version = "0.16.0"
 ns.author = "Tarak Ben Abda"   -- auteur du code (non affiché en jeu)
 ns.signature = "Créé par Shadsun" -- signature visible dans l'interface / UI credit
 ns.callerID = "ShadsunGoldLens" -- identifiant passé à Auctionator / caller id

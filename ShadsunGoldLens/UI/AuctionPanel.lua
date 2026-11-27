@@ -100,7 +100,7 @@ local function create()
     tabRule:SetColorTexture(W.GOLD[1], W.GOLD[2], W.GOLD[3], 0.5)
 
     local top = -132
-    local panel = ns.ArbUI.Build(frame, 17, { embedded = true })
+    local panel = ns.ArbUI.Build(frame, 17, { embedded = true, columnsKey = "arb_ah" })
     panel:SetPoint("TOPLEFT", 14, top)
     frame.panel, pages.reverse = panel, panel
     -- Sens PNJ » HDV : même liste que l'onglet Opportunités, avec la loupe.

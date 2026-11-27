@@ -2031,6 +2031,136 @@ do
     check("Aucune erreur interne (bloc v0.15.0)", ns.Diag.counters.errors == 0, ns.Diag.errors[1] and ns.Diag.errors[1].err)
 end
 
+-- =============================================================================
+-- 13. v0.16.0 : indicateurs de marché (ventes par jour, valeur habituelle),
+--     conseil « où revendre », choix des colonnes
+-- =============================================================================
+do
+    local G = {}
+    local ns = boot({}, G, {})
+    local MK, W, U = ns.Market, ns.W, ns.U
+    local now = time()
+    -- Fonctions de base
+    check("Écart à la valeur habituelle : 65 pour 100 → -35 %", math.abs(MK.ValueDelta(65, 100) + 35) < 1e-9 and MK.ValueDelta(65, nil) == nil)
+    check("Libellés de l'écart : -35 % (vert), +30 % (orange), +5 % (gris)",
+        strip(MK.DeltaText(-35, true)) == "-35 %" and MK.DeltaText(-35, true):find(U.colors.good, 1, true) ~= nil
+        and MK.DeltaText(30, true):find(U.colors.warn, 1, true) ~= nil and strip(MK.DeltaText(5, true)) == "+5 %"
+        and strip(MK.DeltaText(-35)) == "35 % sous la valeur habituelle")
+    check("Ventes par jour : 12 → « 12 ventes/j », 0,5 → « 0,5 vente/j », inconnues",
+        MK.SalesText(12) == "12 ventes/j" and MK.SalesText(0.5) == "0,5 vente/j" and strip(MK.SalesText(nil)) == "ventes inconnues")
+    check("Quantité conseillée : 3 jours de ventes (4 ventes/j → 12), au moins 1", MK.Advice(4) == 12 and MK.Advice(0.1) == 1 and MK.Advice(nil) == nil)
+    -- Prix importés avec indicateurs (table s : valeur habituelle, ventes/j × 10)
+    local function ext(d, st) return { time = now, total = 3, char = "Forever AH", source = "api", d = d, s = st } end
+    MK.ext = {
+        A = ext({ [159] = MK.Pack(20, 30), [2589] = MK.Pack(10, 40), [7005] = MK.Pack(50, 5) },
+            { [159] = MK.Pack(25, 20), [2589] = MK.Pack(20, 50), [7005] = MK.Pack(60, 30) }),
+        N = ext({ [159] = MK.Pack(30, 12), [2589] = MK.Pack(40, 9), [7005] = MK.Pack(200, 5) },
+            { [159] = MK.Pack(30, 100), [2589] = MK.Pack(40, 2), [7005] = MK.Pack(150, 40) }),
+        H = ext({ [159] = MK.Pack(400, 3), [2589] = MK.Pack(60, 3), [7005] = MK.Pack(75, 1) }, nil),
+    }
+    MK.extStatus = "ok"
+    MK.InvalidateSnap()
+    local spd, usual = MK.KeyStats("N", 159)
+    check("Indicateurs lus : eau au neutre, 10 ventes/j, valeur habituelle 30 pc", spd == 10 and usual == 30, tostring(spd) .. " " .. tostring(usual))
+    check("HDV sans indicateurs : rien (pas d'erreur)", MK.KeyStats("H", 159) == nil)
+    -- Infobulle : suffixe des indicateurs
+    M.ProcessItem(GameTooltip, 2589)
+    local tx = strip(joined(GameTooltip))
+    check("Infobulle : « 5 ventes/j · -50 % vs habituel » sur la ligne de l'Alliance", tx:find("5 ventes/j · -50 % vs habituel", 1, true) ~= nil, tx)
+    -- Conseil « où revendre » : eau achetée 5 pc chez le marchand
+    local OUI = ns.OppUI
+    local best, cands = OUI.BestResale(159, { price = 5, qty = 1 })
+    check("Où revendre : neutre (10 ventes/j) plutôt qu'Alliance (2 ventes/j) malgré la commission", best and best.key == "N" and #cands == 2,
+        best and best.key)
+    check("Gain par jour = bénéfice par unité × ventes par jour", best and math.abs(best.gday - best.r.profit * 10) < 1e-9)
+    MK.ext.N.s[159] = nil
+    MK.InvalidateSnap()
+    best = OUI.BestResale(159, { price = 5, qty = 1 })
+    check("Vitesse inconnue pour un HDV : marché de revente des réglages (votre faction)", best and best.key == MK.SellKey(), best and best.key)
+    MK.ext.N.s[159] = MK.Pack(30, 100)
+    MK.InvalidateSnap()
+    -- PNJ » HDV : colonnes et valeurs
+    ns.UI.Show("opp")
+    local opp = ns.UI.pages.opp
+    opp.SetDirection("forward")
+    local fw = opp.forward
+    fw.Compute()
+    local water
+    for _, d in ipairs(fw.list.data) do if d.id == 159 then water = d end end
+    check("PNJ » HDV : eau revendue au neutre, 10 ventes/j, conseil 30, prix au niveau habituel",
+        water and water.where == "N" and water.sales == 10 and water.advice == 30 and math.abs(water.value) < 1e-9,
+        water and (tostring(water.where) .. " " .. tostring(water.sales) .. " " .. tostring(water.advice)))
+    local cs = fw.columns
+    check("Colonnes : modèle « Standard » par défaut, « Conseil » masqué, « Ventes/j » affiché",
+        cs.Preset() == "std" and not cs.IsShown("advice") and cs.IsShown("sales") and ns.settings.columns.opp_window ~= nil)
+    local function headerCell(page, key)
+        for i, c in ipairs(page.columns.cols) do if c.key == key then return page.header.cells[i] end end
+    end
+    check("En-tête : colonne masquée cachée", headerCell(fw, "advice"):IsShown() == false and headerCell(fw, "sales"):IsShown())
+    cs.ApplyPreset("all")
+    check("Modèle « Complet » : toutes les colonnes, dont « Conseil »", cs.IsShown("advice") and cs.IsShown("value") and headerCell(fw, "advice"):IsShown())
+    cs.Set("zone", false)
+    check("Case décochée : « Zone » masquée, mémorisée, modèle personnalisé", not cs.IsShown("zone")
+        and ns.settings.columns.opp_window.hidden.zone == true and cs.Preset() == nil)
+    cs.Set("name", false)
+    check("Colonne verrouillée (Objet) : jamais masquée", cs.IsShown("name"))
+    local vis = cs.Layout()
+    local last = vis[#vis]
+    check("Disposition : colonnes visibles dans la largeur du tableau", last.vx + last.vw <= 812 - 14 + 1, last.vx + last.vw)
+    headerCell(fw, "profit").__scripts.OnClick(headerCell(fw, "profit"), "RightButton")
+    check("Clic droit sur l'en-tête : fenêtre « Colonnes affichées »", cs.menu and cs.menu:IsShown())
+    local ck
+    for _, c in ipairs(cs.menu.checks) do if c.key == "roi" then ck = c end end
+    ck:SetChecked(false); ck.__scripts.OnClick(ck)
+    check("Fenêtre : décocher « Rentab. » masque la colonne", not cs.IsShown("roi") and headerCell(fw, "roi"):IsShown() == false)
+    cs.menu:Hide()
+    fw.columnsButton:Click()
+    check("Bouton « Colonnes » : ouvre la même fenêtre", cs.menu:IsShown())
+    cs.menu:Hide()
+    -- Ligne : cellules masquées / affichées
+    fw.list:Refresh()
+    local row1 = fw.list.rows[1]
+    local roiIdx
+    for i, c in ipairs(cs.cols) do if c.key == "roi" then roiIdx = i end end
+    check("Lignes : cellule de la colonne masquée cachée", row1.cells[roiIdx]:IsShown() == false)
+    -- HDV » HDV : ventes à l'HDV de revente et avis lent
+    opp.SetDirection("cross")
+    local cp = opp.cross
+    cp.Compute()
+    local knife
+    for _, d in ipairs(cp.list.data) do if d.id == 7005 then knife = d end end
+    check("HDV » HDV : couteau, 4 ventes/j au neutre, achat 17 % sous la valeur habituelle de l'Alliance",
+        knife and knife.sales == 4 and math.floor(-knife.value + 0.5) == 17, knife and (tostring(knife.sales) .. " " .. tostring(knife.value)))
+    check("HDV » HDV : gain par jour et conseil (12, plafonné à la quantité disponible : 5)", knife and knife.gainDay == knife.realGain * 4 and knife.advice == 5)
+    local cloth
+    for _, d in ipairs(cp.list.data) do if d.id == 2589 then cloth = d end end
+    check("Avis : 0,2 vente/j à l'HDV de revente → À vérifier (vente lente)", cloth and cloth.avis == "chk" and cloth.why == "slow",
+        cloth and (cloth.avis .. " " .. tostring(cloth.why)))
+    check("Raison lisible de l'avis lent", ns.CrossUI.Reason(cloth):find("se vend très peu", 1, true) ~= nil)
+    check("HDV » HDV : choix des colonnes séparé (cross_window)", cp.columns and cp.columns.key == "cross_window" and ns.settings.columns.cross_window ~= nil)
+    -- Listes : couleurs selon l'écart
+    ns.Lists.Add(2589, 1)
+    ns.UI.Show("lists")
+    local v = ns.UI.pages.lists.shopView
+    v.Refresh()
+    local r2589
+    for _, r in ipairs(v.itemsList.rows) do if r.data and r.data.id == 2589 then r2589 = r end end
+    check("Listes : prix de l'étoffe au neutre (40 pc pour 40 habituels) sans couleur d'écart ; Alliance la moins chère en vert",
+        r2589 and r2589.cells[9]:GetText():find(U.colors.deal, 1, true) == nil and r2589.cells[7]:GetText():find(U.colors.good, 1, true) ~= nil)
+    check("Listes : choix des colonnes (lists_window)", v.columns and v.columns.key == "lists_window")
+    MK.ext.N.d[2589] = MK.Pack(20, 9)
+    MK.InvalidateSnap()
+    ns.Lists.Add(2589, 1)
+    v.Refresh()
+    for _, r in ipairs(v.itemsList.rows) do if r.data and r.data.id == 2589 then r2589 = r end end
+    check("Listes : 20 pc au neutre pour 40 habituels → bleu (bonne affaire)", r2589 and r2589.cells[9]:GetText():find(U.colors.deal, 1, true) ~= nil,
+        r2589 and r2589.cells[9]:GetText())
+    -- HDV » PNJ : colonne Valeur
+    local rv = opp.reverse
+    check("HDV » PNJ : choix des colonnes (arb) avec « Valeur »", rv.columns and rv.columns.key == "arb" and rv.columns.IsShown("value"))
+    check("Aucune erreur interne (bloc v0.16.0)", ns.Diag.counters.errors == 0, ns.Diag.errors[1] and ns.Diag.errors[1].err)
+end
+
 rprint("")
 for _, l in ipairs(results) do rprint(l) end
 rprint("")

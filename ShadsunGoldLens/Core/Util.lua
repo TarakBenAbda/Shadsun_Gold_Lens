@@ -15,7 +15,7 @@ local NBSP = "\194\160" -- espace insécable / non-breaking space
 U.colors = {
     title = "ffe8bd64", gold = "ffffd100", silver = "ffc7c7cf", copper = "ffeda55f",
     good = "ff7beb96", bad = "ffff7b6e", warn = "ffffcc66", dim = "ffa0a8b4",
-    text = "ffeeeeee", alliance = "ff4a9eff", horde = "ffff4a4a", neutral = "ffe0c060",
+    text = "ffeeeeee", deal = "ff6fd3ea", alliance = "ff4a9eff", horde = "ffff4a4a", neutral = "ffe0c060",
 }
 
 function U.Color(hex, text)

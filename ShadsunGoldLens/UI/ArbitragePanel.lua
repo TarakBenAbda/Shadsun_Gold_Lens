@@ -26,6 +26,18 @@ local COLS = {
     { key = "source", label = "Source", x = 506, w = 62 },
     { key = "bags", label = "Sacs", x = 570, w = 36, right = true, tip = W.TIP_BAGS },
     { key = "sale", label = "Vente", x = 608, w = 36, right = true, tip = W.TIP_SALE },
+    -- 0.16 : écart du prix d'achat à la valeur habituelle de l'HDV
+    { key = "value", label = "Valeur", w = 50, right = true, menuLabel = "Écart à la valeur habituelle",
+        tip = "Prix d'achat comparé à la valeur habituelle de cet HDV (moyenne sur 14 jours). Vert : vraie bonne affaire ; orange : prix gonflé." },
+}
+do
+    local ORDER = { name = 1, minUnit = 2, sell = 3, gainUnit = 4, qty = 5, gain = 6, value = 7, source = 8, bags = 9, sale = 10 }
+    for _, c in ipairs(COLS) do c.order = ORDER[c.key]; if c.key == "name" then c.flex = true end end
+end
+AUI.PRESETS = {
+    { "ess", "Essentiel", { "name", "minUnit", "sell", "gainUnit", "gain" } },
+    { "std", "Standard", { "name", "minUnit", "sell", "gainUnit", "qty", "gain", "value", "source", "bags", "sale" } },
+    { "all", "Complet" },
 }
 AUI.WIDTH = 730
 
@@ -95,7 +107,7 @@ function AUI.Build(parent, rowsCount, opts)
     fbar:SetPoint("TOPLEFT", 0, -56)
     panel.filters = fbar
 
-    local status = W.Text(panel, "GameFontHighlightSmall", "", "LEFT", AUI.WIDTH - 10)
+    local status = W.Text(panel, "GameFontHighlightSmall", "", "LEFT", AUI.WIDTH - 110)
     status:SetPoint("TOPLEFT", 0, -84)
     status:SetSpacing(2)
 
@@ -115,12 +127,16 @@ function AUI.Build(parent, rowsCount, opts)
         end)
         header:Update(key, desc)
     end
+    local cs = W.ColumnSet(opts.columnsKey or "arb", COLS, { width = AUI.WIDTH - 14, locked = { name = true, gainUnit = true },
+        presets = AUI.PRESETS, default = "std", iconPad = 20 })
+    panel.columns = cs
     header = W.Header(panel, COLS, -112, AUI.WIDTH - 14, function(key)
         if state.sortKey == key then state.sortDesc = not state.sortDesc
         else state.sortKey, state.sortDesc = key, (key ~= "name" and key ~= "source") end
         sortRows()
         list:SetData(rows, true)
-    end)
+    end, function(anchor) cs.Menu(anchor) end)
+    panel.header = header
 
     list = W.List(panel, AUI.WIDTH, {
         rows = rowsCount, rowHeight = 20,
@@ -176,11 +192,17 @@ function AUI.Build(parent, rowsCount, opts)
             cells[7]:SetText(d.source == "LIVE" and U.Color(U.colors.good, "Direct") or U.Color(U.colors.warn, "Historique"))
             cells[8]:SetText(W.BagsText(d))
             cells[9]:SetText(W.SaleText(d))
+            cells[10]:SetText(d.value and ns.Market.DeltaText(d.value, true) or U.Color(U.colors.dim, "-"))
             row.search:SetUsable(A.ahOpen)
         end,
     })
     list:SetPoint("TOPLEFT", 0, -132)
     panel.list = list
+    cs.Bind(header, list, 20)
+    cs.Apply()
+    local colBtn = cs.Button(panel)
+    colBtn:SetPoint("TOPRIGHT", -14, -82)
+    panel.columnsButton = colBtn
 
     -- --- Statut / status ---------------------------------------------------------
     function panel.UpdateStatus()
@@ -221,9 +243,13 @@ function AUI.Build(parent, rowsCount, opts)
     function panel.Refresh(keep)
         wipe(rows)
         local INV = ns.Inventory
+        local MK = ns.Market
+        local key = A.liveKey or MK.Current()
         for _, r in ipairs(A.Results(state.mode)) do
             if (r.gainUnit or 0) >= state.minGain then
                 r.name = r.name or ns.Data.names[r.id]
+                local _, usual = MK.KeyStats(key, r.id)
+                r.value = MK.ValueDelta(r.minUnit, usual)
                 if ns.Filters.Match(filt, r.id, r.name) then
                     INV.Stock(r)
                     rows[#rows + 1] = r

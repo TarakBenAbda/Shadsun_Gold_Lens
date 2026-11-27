@@ -269,10 +269,32 @@ def main():
 
         # 5. maj (tranches réduites pour tester le découpage)
         T.CHUNK = 7
+        T.FAH_BASE, T.FAH_PAUSE = "http://127.0.0.1:9", 0     # Forever AH injoignable : indicateurs absents, prix publiés
         rc = T.main(["maj", "--config", ini])
         out = os.path.join(addons, T.MODULE)
         runs = T.journal_runs()
         check("Journal : mise à jour réussie notée « RÉSULTAT : OK »", runs and runs[-1]["ok"] is True and any("Module écrit" in l for l in runs[-1]["lines"]), runs and runs[-1])
+        check("Indicateurs Forever AH injoignables : mise à jour réussie quand même, message clair (0.16)",
+              rc == 0 and any("indicateurs Forever AH indisponibles" in l for l in runs[-1]["lines"]), runs[-1]["lines"][-8:])
+        import sqlite3
+        hp = os.path.join(tmp, "cache", T.HISTORY_FILE)
+        con = sqlite3.connect(hp)
+        # (données d'essai datées : déjà résumées par jour si elles ont plus de 14 jours)
+        nrel = con.execute("SELECT (SELECT COUNT(*) FROM relevés) + (SELECT COUNT(*) FROM jours),"
+                           " (SELECT COUNT(DISTINCT hdv) FROM (SELECT hdv FROM relevés UNION SELECT hdv FROM jours))").fetchone()
+        con.close()
+        check("Historique local : relevés enregistrés dans le dossier du cache (3 HDV)", nrel[1] == 3 and nrel[0] > 30, nrel)
+        T.record_history({"A": {"house": 113, "time": LAST_MOD, "items": {2589: (95, 30)}}}, hp, now=LAST_MOD)
+        n2 = T.record_history({"A": {"house": 113, "time": LAST_MOD, "items": {2589: (95, 30)}}}, hp, now=LAST_MOD)
+        check("Historique : un même relevé n'est jamais enregistré deux fois", n2 == 0, n2)
+        old = {"A": {"house": 113, "time": LAST_MOD - 20 * 86400, "items": {2589: (80, 10)}},
+               "H": {"house": 114, "time": LAST_MOD - 20 * 86400 + 3600, "items": {2589: (120, 5)}}}
+        T.record_history(old, hp, now=LAST_MOD)
+        con = sqlite3.connect(hp)
+        left = con.execute("SELECT COUNT(*) FROM relevés WHERE t < ?", (LAST_MOD - 14 * 86400,)).fetchone()[0]
+        day = con.execute("SELECT prix_min, qte_max FROM jours WHERE hdv = 113 AND objet = 2589").fetchone()
+        con.close()
+        check("Historique : relevés de plus de 14 jours résumés par jour puis supprimés", left == 0 and day == (80, 10), (left, day))
         check("« maj » : module écrit dans AddOns/ShadsunGoldLens_Prix", rc == 0 and os.path.exists(os.path.join(out, "Prix.lua"))
               and os.path.exists(os.path.join(out, "ShadsunGoldLens_Prix.toc")))
         with open(os.path.join(out, "ShadsunGoldLens_Prix.toc"), encoding="utf-8") as f:

@@ -31,6 +31,13 @@ local LAYOUTS = {
 }
 
 -- Avis : libellés, couleurs et rang de tri / verdict labels
+XUI.PRESETS = {
+    { "ess", "Essentiel", { "name", "buyUnit", "sellUnit", "realGain", "roi", "avisRank" } },
+    { "std", "Standard", { "name", "buyUnit", "sellUnit", "ref", "realGain", "roi", "qty", "sales", "gainDay", "avisRank", "bags" } },
+    { "fast", "Revente rapide", { "name", "buyUnit", "sellUnit", "realGain", "sales", "gainDay", "advice", "value", "avisRank" } },
+    { "all", "Complet" },
+}
+
 local AVIS = {
     fav = { "Favorable", "good", 3 },
     chk = { "À vérifier", "warn", 2 },
@@ -63,12 +70,17 @@ function XUI.Assess(r, dir, minQty, rate, now)
     now = now or time()
     local oldest = math.min(r.buyTime or r.time or now, r.sellTime or r.time or now)
     if now - oldest > XUI.AVIS_MAX_AGE then return "chk", realGain, "old" end
+    -- 0.16 : vente trop lente à l'HDV de revente (estimation Forever AH) → À vérifier
+    local minSales = ns.DB and ns.DB.Num("economy", "avisMinSales") or 0.3
+    local slow = r.sales ~= nil and r.sales < minSales
     if dir == "FN" then
         if not r.ref then return "chk", realGain, "noref" end
         if realGain <= 0 then return "def", realGain, "refcheap" end
+        if slow then return "chk", realGain, "slow" end
         if sellQty < minQty then return "chk", realGain, "few" end
         return "fav", realGain, (r.ref < r.sellUnit) and "atref" or "ok"
     end
+    if slow then return "chk", realGain, "slow" end
     if sellQty < minQty then return "chk", realGain, "few" end
     return "fav", realGain, "ok"
 end
@@ -78,6 +90,7 @@ function XUI.Reason(d)
     local q = tostring(d.sellQty or 0)
     local R = {
         old = "un des prix date de plus de 24 h : relisez les annonces avant d'acheter.",
+        slow = "se vend très peu à l'HDV de revente (" .. ns.Market.SalesText(d.sales) .. ") : l'objet risque de rester en vente.",
         noref = "aucun prix connu pour l'autre faction : impossible de savoir si elle achètera au neutre.",
         refcheap = "l'autre faction paie moins cher chez elle ; même en revendant à son prix, il n'y a plus de gain.",
         few = "seulement " .. q .. " objet(s) en vente à l'HDV de revente : prix peut-être isolé.",
@@ -161,7 +174,7 @@ function XUI.Build(parent, mode)
     avisSel:SetPoint("TOPRIGHT", -14, -56)
     page.avisSelector = avisSel
 
-    local summary = W.Text(page, "GameFontHighlightSmall", "", "LEFT", layout.width - 10)
+    local summary = W.Text(page, "GameFontHighlightSmall", "", "LEFT", layout.width - 110)
     summary:SetPoint("TOPLEFT", 0, -84)
     summary:SetWordWrap(false)
 
@@ -181,7 +194,18 @@ function XUI.Build(parent, mode)
         { key = "avisRank", label = "Avis", x = X.avis, w = Wd.avis, tip = "Favorable, À vérifier ou Défavorable : détail au survol de la ligne." },
         { key = "bags", label = "Sacs", x = X.bags, w = Wd.bags, right = true, tip = W.TIP_BAGS },
         { key = "sale", label = "Vente", x = X.sale, w = Wd.sale, right = true, tip = W.TIP_SALE },
+        -- 0.16 : indicateurs de marché
+        { key = "sales", label = "Ventes/j", w = 52, right = true, tip = "Ventes estimées par jour à l'HDV de revente (Forever AH : annonces disparues entre deux relevés, achetées ou annulées)." },
+        { key = "gainDay", label = "Gain/j", w = 64, right = true, tip = "Gain par jour estimé : gain réaliste par unité × ventes par jour à l'HDV de revente." },
+        { key = "advice", label = "Conseil", w = 46, right = true, menuLabel = "Quantité conseillée", tip = "Quantité conseillée : environ 3 jours de ventes à l'HDV de revente, sans dépasser la quantité disponible." },
+        { key = "value", label = "Valeur", w = 50, right = true, menuLabel = "Écart à la valeur habituelle", tip = "Prix d'achat comparé à la valeur habituelle de l'HDV d'achat (moyenne sur 14 jours). Vert : vraie bonne affaire." },
     }
+    local ORDER = { name = 1, buyUnit = 2, sellUnit = 3, ref = 4, gain = 5, realGain = 6, roi = 7, qty = 8, sales = 9, gainDay = 10,
+        advice = 11, value = 12, avisRank = 13, bags = 14, sale = 15 }
+    for _, c in ipairs(cols) do c.order = ORDER[c.key]; if c.key == "name" then c.flex = true end end
+    local cs = W.ColumnSet("cross_" .. (mode == "ah" and "ah" or "window"), cols, { width = layout.width - 14,
+        locked = { name = true, realGain = true }, presets = XUI.PRESETS, default = "std", iconPad = 20 })
+    page.columns = cs
 
     local function sortRows()
         table.sort(rows, function(a, b)
@@ -202,7 +226,7 @@ function XUI.Build(parent, mode)
         else sortKey, sortDesc = key, key ~= "name" end
         sortRows()
         list:SetData(rows, true)
-    end)
+    end, function(anchor) cs.Menu(anchor) end)
     page.header = header
     page.SortBy = function(key, desc) sortKey, sortDesc = key, desc; sortRows(); list:SetData(rows, true) end
 
@@ -261,6 +285,13 @@ function XUI.Build(parent, mode)
                     GameTooltip:AddDoubleLine("Âge des prix (achat / revente)", shortAgo(d.buyTime or d.time) .. " / " .. shortAgo(d.sellTime or d.time),
                         1, 0.82, 0, 1, 1, 1)
                 end
+                if d.sales or d.buyUsual or d.sellUsual then
+                    GameTooltip:AddDoubleLine("Ventes à l'HDV de revente", MK.SalesText(d.sales)
+                        .. (d.gainDay and ("  ·  " .. U.Money(math.floor(d.gainDay + 0.5), true, true) .. "/j") or ""), 1, 0.82, 0, 1, 1, 1)
+                    if d.advice then GameTooltip:AddDoubleLine("Quantité conseillée", tostring(d.advice), 1, 0.82, 0, 1, 1, 1) end
+                    if d.value then GameTooltip:AddDoubleLine("Prix d'achat", MK.DeltaText(d.value), 1, 0.82, 0, 1, 1, 1) end
+                    if d.sellValue then GameTooltip:AddDoubleLine("Prix de revente", MK.DeltaText(d.sellValue), 1, 0.82, 0, 1, 1, 1) end
+                end
                 GameTooltip:AddLine("Prix au moment des relevés : vérifiez dans l'HDV avant d'acheter. Revendre suppose de rester sous l'annonce la moins chère.", 0.63, 0.66, 0.71, true)
                 GameTooltip:Show()
             end)
@@ -289,11 +320,21 @@ function XUI.Build(parent, mode)
             c[9]:SetText(a and U.Color(U.colors[a[2]], a[1]) or "")
             c[10]:SetText(W.BagsText(d))
             c[11]:SetText(W.SaleText(d))
+            c[12]:SetText(d.sales and (MK.SalesText(d.sales):gsub(" ventes?/j", "")) or U.Color(U.colors.dim, "-"))
+            c[13]:SetText(d.gainDay and U.Color(d.gainDay > 0 and U.colors.good or U.colors.bad, U.MoneyShort(math.floor(d.gainDay + 0.5), true, true))
+                or U.Color(U.colors.dim, "-"))
+            c[14]:SetText(d.advice and tostring(d.advice) or U.Color(U.colors.dim, "-"))
+            c[15]:SetText(d.value and MK.DeltaText(d.value, true) or U.Color(U.colors.dim, "-"))
             row.search:SetUsable(ns.Arbitrage.ahOpen)
         end,
     })
     list:SetPoint("TOPLEFT", 0, -120)
     page.list = list
+    cs.Bind(header, list, 20)
+    cs.Apply()
+    local colBtn = cs.Button(page)
+    colBtn:SetPoint("TOPRIGHT", -14, -80)
+    page.columnsButton = colBtn
 
     -- --- Calcul / computation -------------------------------------------------------------
     function page.Compute()
@@ -303,9 +344,18 @@ function XUI.Build(parent, mode)
         local buyKey, sellKey = MK.DirectionPair(f.dir)
         local minQty = ns.settings.economy.avisMinQty or 3
         local rate = MK.Rate(sellKey)
+        local Bs, Ss = MK.Snap(buyKey), MK.Snap(sellKey)
         for _, r in ipairs(MK.Cross(buyKey .. ">" .. sellKey)) do
             r.dir = f.dir
+            -- Indicateurs (0.16) : ventes à l'HDV de revente, écarts à la valeur habituelle
+            local spd, sellUsual = MK.Stats(Ss, r.id)
+            local _, buyUsual = MK.Stats(Bs, r.id)
+            r.sales, r.buyUsual, r.sellUsual = spd, buyUsual, sellUsual
+            r.value, r.sellValue = MK.ValueDelta(r.buyUnit, buyUsual), MK.ValueDelta(r.sellUnit, sellUsual)
             r.avis, r.realGain, r.why = XUI.Assess(r, f.dir, minQty, rate)
+            r.gainDay = spd and r.realGain * spd or nil
+            r.advice = MK.Advice(spd)
+            if r.advice and r.qty then r.advice = math.min(r.advice, r.qty) end
             r.avisRank = AVIS[r.avis][3]
             local keep = (f.avis == "ALL" or f.avis == r.avis)
             if f.maxBuy and r.buyUnit > f.maxBuy * 10000 then keep = false end

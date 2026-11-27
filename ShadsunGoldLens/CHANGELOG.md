@@ -1,5 +1,31 @@
 # Journal des modifications — Shadsun Gold Lens
 
+## 0.16.0 et application 1.7.0 — 26 novembre 2026
+
+### Indicateurs de marché (Forever AH)
+- **Ventes par jour** et **valeur habituelle** (moyenne sur 14 jours) de chaque objet, pour les trois HDV. Les ventes par jour sont une estimation de Forever AH : annonces disparues entre deux relevés, qu'elles aient été achetées ou annulées.
+- **Infobulle** : chaque ligne HDV ajoute par exemple « 12 ventes/j · -35 % vs habituel ».
+- **Écart à la valeur habituelle** : vert à -15 % ou moins (bonne affaire), orange à +25 % ou plus (prix gonflé), gris entre les deux.
+
+### Tableaux
+- **PNJ » HDV** : colonnes « Où » (HDV de revente conseillé), « Ventes/j », « Gain/j », « Conseil » (quantité conseillée : environ 3 jours de ventes) et « Valeur ».
+  - L'HDV de revente conseillé est celui qui rapporte le plus par jour, entre votre HDV de faction et le neutre (bénéfice par unité, commission déduite, × ventes par jour). Si la vitesse de vente manque pour l'un d'eux, votre marché de revente habituel est gardé.
+  - Au survol d'une ligne : comparaison des HDV, quantité conseillée, écart du prix de revente.
+- **HDV » HDV** : colonnes « Ventes/j » (HDV de revente), « Gain/j » (sur le gain réaliste), « Conseil » (plafonné à la quantité disponible) et « Valeur » (prix d'achat). Au survol : écart des prix d'achat et de revente.
+  - Nouvel avis « À vérifier » : moins de 0,3 vente par jour à l'HDV de revente (l'objet risque de rester en vente).
+- **HDV » PNJ** : colonne « Valeur » (prix d'achat comparé à la valeur habituelle de l'HDV).
+- **Listes** : prix des HDV en bleu sous la valeur habituelle, en orange au-dessus ; détail par HDV au survol.
+
+### Choix des colonnes
+- **Clic droit sur l'en-tête** d'un tableau, ou bouton **« Colonnes »** : cases à cocher et modèles « Essentiel », « Standard », « Revente rapide », « Complet ».
+- Choix mémorisé séparément pour chaque tableau (fenêtre principale et panneau de l'HDV). Les colonnes « Objet » et gain restent toujours affichées. Le modèle « Standard » est appliqué par défaut ; « Conseil » et « Valeur » sont dans « Revente rapide » et « Complet ».
+- Fenêtre principale, onglet Listes : trop étroit pour le bouton, utilisez le clic droit sur l'en-tête.
+
+### Application 1.7.0
+- Télécharge les indicateurs de Forever AH avec les prix, y compris en mode Avancé (API Blizzard) : les ventes par jour ne sont pas fournies par l'API Blizzard. Si Forever AH ne répond pas, les prix sont écrits sans indicateurs.
+- **Historique local des prix** : chaque mise à jour est enregistrée dans `historique.sqlite` (dossier du cache, `%APPDATA%\ShadsunGoldLens`). Relevés horaires gardés 14 jours, puis résumés par jour. Il servira aux futurs graphiques.
+- Options du fichier de réglages, section `[outil]` : `indicateurs = 0` et `historique = 0` pour les désactiver.
+
 ## Application 1.6.2 — 25 novembre 2026
 
 Add-on inchangé (0.15.1).

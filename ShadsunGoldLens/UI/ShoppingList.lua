@@ -156,12 +156,19 @@ function SUI.Build(parent, mode)
         { key = "m2", label = "Autre", x = C.m2[1], w = C.m2[2], right = true },
         { key = "m3", label = "Neutre", x = C.m3[1], w = C.m3[2], right = true },
     }
+    COLS[1].flex = true
+    local cs = W.ColumnSet("lists_" .. (mode == "ah" and "ah" or "window"), COLS, { width = WIDTH - 14 - (mode == "ah" and 62 or 42),
+        locked = { name = true, qty = true }, default = "all", iconPad = 20, presets = {
+            { "ess", "Essentiel", { "name", "qty", "prog", "pnj", "m1", "m3" } },
+            { "all", "Complet" },
+        } })
+    view.columns = cs
     local sortKey, sortDesc
     local header
     header = W.Header(view, COLS, -86, WIDTH - 14, function(key)
         if sortKey == key then sortDesc = not sortDesc else sortKey, sortDesc = key, false end
         view.Refresh()
-    end)
+    end, function(anchor) cs.Menu(anchor) end)
     view.header = header
     local rows = {}
     local list
@@ -266,6 +273,21 @@ function SUI.Build(parent, mode)
                         (d.pnj and U.Money(d.pnj) or U.Color(U.colors.warn, "devise")), 1, 0.82, 0, 1, 1, 1)
                     GameTooltip:AddLine(ns.Catalog.LocationText(d.offer), 0.8, 0.8, 0.8, true)
                 end
+                -- Prix des HDV comparés à leur valeur habituelle (0.16)
+                local first = true
+                for _, key in ipairs({ mine(), other(), "N" }) do
+                    local p = d.prices[key]
+                    local spd, usual = MK.KeyStats(key, d.id)
+                    if p and (spd or usual) then
+                        if first then GameTooltip:AddLine(" "); first = false end
+                        local dt = MK.DeltaText(MK.ValueDelta(p, usual), true)
+                        GameTooltip:AddDoubleLine(MK.ColorLabel(key), U.Money(p) .. "  " .. MK.SalesText(spd)
+                            .. (dt ~= "" and ("  ·  " .. dt) or ""), 1, 1, 1, 1, 1, 1)
+                    end
+                end
+                if not first then
+                    GameTooltip:AddLine("Couleur des prix : bleu = sous la valeur habituelle (bonne affaire), orange = au-dessus (prix gonflé).", 0.63, 0.66, 0.71, true)
+                end
                 local sale = ns.Auctions and ns.Auctions.Text(d.id)
                 if sale then GameTooltip:AddDoubleLine("En vente :", sale, 1, 0.82, 0, 1, 1, 1) end
                 GameTooltip:AddLine("Clic : modifier la quantité et le prix maximum.", 0.63, 0.66, 0.71)
@@ -296,7 +318,15 @@ function SUI.Build(parent, mode)
                 if not p then c[6 + i]:SetText(U.Color(U.colors.dim, "-"))
                 else
                     local ok = (not d.max) or p <= d.max
-                    c[6 + i]:SetText(ok and U.MoneyShort(p) or U.Color(U.colors.dim, U.MoneyShort(p, true)))
+                    local txt = U.MoneyShort(p)
+                    if ok then
+                        -- Écart à la valeur habituelle de cet HDV (0.16)
+                        local _, usual = MK.KeyStats(key, d.id)
+                        local pct = MK.ValueDelta(p, usual)
+                        if pct and pct <= MK.DEAL_PCT then txt = U.Color(U.colors.deal, U.MoneyShort(p, true))
+                        elseif pct and pct >= MK.HIGH_PCT then txt = U.Color(U.colors.warn, U.MoneyShort(p, true)) end
+                    end
+                    c[6 + i]:SetText(ok and txt or U.Color(U.colors.dim, U.MoneyShort(p, true)))
                 end
             end
             if d.bestKey and not d.done then
@@ -315,6 +345,14 @@ function SUI.Build(parent, mode)
     })
     list:SetPoint("TOPLEFT", 0, -106)
     view.itemsList = list
+    cs.Bind(header, list, 20)
+    cs.Apply()
+    if mode == "ah" then
+        -- Fenêtre principale trop étroite : clic droit sur l'en-tête seulement
+        local colBtn = cs.Button(view)
+        colBtn:SetPoint("TOPRIGHT", -14, -58)
+        view.columnsButton = colBtn
+    end
 
     -- --- Édition de l'article choisi / edit selected item ---------------------------
     local yEdit = -106 - layout.rows * 20 - 10

@@ -638,7 +638,7 @@ end
 -- En-têtes de colonnes triables avec flèche / sortable column headers
 -- cols = { {key, label, x, w, right, tip}, ... } ; onSort(key)
 -- -----------------------------------------------------------------------------
-function W.Header(parent, cols, y, width, onSort)
+function W.Header(parent, cols, y, width, onSort, onMenu)
     local bar = CreateFrame("Frame", nil, parent)
     bar:SetSize(width, 20)
     bar:SetPoint("TOPLEFT", 0, y)
@@ -666,15 +666,39 @@ function W.Header(parent, cols, y, width, onSort)
         arrow:Hide()
         h.arrow = arrow
         h.key = c.key
+        h.col = c
         if c.key and onSort then
-            h:SetScript("OnClick", function() onSort(c.key) end)
+            h:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+            h:SetScript("OnClick", function(self, button)
+                if button == "RightButton" and onMenu then onMenu(self) else onSort(c.key) end
+            end)
             h:SetScript("OnEnter", function(self)
                 fs:SetTextColor(1, 1, 1)
-                tip(self, c.label, (c.tip and (c.tip .. "\n") or "") .. "Cliquez pour trier.")
+                tip(self, c.label, (c.tip and (c.tip .. "\n") or "") .. "Cliquez pour trier."
+                    .. (onMenu and "\nClic droit : choisir les colonnes." or ""))
             end)
             h:SetScript("OnLeave", function() fs:SetTextColor(1, 0.82, 0); GameTooltip:Hide() end)
         end
         bar.cells[#bar.cells + 1] = h
+    end
+    if onMenu then
+        bar:EnableMouse(true)
+        bar:SetScript("OnMouseUp", function(self, button) if button == "RightButton" then onMenu(self) end end)
+    end
+    -- Replace les cellules selon la disposition calculée (colonnes choisies).
+    function bar:Layout()
+        for _, h in ipairs(self.cells) do
+            local c = h.col
+            if c.hidden then
+                h:Hide()
+            else
+                h:Show()
+                h:SetWidth(c.vw)
+                h:ClearAllPoints()
+                h:SetPoint("LEFT", c.vx, 0)
+                h.text:SetWidth(c.right and (c.vw - 10) or c.vw)
+            end
+        end
     end
     function bar:Update(sortKey, desc)
         for _, h in ipairs(self.cells) do
@@ -687,6 +711,195 @@ function W.Header(parent, cols, y, width, onSort)
         end
     end
     return bar
+end
+
+-- -----------------------------------------------------------------------------
+-- Colonnes au choix (clic droit sur l'en-tête, bouton « Colonnes », modèles)
+-- Columns chosen by the user, saved per table.
+--   cols : colonnes du tableau ({key, label, x, w, right, order, flex}) ; la
+--     première visible part de cols[1].x ; la colonne flex (« name ») prend la
+--     place libérée. Si les colonnes visibles dépassent, elles sont resserrées.
+--   opts = { width, locked = {key=true}, presets = {{id, label, keys|nil(=toutes)}},
+--            default = id, iconPad = décalage du texte de la 1re colonne }
+-- -----------------------------------------------------------------------------
+local COL_GAP = 2
+
+function W.ColumnSet(tableKey, cols, opts)
+    local cs = { key = tableKey, cols = cols, opts = opts, binds = {} }
+    ns.settings.columns = ns.settings.columns or {}
+    local function store()
+        local st = ns.settings.columns[tableKey]
+        if type(st) ~= "table" then
+            st = { hidden = {} }
+            ns.settings.columns[tableKey] = st
+            cs.ApplyPreset(opts.default, true)
+        end
+        st.hidden = st.hidden or {}
+        return st
+    end
+    function cs.IsShown(key)
+        if opts.locked and opts.locked[key] then return true end
+        return not store().hidden[key]
+    end
+    function cs.Set(key, on)
+        if opts.locked and opts.locked[key] then return end
+        store().hidden[key] = (not on) or nil
+        store().preset = nil
+        cs.Apply()
+    end
+    function cs.ApplyPreset(id, silent)
+        local st = ns.settings.columns[tableKey]
+        local p
+        for _, pr in ipairs(opts.presets or {}) do if pr[1] == id then p = pr end end
+        st.hidden = {}
+        if p and p[3] then
+            local keep = {}
+            for _, k in ipairs(p[3]) do keep[k] = true end
+            for _, c in ipairs(cols) do
+                if not keep[c.key] and not (opts.locked and opts.locked[c.key]) then st.hidden[c.key] = true end
+            end
+        end
+        st.preset = id
+        if not silent then cs.Apply() end
+    end
+    function cs.Preset() return store().preset end
+    -- Disposition : positions et largeurs des colonnes visibles
+    function cs.Layout()
+        store()
+        local order = {}
+        for i, c in ipairs(cols) do c._i = i; order[#order + 1] = c end
+        table.sort(order, function(a, b) return (a.order or a._i) < (b.order or b._i) end)
+        local start = cols[1].x or 0
+        local avail = (opts.width or 600) - start
+        local vis, sum, flex = {}, 0, nil
+        for _, c in ipairs(order) do
+            c.hidden = not cs.IsShown(c.key)
+            if not c.hidden then
+                vis[#vis + 1] = c
+                sum = sum + c.w + COL_GAP
+                if c.flex then flex = c end
+            end
+        end
+        local extra = avail - sum
+        local scale = 1
+        if extra < 0 then
+            scale = math.max(0.6, (avail - COL_GAP * #vis) / math.max(1, sum - COL_GAP * #vis))
+            extra = 0
+        end
+        local x = start
+        for _, c in ipairs(vis) do
+            local w = math.floor(c.w * scale)
+            if c == flex then w = w + extra end
+            c.vx, c.vw = x, math.max(20, w)
+            x = x + c.vw + COL_GAP
+        end
+        return vis
+    end
+    -- Place les cellules d'une ligne (row.cells, même ordre que cols)
+    function cs.PlaceRow(row, pad)
+        pad = pad or opts.iconPad or 0
+        for i, c in ipairs(cols) do
+            local fs = row.cells and row.cells[i]
+            if fs then
+                if c.hidden then
+                    fs:Hide()
+                else
+                    fs:Show()
+                    local first = (c.vx == (cols[1].x or 0))
+                    fs:ClearAllPoints()
+                    fs:SetPoint("LEFT", first and (c.vx + pad) or c.vx, 0)
+                    fs:SetWidth(first and math.max(10, c.vw - pad) or c.vw)
+                end
+            end
+        end
+    end
+    function cs.Bind(header, list, pad, after)
+        cs.binds[#cs.binds + 1] = { header = header, list = list, pad = pad, after = after }
+    end
+    function cs.Apply()
+        cs.Layout()
+        for _, b in ipairs(cs.binds) do
+            if b.header then b.header:Layout() end
+            if b.list then
+                for _, row in ipairs(b.list.rows) do cs.PlaceRow(row, b.pad) end
+                b.list:Refresh()
+            end
+            if b.after then b.after() end
+        end
+        if cs.menu and cs.menu:IsShown() then cs.menu.Sync() end
+    end
+    -- Fenêtre de choix des colonnes / column picker
+    function cs.Menu(anchor)
+        if not cs.menu then
+            local m = CreateFrame("Frame", nil, UIParent, "BackdropTemplate")
+            m:SetFrameStrata("DIALOG")
+            m:SetBackdrop(W.BACKDROP)
+            m:SetBackdropColor(0.06, 0.07, 0.10, 0.98)
+            m:SetBackdropBorderColor(0.72, 0.58, 0.32, 1)
+            m:EnableMouse(true)
+            m:SetClampedToScreen(true)
+            local title = W.Text(m, "GameFontNormal", "Colonnes affichées")
+            title:SetPoint("TOPLEFT", 12, -10)
+            local close = CreateFrame("Button", nil, m, "UIPanelCloseButton")
+            close:SetPoint("TOPRIGHT", -2, -2)
+            local y = -32
+            local pl = W.Text(m, "GameFontNormalSmall", "Modèles :")
+            pl:SetPoint("TOPLEFT", 12, y - 4)
+            local px = 72
+            m.presetButtons = {}
+            for _, pr in ipairs(opts.presets or {}) do
+                local b = W.Button(m, pr[2], 0, 20, function() cs.ApplyPreset(pr[1]) end)
+                b:SetWidth(math.max(70, (b:GetTextWidth() or 60) + 20))
+                b:SetPoint("TOPLEFT", px, y)
+                b.id = pr[1]
+                px = px + b:GetWidth() + 4
+                m.presetButtons[#m.presetButtons + 1] = b
+            end
+            y = y - 30
+            m.checks = {}
+            local half = math.ceil(#cols / 2)
+            for i, c in ipairs(cols) do
+                local col = (i <= half) and 0 or 1
+                local rowY = y - ((col == 0) and (i - 1) or (i - half - 1)) * 22
+                local ck = W.Check(m, (c.menuLabel or c.label), function() return cs.IsShown(c.key) end,
+                    function(v) cs.Set(c.key, v) end, c.tip)
+                ck:SetPoint("TOPLEFT", 12 + col * 170, rowY)
+                if opts.locked and opts.locked[c.key] then ck:SetEnabled(false) end
+                ck.key = c.key
+                m.checks[#m.checks + 1] = ck
+            end
+            m:SetSize(math.max(360, px + 12), -y + half * 22 + 30)
+            local hint = W.Text(m, "GameFontDisableSmall", "Une colonne masquée reste visible dans l'infobulle de la ligne.", "LEFT", 330)
+            hint:SetPoint("BOTTOMLEFT", 12, 10)
+            function m.Sync()
+                for _, ck in ipairs(m.checks) do ck:SetChecked(cs.IsShown(ck.key)) end
+                local cur = cs.Preset()
+                for _, b in ipairs(m.presetButtons) do
+                    -- Modèle en cours : bouton en surbrillance / current preset highlighted
+                    if b.id == cur then b:LockHighlight() else b:UnlockHighlight() end
+                end
+            end
+            m:SetScript("OnShow", function() m.Sync() end)
+            m:Hide()
+            cs.menu = m
+        end
+        local m = cs.menu
+        m:ClearAllPoints()
+        m:SetPoint("TOPLEFT", anchor or UIParent, anchor and "BOTTOMLEFT" or "CENTER", 0, -2)
+        m:Show()
+        m.Sync()
+        return m
+    end
+    -- Bouton « Colonnes » / "Columns" button
+    function cs.Button(parent)
+        local b = W.Button(parent, "Colonnes", 80, 22, function(self) cs.Menu(self) end)
+        b:SetScript("OnEnter", function(self)
+            W.ShowTip(self, "Colonnes", "Choisir les colonnes affichées, ou un modèle (Essentiel, Revente rapide, Complet). Aussi : clic droit sur l'en-tête du tableau.")
+        end)
+        b:SetScript("OnLeave", function() GameTooltip:Hide() end)
+        return b
+    end
+    return cs
 end
 
 -- Titre de section avec filet doré / section title with a gold rule

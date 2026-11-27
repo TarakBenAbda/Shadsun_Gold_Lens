@@ -32,6 +32,12 @@ local LAYOUTS = {
             { key = "roi", label = "Rentab.", x = 642, w = 46, right = true },
             { key = "bags", label = "Sacs", x = 690, w = 32, right = true, tip = W.TIP_BAGS },
             { key = "sale", label = "Vente", x = 724, w = 32, right = true, tip = W.TIP_SALE },
+            -- 0.16 : indicateurs de marché (colonnes au choix)
+            { key = "where", label = "Où", w = 40, menuLabel = "Revendre à", tip = "HDV de revente conseillé : celui qui rapporte le plus par jour (gain par unité × ventes par jour). Sans vitesse de vente connue : votre marché de revente." },
+            { key = "sales", label = "Ventes/j", w = 52, right = true, tip = "Ventes estimées par jour à l'HDV de revente (Forever AH : annonces disparues entre deux relevés, achetées ou annulées)." },
+            { key = "gainDay", label = "Gain/j", w = 68, right = true, tip = "Gain par jour estimé : bénéfice par unité × ventes par jour." },
+            { key = "advice", label = "Conseil", w = 46, right = true, menuLabel = "Quantité conseillée", tip = "Quantité conseillée : environ 3 jours de ventes, pour ne pas inonder le marché (paramètre « jours de ventes »)." },
+            { key = "value", label = "Valeur", w = 50, right = true, menuLabel = "Écart à la valeur habituelle", tip = "Prix de revente comparé à la valeur habituelle de l'HDV (moyenne sur 14 jours). Orange : prix gonflé, prudence." },
         },
     },
     ah = {
@@ -49,9 +55,68 @@ local LAYOUTS = {
             { key = "roi", label = "Rentab.", x = 536, w = 44, right = true },
             { key = "bags", label = "Sacs", x = 582, w = 34, right = true, tip = W.TIP_BAGS },
             { key = "sale", label = "Vente", x = 618, w = 34, right = true, tip = W.TIP_SALE },
+            { key = "where", label = "Où", w = 40, menuLabel = "Revendre à", tip = "HDV de revente conseillé : celui qui rapporte le plus par jour (gain par unité × ventes par jour). Sans vitesse de vente connue : votre marché de revente." },
+            { key = "sales", label = "Ventes/j", w = 52, right = true, tip = "Ventes estimées par jour à l'HDV de revente (Forever AH : annonces disparues entre deux relevés, achetées ou annulées)." },
+            { key = "gainDay", label = "Gain/j", w = 64, right = true, tip = "Gain par jour estimé : bénéfice par unité × ventes par jour." },
+            { key = "advice", label = "Conseil", w = 44, right = true, menuLabel = "Quantité conseillée", tip = "Quantité conseillée : environ 3 jours de ventes, pour ne pas inonder le marché (paramètre « jours de ventes »)." },
+            { key = "value", label = "Valeur", w = 48, right = true, menuLabel = "Écart à la valeur habituelle", tip = "Prix de revente comparé à la valeur habituelle de l'HDV (moyenne sur 14 jours). Orange : prix gonflé, prudence." },
         },
     },
 }
+
+-- Ordre d'affichage (les nouvelles colonnes s'insèrent à leur place logique)
+local ORDER = { name = 1, prof = 2, vendor = 3, zone = 4, side = 5, cost = 6, where = 7, ah = 8, profit = 9, roi = 10,
+    sales = 11, gainDay = 12, advice = 13, value = 14, bags = 15, sale = 16 }
+for _, l in pairs(LAYOUTS) do
+    for _, c in ipairs(l.cols) do
+        c.order = ORDER[c.key]
+        if c.key == "name" then c.flex = true end
+    end
+end
+OUI.PRESETS = {
+    { "ess", "Essentiel", { "name", "vendor", "zone", "cost", "ah", "profit", "roi", "bags" } },
+    { "std", "Standard", { "name", "vendor", "side", "cost", "where", "ah", "profit", "roi", "sales", "gainDay", "bags", "sale" } },
+    { "fast", "Revente rapide", { "name", "vendor", "cost", "where", "ah", "profit", "sales", "gainDay", "advice", "value" } },
+    { "all", "Complet" },
+}
+
+-- HDV de revente conseillé : parmi votre HDV de faction et le neutre (ceux où
+-- vous pouvez vendre), celui au meilleur gain par jour. Sans vitesse de vente
+-- connue pour tous les candidats : votre marché de revente (paramètre).
+-- Returns key, unit, ageDays, profit/lot result, sales/day, candidates.
+function OUI.BestResale(id, offer, info)
+    local MK, E = ns.Market, ns.Economy
+    if not offer or offer.ext or not offer.price or offer.price <= 0 then return nil end
+    local cands, allSpd = {}, true
+    local seen = {}
+    for _, key in ipairs({ MK.PlayerKey(), "N" }) do
+        if not seen[key] then
+            seen[key] = true
+            local snap = MK.Snap(key)
+            local unit = snap and MK.Item(snap, id)
+            local t = unit and MK.ItemSnap(snap, id).time
+            if unit and not MK.IsStale(t) then
+                local r = E.Evaluate(id, offer, unit, MK.AgeDays(t), info, MK.Rate(key))
+                local spd = MK.Stats(snap, id)
+                if not spd then allSpd = false end
+                if r then
+                    local perUnit = r.profit / (offer.qty or 1)
+                    cands[#cands + 1] = { key = key, unit = unit, age = MK.AgeDays(t), r = r, spd = spd,
+                        gday = spd and perUnit * spd or nil }
+                end
+            end
+        end
+    end
+    if #cands == 0 then return nil, cands end
+    local best
+    if allSpd then
+        for _, c in ipairs(cands) do if not best or c.gday > best.gday then best = c end end
+    else
+        local sk = MK.SellKey()
+        for _, c in ipairs(cands) do if c.key == sk then best = c end end
+    end
+    return best, cands
+end
 
 function OUI.Build(parent, mode)
     local layout = LAYOUTS[mode] or LAYOUTS.window
@@ -120,13 +185,19 @@ function OUI.Build(parent, mode)
         end)
         header:Update(sortKey, sortDesc)
     end
+    -- Colonnes au choix (mémorisées séparément pour la fenêtre et le panneau de l'HDV)
+    local cs = W.ColumnSet("opp_" .. (mode == "ah" and "ah" or "window"), cols, { width = layout.width - 14,
+        locked = { name = true, profit = true }, presets = OUI.PRESETS, default = "std", iconPad = 20 })
+    page.columns = cs
+    TEXT_KEYS.where = true
     header = W.Header(page, cols, -100, layout.width - 14, function(key)
         if sortKey == key then sortDesc = not sortDesc
         else sortKey, sortDesc = key, not TEXT_KEYS[key] end
         ns.settings.opportunities.sortKey, ns.settings.opportunities.sortDesc = sortKey, sortDesc
         sortRows()
         list:SetData(rows, true)
-    end)
+    end, function(anchor) cs.Menu(anchor) end)
+    page.header = header
     page.SortBy = function(key, desc) sortKey, sortDesc = key, desc; sortRows(); list:SetData(rows, true) end
 
     -- --- Tableau / table ---------------------------------------------------------
@@ -174,6 +245,7 @@ function OUI.Build(parent, mode)
             row:SetScript("OnEnter", function(self)
                 GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
                 GameTooltip:SetItemByID(self.data.id)
+                OUI.AddResaleLines(self.data)
                 GameTooltip:Show()
             end)
             row:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -205,6 +277,13 @@ function OUI.Build(parent, mode)
             end
             cells[10]:SetText(W.BagsText(d))
             cells[11]:SetText(W.SaleText(d))
+            local MK = ns.Market
+            cells[12]:SetText(d.where and MK.ColorLabel(d.where, true):gsub("^HDV ", "") or U.Color(U.colors.dim, "-"))
+            cells[13]:SetText(d.sales and MK.SalesText(d.sales):gsub(" ventes?/j", "") or U.Color(U.colors.dim, "-"))
+            cells[14]:SetText(d.gainDay and U.Color(d.gainDay > 0 and U.colors.good or U.colors.bad, U.MoneyShort(math.floor(d.gainDay + 0.5), true, true))
+                or U.Color(U.colors.dim, "-"))
+            cells[15]:SetText(d.advice and tostring(d.advice) or U.Color(U.colors.dim, "-"))
+            cells[16]:SetText(d.value and MK.DeltaText(d.value, true) or U.Color(U.colors.dim, "-"))
             if row.search then row.search:SetUsable(ns.Arbitrage.ahOpen) end
             if row.go then
                 local valid = ns.Navigation.Validate(d.offer) and true or false
@@ -215,6 +294,8 @@ function OUI.Build(parent, mode)
     })
     list:SetPoint("TOPLEFT", 0, -120)
     page.list = list
+    cs.Bind(header, list, 20)
+    cs.Apply()
 
     -- --- Calcul / computation ---------------------------------------------------
     function page.Compute()
@@ -245,8 +326,15 @@ function OUI.Build(parent, mode)
                     local instant = U.ItemInstant(id)
                     local isRecipe = instant and instant.classID == U.RECIPE_CLASS
                     local price, age, pstate = P.Best(id, info and info.link)
+                    -- HDV de revente au meilleur gain par jour (0.16)
+                    local rs, cands = OUI.BestResale(id, best, info)
+                    local where, rate = nil, nil
+                    if rs then
+                        where, rate = rs.key, ns.Market.Rate(rs.key)
+                        price, age, pstate = rs.unit, rs.age, "LIVE"
+                    end
                     if price then withAH = withAH + 1 end
-                    local r = E.Evaluate(id, best, price, age, info)
+                    local r = E.Evaluate(id, best, price, age, info, rate)
                     local unit = (not best.ext and best.price > 0) and math.floor(best.price / best.qty + 0.5) or nil
                     local d = {
                         id = id, name = (info and info.name) or ns.Data.names[id] or ("Objet n° " .. id),
@@ -254,7 +342,15 @@ function OUI.Build(parent, mode)
                         vendor = best.name, zone = U.MapName(best.map), side = best.side, offer = best,
                         cost = unit, ah = price, age = age, source = pstate,
                         profit = r and r.profit, roi = r and r.roi, status = view.status,
+                        where = where, cands = cands,
                     }
+                    if rs then
+                        d.sales = rs.spd
+                        d.gainDay = (rs.spd and r) and (r.profit / (best.qty or 1)) * rs.spd or nil
+                        d.advice = ns.Market.Advice(rs.spd)
+                        local _, usual = ns.Market.KeyStats(rs.key, id)
+                        d.value = ns.Market.ValueDelta(rs.unit, usual)
+                    end
                     INV.Stock(d)
                     local keep = true
                     if f.ah == "with" and not price then keep = false end
@@ -288,6 +384,9 @@ function OUI.Build(parent, mode)
     local refreshBtn = W.Button(page, "Actualiser", 100, 22, function() page.Compute() end)
     refreshBtn:SetPoint("TOPRIGHT", -14, y3)
     page.refreshButton = refreshBtn
+    local colBtn = cs.Button(page)
+    colBtn:SetPoint("RIGHT", refreshBtn, "LEFT", -6, 0)
+    page.columnsButton = colBtn
 
     -- Possédé : mis à jour quand les sacs changent (tri par « Poss. » exact).
     local function updateOwned()
@@ -314,4 +413,23 @@ function OUI.Build(parent, mode)
     page.Rows = function() return rows end
     sortRows()
     return page
+end
+
+-- Infobulle d'une ligne : revente conseillée et comparaison des HDV (0.16)
+function OUI.AddResaleLines(d)
+    if not d or not d.cands or #d.cands == 0 then return end
+    local MK = ns.Market
+    GameTooltip:AddLine(" ")
+    GameTooltip:AddLine("Revente (gain par jour = bénéfice par unité × ventes par jour)", 1, 0.82, 0)
+    for _, c in ipairs(d.cands) do
+        local per = c.r.profit / ((d.offer and d.offer.qty) or 1)
+        local left = MK.ColorLabel(c.key) .. (c.key == d.where and U.Color(U.colors.good, "  (conseillé)") or "")
+        local right = U.Money(c.unit, true) .. "  " .. MK.SalesText(c.spd)
+            .. (c.gday and ("  ·  " .. U.Money(math.floor(c.gday + 0.5), true, true) .. "/j") or "")
+        GameTooltip:AddDoubleLine(left, right, 1, 1, 1, 1, 1, 1)
+        if per <= 0 then GameTooltip:AddLine("   pas rentable à cet HDV", 0.6, 0.6, 0.6) end
+    end
+    if d.advice then GameTooltip:AddLine("Quantité conseillée : " .. d.advice .. " (environ " ..
+        (ns.DB.Num("economy", "adviceDays") or 3) .. " jours de ventes)", 1, 1, 1) end
+    if d.value then GameTooltip:AddLine("Prix de revente : " .. MK.DeltaText(d.value), 1, 1, 1) end
 end

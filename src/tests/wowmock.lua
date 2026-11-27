@@ -29,7 +29,7 @@ local FRAME = addAll(addAll({}, (function() local l = {} for k in pairs(REGION) 
         "IsForbidden", "SetID", "GetID", "Raise", "Lower", "IsMouseOver", "SetHitRectInsets", "SetClampRectInsets" })
 local BACKDROP = addAll({}, { "SetBackdrop", "SetBackdropColor", "SetBackdropBorderColor" })
 local BUTTON = addAll({}, { "SetText", "GetText", "SetEnabled", "Enable", "Disable", "IsEnabled", "RegisterForClicks",
-    "LockHighlight", "UnlockHighlight", "SetNormalTexture", "SetHighlightTexture", "SetPushedTexture", "GetFontString",
+    "LockHighlight", "UnlockHighlight", "SetNormalTexture", "SetHighlightTexture", "SetPushedTexture", "GetFontString", "GetTextWidth",
     "Click", "SetNormalFontObject", "SetFontString" })
 local CHECK = addAll({}, { "SetChecked", "GetChecked" })
 local EDIT = addAll({}, { "SetText", "GetText", "SetAutoFocus", "SetMaxLetters", "SetFocus", "ClearFocus", "HasFocus",
@@ -163,6 +163,7 @@ function Widget:SetSpacing() end
 function Widget:SetTextColor() end
 function Widget:SetFontObject() end
 function Widget:GetStringWidth() return 50 end
+function Widget:GetTextWidth() return 50 end
 function Widget:SetDrawLayer() end
 -- Bouton / button
 function Widget:SetEnabled(v) self.__enabled = v and true or false end

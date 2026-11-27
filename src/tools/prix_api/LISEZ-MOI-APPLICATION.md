@@ -57,7 +57,8 @@ Le décor reprend le personnage et le logo de Shadsun Gold Lens : fond bleu nuit
 
 - **Réglages, journal, cache :** `%APPDATA%\ShadsunGoldLens`. L'exe peut donc être rangé n'importe où (Bureau, Téléchargements…).
 - **Clé Blizzard (mode avancé) :** dans le Gestionnaire d'identification de Windows (entrée « ShadsunGoldLens/battlenet »), jamais dans un fichier.
-- **Prix pour le jeu :** `AddOns\ShadsunGoldLens_Prix\Prix.lua`, réécrit à chaque mise à jour.
+- **Prix pour le jeu :** `AddOns\ShadsunGoldLens_Prix\Prix.lua`, réécrit à chaque mise à jour. Il contient aussi les indicateurs de Forever AH (ventes par jour, valeur habituelle).
+- **Historique des prix :** `%APPDATA%\ShadsunGoldLens\historique.sqlite` (version 1.7.0 et suivantes). Un relevé par HDV et par objet à chaque mise à jour ; après 14 jours, les relevés sont résumés par jour. Pour désactiver : `historique = 0` dans la section `[outil]` du fichier de réglages.
 
 ## Sources des prix
 
@@ -65,6 +66,8 @@ Le décor reprend le personnage et le logo de Shadsun Gold Lens : fond bleu nuit
 |---|---|---|---|
 | Simple (par défaut) | Forever AH (forever-ah.com) | Rien | Site gratuit qui lit l'API Battle.net. Environ une requête par seconde au plus, comme le site le demande. La mention « Prix : Forever AH (forever-ah.com) » est affichée dans l'application et dans l'add-on. |
 | Avancé | API Blizzard | Un compte développeur (gratuit) | Ne dépend d'aucun site tiers. Chaque joueur crée sa propre clé : une clé secrète ne se partage pas. |
+
+Les **indicateurs** (ventes par jour, valeur habituelle) viennent toujours de Forever AH, même en mode Avancé : l'API Blizzard ne les fournit pas. Si Forever AH ne répond pas, les prix sont écrits sans indicateurs. Pour ne pas les télécharger : `indicateurs = 0` dans la section `[outil]`.
 
 Si Forever AH change ou ferme, le journal l'indique. Il suffit alors de passer en mode Avancé dans « Paramètres ».
 

@@ -220,7 +220,7 @@ function MK.LoadExternal()
         local m = x.markets[key]
         if type(m) == "table" and type(m.d) == "table" and type(m.time) == "number" and m.time >= limit then
             out[key] = { time = m.time, total = m.total or 0, char = srcName, d = m.d, source = "api", house = m.house,
-                         v = type(m.v) == "table" and m.v or nil }
+                         v = type(m.v) == "table" and m.v or nil, s = type(m.s) == "table" and m.s or nil }
         end
     end
     MK.ext = out
@@ -250,7 +250,7 @@ function MK.Snap(key)
     for id, v in pairs(old.d) do d[id] = v; fromOld[id] = true end
     for id, v in pairs(new.d) do d[id] = v; fromOld[id] = nil end
     local snap = { time = new.time, total = new.total, char = new.char, source = new.source, house = new.house,
-                   d = d, v = ext.v, older = old, fromOld = fromOld }
+                   d = d, v = ext.v, s = ext.s, older = old, fromOld = fromOld }
     mergeCache[key] = { own = own, ext = ext, ot = own.time, et = ext.time, snap = snap }
     return snap
 end
@@ -260,6 +260,54 @@ function MK.InvalidateSnap(key) if key then mergeCache[key] = nil else mergeCach
 function MK.ItemSnap(s, itemID)
     if s and s.fromOld and s.fromOld[itemID] then return s.older end
     return s
+end
+
+-- -----------------------------------------------------------------------------
+-- Indicateurs de marché (Forever AH, via l'application) / market indicators
+--   ventes par jour (estimation) et valeur habituelle (moyenne pondérée sur
+--   14 jours du 10e centile). Seuils de l'écart à la valeur habituelle :
+--   ≥ 15 % en dessous = bonne affaire ; ≥ 25 % au-dessus = prix gonflé.
+-- -----------------------------------------------------------------------------
+MK.DEAL_PCT, MK.HIGH_PCT = -15, 25
+
+-- Ventes par jour (nombre, décimales) et valeur habituelle (pc) d'un objet.
+function MK.Stats(s, itemID)
+    if not s or not s.s or not itemID then return nil end
+    local mv, spd10 = unpackV(s.s[itemID])
+    if not mv then return nil end
+    return (spd10 or 0) / 10, (mv and mv > 0) and mv or nil
+end
+function MK.KeyStats(key, itemID) return MK.Stats(MK.Snap(key), itemID) end
+
+-- Écart (%) d'un prix à la valeur habituelle / deviation from usual value
+function MK.ValueDelta(unit, usual)
+    if not unit or not usual or usual <= 0 then return nil end
+    return (unit / usual - 1) * 100
+end
+
+function MK.SalesText(spd)
+    if not spd then return U.Color(U.colors.dim, "ventes inconnues") end
+    local n = (spd >= 10) and tostring(math.floor(spd + 0.5)) or (string.format("%.1f", spd):gsub("%.0$", ""):gsub("%.", ","))
+    return n .. (spd >= 2 and " ventes/j" or " vente/j")
+end
+
+-- Texte de l'écart : vert (bonne affaire), orange (gonflé), gris (habituel)
+function MK.DeltaText(pct, short)
+    if not pct then return "" end
+    local n = math.floor(math.abs(pct) + 0.5)
+    if pct <= MK.DEAL_PCT then
+        return U.Color(U.colors.good, short and ("-" .. n .. " %") or (n .. " % sous la valeur habituelle"))
+    elseif pct >= MK.HIGH_PCT then
+        return U.Color(U.colors.warn, short and ("+" .. n .. " %") or (n .. " % au-dessus de la valeur habituelle"))
+    end
+    return U.Color(U.colors.dim, short and ((pct >= 0 and "+" or "-") .. n .. " %") or "au prix habituel")
+end
+
+-- Quantité conseillée : environ N jours de ventes (paramètre « adviceDays »)
+function MK.Advice(spd)
+    if not spd or spd <= 0 then return nil end
+    local days = ns.DB and ns.DB.Num("economy", "adviceDays") or 3
+    return math.max(1, math.floor(spd * days + 0.5))
 end
 
 -- Prix « dès » des variantes (suffixe, bonus) d'un objet sans version simple

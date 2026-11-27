@@ -50,6 +50,7 @@ Lignes **HDV** : pour chaque objet, la donnée la plus récente qui le contient,
 - **Achat PNJ** : ce que vous payez au marchand (lot indiqué : « 25 pc / lot de 5 »).
 - **Vente PNJ** : ce que le marchand vous donne si vous lui vendez l'objet.
 - **HDV Alliance / HDV Horde / HDV neutre** : une ligne par hôtel des ventes dont le prix est connu (vos scans ou l'API Blizzard), avec le prix unitaire le plus bas, la quantité en vente, la source et l'âge (en orange au-delà de « Prix HDV ancien après »). L'HDV de l'autre faction peut être masqué (option). Objet absent de tous les scans : ligne **HDV** avec le dernier prix connu par Auctionator. Pour les armes et armures, seules les annonces de la **version simple** comptent (le marchand vend la version simple ; les variantes « … de l'aigle » sont plus chères) ; sans scan, leur prix HDV est indisponible.
+- **Indicateurs** (prix importés par l'application, source Forever AH) : en fin de ligne HDV, ventes estimées par jour et écart à la valeur habituelle, par exemple « 12 ventes/j · -35 % vs habituel ». Vert : au moins 15 % sous la valeur habituelle ; orange : au moins 25 % au-dessus.
 - **Bénéfice net** : calculé sur le **marché de revente** (Paramètres ou onglet Marchés), dont le nom est rappelé en fin de ligne quand son scan est utilisé.
 - **Possédé** : exemplaires détenus par **tous vos personnages du serveur** (sacs et banque). Personnage connecté : nombre exact donné par le jeu ; autres personnages : dernier relevé (sacs à chaque changement, banque à chaque visite).
 - Montants affichés avec les icônes de pièces du jeu (option pour revenir à « po / pa / pc »).
@@ -75,6 +76,26 @@ Sous la barre, quatre onglets : **HDV » PNJ**, **PNJ » HDV**, **HDV » HDV** e
 Les sélecteurs s'ouvrent en menu au clic ; la molette (ou un clic droit) passe à la valeur suivante (ou précédente). Les en-têtes de colonnes trient (flèche sur la colonne active). Les icônes de ligne affichent leur rôle au survol : **loupe** = rechercher dans l'HDV, **carte** = point TomTom, **note** = commande `/tway` à copier.
 
 La **loupe** lance une recherche **non exacte** : toutes les variantes d'un objet (« Bâtarde aiguisée de l'aigle », « … de force »…) s'affichent, comme une recherche manuelle.
+
+### Colonnes des tableaux et indicateurs de marché
+
+Chaque tableau (PNJ » HDV, HDV » HDV, HDV » PNJ, Listes) a son propre choix de colonnes :
+
+1. Faites un **clic droit sur l'en-tête** du tableau, ou cliquez sur le bouton **« Colonnes »**.
+2. Cochez ou décochez les colonnes, ou cliquez sur un modèle : **Essentiel**, **Standard** (par défaut), **Revente rapide**, **Complet**.
+3. Le choix est mémorisé pour ce tableau, séparément dans la fenêtre principale et dans le panneau de l'HDV.
+
+Colonnes issues des indicateurs (prix importés par l'application) :
+
+| Colonne | Sens |
+|---|---|
+| Où | PNJ » HDV : HDV de revente conseillé, celui qui rapporte le plus par jour (votre faction ou le neutre). Sans vitesse de vente connue : votre marché de revente. |
+| Ventes/j | ventes estimées par jour à l'HDV de revente (annonces disparues, achetées ou annulées) |
+| Gain/j | bénéfice par unité × ventes par jour |
+| Conseil | quantité conseillée : environ 3 jours de ventes, pour ne pas inonder le marché |
+| Valeur | écart à la valeur habituelle (moyenne sur 14 jours) : du prix de revente en PNJ » HDV, du prix d'achat en HDV » HDV et HDV » PNJ |
+
+Ces chiffres sont des estimations : un objet peu vendu peut rester des jours en vente. En HDV » HDV, moins de 0,3 vente par jour à l'HDV de revente donne l'avis « À vérifier ».
 
 ### Marchés : scans par HDV, par serveur, partagés par vos personnages
 

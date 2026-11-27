@@ -47,7 +47,7 @@ end
 
 -- Évaluation complète pour une offre et un prix HDV / full evaluation
 -- Retourne result | nil, raison
-function E.Evaluate(itemID, offer, ahUnit, ageDays, itemInfo)
+function E.Evaluate(itemID, offer, ahUnit, ageDays, itemInfo, rateOverride)
     if not offer then return nil, L.REASON_NO_VENDOR end
     if offer.ext then return nil, L.REASON_EXTCOST end
     if not offer.price or offer.price <= 0 then return nil, L.REASON_NO_PRICE end
@@ -56,7 +56,7 @@ function E.Evaluate(itemID, offer, ahUnit, ageDays, itemInfo)
     if itemInfo and (UNTRADEABLE_BIND[itemInfo.bindType or 0] or itemInfo.classID == QUEST_CLASS) then
         return nil, L.REASON_BOUND
     end
-    local rate = E.Rate()
+    local rate = rateOverride or E.Rate()
     local r = E.Compute(offer.price, offer.qty, ahUnit, rate)
     r.bindUnknown = itemInfo == nil
     r.age = ageDays

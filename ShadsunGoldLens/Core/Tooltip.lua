@@ -160,7 +160,15 @@ local function marketLines(add, itemID)
             local extra = string.format(L.MARKET_DETAIL, U.Group(qty or 0), MK.SourceText(s))
             if prefix ~= "" then extra = L.MARKET_VARIANTS .. " · " .. extra end
             if stale then extra = extra .. ", " .. L.AH_STALE end
-            add(MK.IconLabel(key), prefix .. U.Money(unit) .. " " .. U.Color(stale and U.colors.warn or U.colors.dim, "(" .. extra .. ")"))
+            -- Indicateurs (0.16) : ventes par jour et écart à la valeur habituelle
+            local spd, usual = MK.Stats(snap, itemID)
+            local ind = ""
+            if spd or usual then
+                ind = "  " .. U.Color(U.colors.dim, MK.SalesText(spd))
+                local dt = prefix == "" and MK.DeltaText(MK.ValueDelta(unit, usual), true) or ""
+                if dt ~= "" then ind = ind .. U.Color(U.colors.dim, " · ") .. dt .. U.Color(U.colors.dim, " vs habituel") end
+            end
+            add(MK.IconLabel(key), prefix .. U.Money(unit) .. " " .. U.Color(stale and U.colors.warn or U.colors.dim, "(" .. extra .. ")") .. ind)
             n = n + 1
         end
     end

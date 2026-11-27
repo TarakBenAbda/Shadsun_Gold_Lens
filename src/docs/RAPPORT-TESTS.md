@@ -1,6 +1,6 @@
-# Rapport de tests — Shadsun Gold Lens 0.15.1 et application 1.6.2
+# Rapport de tests — Shadsun Gold Lens 0.16.0 et application 1.7.0
 
-Auteur : Tarak Ben Abda — 20 novembre 2026.
+Auteur : Tarak Ben Abda — 26 novembre 2026.
 
 **L'add-on n'a pas été exécuté dans World of Warcraft.** Tous les tests ci-dessous ont été exécutés hors jeu, avec Lua 5.1 (même version de langage que le client) et un client simulé strict (`tests/wowmock.lua`) : toute méthode de widget absente de l'API réelle provoque une erreur. Une simulation réussie ne prouve pas le fonctionnement dans le client ; elle prouve la logique, l'absence d'erreurs Lua et l'absence de récursion ou de doublons dans le modèle de cycle de vie reproduit. Sortie brute : `sortie-tests.txt`.
 
@@ -351,7 +351,7 @@ Premier essai réel (19 novembre, 22 h 43) : identification sur l'API réelle �
 | Vérification manuelle (1.6.2) : lien « Vérifier », interrogation sans cache, nouvelle version annoncée, bandeau à jour | réussi |
 | Installation, raccourcis et remplacement réels sous Windows | à vérifier chez vous (1.6 installe ; la mise à jour en un clic se vérifiera avec la version suivante) |
 
-**Total : 423 tests de l'add-on, 52 tests du moteur de prix, 78 tests du cœur de l'application et 32 tests de l'interface, tous réussis.**
+**Total : 454 tests de l'add-on, 56 tests du moteur de prix, 81 tests du cœur de l'application et 32 tests de l'interface, tous réussis.**
 
 **Non vérifiable ici (0.13.0) :** l'affichage réel en jeu des fichiers TGA (logo, icône de la liste des add-ons) et des icônes de faction `Interface\FriendsFrame\PlusManz-*` dans le client Forever ; le rendu de l'application sous Windows (polices Palatino Linotype / Segoe UI, échelle d'affichage).
 
@@ -364,6 +364,44 @@ Premier essai réel (19 novembre, 22 h 43) : identification sur l'API réelle �
 - le vrai site Forever AH (le format a été relevé sur le site réel le 24 novembre 2026, les tests utilisent une copie locale).
 
 **Non vérifiable ici :** la création et l'exécution réelles de la tâche par le Planificateur de tâches de Windows (pas de Windows dans l'environnement de test), la commande PowerShell de `7_Etat…`, et la liste des enchères renvoyée par le client Forever (`C_AuctionHouse.GetOwnedAuctions`, messages système de vente et d'expiration en français).
+
+### Add-on 0.16.0 et application 1.7.0
+
+| Vérification | Résultat |
+|---|---|
+| Écart à la valeur habituelle : 65 pour 100 → -35 % | réussi |
+| Libellés de l'écart : -35 % (vert), +30 % (orange), +5 % (gris) | réussi |
+| Ventes par jour : 12 → « 12 ventes/j », 0,5 → « 0,5 vente/j », inconnues | réussi |
+| Quantité conseillée : 3 jours de ventes (4 ventes/j → 12), au moins 1 | réussi |
+| Indicateurs lus : eau au neutre, 10 ventes/j, valeur habituelle 30 pc | réussi |
+| HDV sans indicateurs : rien (pas d'erreur) | réussi |
+| Infobulle : « 5 ventes/j · -50 % vs habituel » sur la ligne de l'Alliance | réussi |
+| Où revendre : neutre (10 ventes/j) plutôt qu'Alliance (2 ventes/j) malgré la commission | réussi |
+| Gain par jour = bénéfice par unité × ventes par jour | réussi |
+| Vitesse inconnue pour un HDV : marché de revente des réglages (votre faction) | réussi |
+| PNJ » HDV : eau revendue au neutre, 10 ventes/j, conseil 30, prix au niveau habituel | réussi |
+| Colonnes : modèle « Standard » par défaut, « Conseil » masqué, « Ventes/j » affiché | réussi |
+| En-tête : colonne masquée cachée | réussi |
+| Modèle « Complet » : toutes les colonnes, dont « Conseil » | réussi |
+| Case décochée : « Zone » masquée, mémorisée, modèle personnalisé | réussi |
+| Colonne verrouillée (Objet) : jamais masquée | réussi |
+| Disposition : colonnes visibles dans la largeur du tableau | réussi |
+| Clic droit sur l'en-tête : fenêtre « Colonnes affichées » | réussi |
+| Fenêtre : décocher « Rentab. » masque la colonne | réussi |
+| Bouton « Colonnes » : ouvre la même fenêtre | réussi |
+| Lignes : cellule de la colonne masquée cachée | réussi |
+| HDV » HDV : couteau, 4 ventes/j au neutre, achat 17 % sous la valeur habituelle de l'Alliance | réussi |
+| HDV » HDV : gain par jour et conseil (12, plafonné à la quantité disponible : 5) | réussi |
+| Avis : 0,2 vente/j à l'HDV de revente → À vérifier (vente lente) | réussi |
+| Raison lisible de l'avis lent | réussi |
+| HDV » HDV : choix des colonnes séparé (cross_window) | réussi |
+| Listes : prix de l'étoffe au neutre (40 pc pour 40 habituels) sans couleur d'écart ; Alliance la moins chère en vert | réussi |
+| Listes : choix des colonnes (lists_window) | réussi |
+| Listes : 20 pc au neutre pour 40 habituels → bleu (bonne affaire) | réussi |
+| HDV » PNJ : choix des colonnes (arb) avec « Valeur » | réussi |
+| Aucune erreur interne (bloc v0.16.0) | réussi |
+| Application : indicateurs Forever AH écrits dans `Prix.lua` (table `s`, `statsSource`) ; absents si Forever AH est injoignable, sans bloquer les prix | réussi |
+| Application : historique SQLite (relevés dédoublonnés, résumé par jour après 14 jours) | réussi |
 
 ## 2. Tests exécutés et échoués
 

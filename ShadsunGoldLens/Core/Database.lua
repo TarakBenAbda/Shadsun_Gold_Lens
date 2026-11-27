@@ -30,12 +30,15 @@ DB.defaults = {
         depositEstimate = false,   -- afficher le risque de dépôt perdu (estimation)
         depositPct = 15.0,         -- % du prix de vente PNJ par annonce (paramétrable)
         avisMinQty = 3,            -- HDV » HDV : quantité en vente minimale pour un avis « Favorable »
+        avisMinSales = 0.3,        -- ventes par jour sous lesquelles l'avis devient « À vérifier » (0.16)
+        adviceDays = 3,            -- quantité conseillée : jours de ventes (0.16)
     },
     ah = { autoShow = true, speed = "normal", direction = "reverse", merchantBorder = true, borderColor = { 0.2, 1, 0.3 }, listBorder = true, listBorderColor = { 0.35, 0.65, 1 } },
     minimap = { hide = false, minimapPos = 205 },
     windows = {},
     opportunities = { sortKey = "profit", sortDesc = true },
     lists = { altClick = true, bestFilter = "all", buyableOnly = false },
+    columns = {},              -- colonnes affichées par tableau (0.16)
     display = { coinIcons = true, mainScale = 1 },
     debug = false,
 }

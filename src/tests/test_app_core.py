@@ -166,6 +166,16 @@ if lua:
                        capture_output=True, text=True)
     check("Module chargé en Lua 5.1 : HDV Horde 113, Étoffe 95 pc", r.stdout.split() == ["Forever", "AH", "113", "95", str(20 + 2589 % 7)],
           r.stdout + r.stderr)
+if lua:
+    r = subprocess.run([lua, "-e", 'dofile(%r); local m = ShadsunGoldLensExternal; local v = m.markets.H.s[2589]; '
+                        'print(m.statsSource, math.floor(v / 100000), v %% 100000)' % prix], capture_output=True, text=True)
+    check("Module : indicateurs Forever AH (valeur habituelle 99 pc, 12,5 ventes/j → 125)",
+          r.stdout.split() == ["Forever", "AH", "99", "125"], r.stdout + r.stderr)
+check("Module : historique local enregistré dans le dossier de données", os.path.isfile(os.path.join(core.data_dir(), "cache", E.HISTORY_FILE)))
+# Prix Blizzard + indicateurs Forever AH (sans clé)
+st_ind = E.fetch_stats(ecfg, {"A": 110, "N": 116}, log=lambda *a: None)
+check("Indicateurs Forever AH récupérés pour chaque HDV, même avec une autre source de prix",
+      st_ind.get("A", {}).get(2589) == (E.ForeverAH(ecfg).market(110)["items"][2589][0] + 4, 125) and 2589 in st_ind.get("N", {}), st_ind.get("A", {}).get(2589))
 st = core.prices_status(addons)
 check("État des prix lu dans le module (source, 3 HDV, annonces)", st and st["source"] == "Forever AH"
       and sorted(st["markets"]) == ["A", "H", "N"] and st["markets"]["A"]["house"] == 110, st)

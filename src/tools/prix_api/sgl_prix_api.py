@@ -80,7 +80,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-TOOL_VERSION = "0.14.0"
+TOOL_VERSION = "0.16.0"
 AUTHOR = "Tarak Ben Abda"
 HERE = os.path.dirname(os.path.abspath(__file__))
 JOURNAL = os.path.join(HERE, "journal_maj.txt")   # une ligne par étape de chaque mise à jour
@@ -231,11 +231,14 @@ class Http:
                 raise TimeoutError("téléchargement trop lent (plus de %d s)" % REQ_DEADLINE)
         return b"".join(parts)
 
+    attempts = None   # None : ATTEMPTS (les indicateurs facultatifs n'essaient qu'une fois)
+
     def _open(self, req, what):
         last = ""
-        for attempt in range(1, ATTEMPTS + 1):
+        tries = self.attempts or ATTEMPTS
+        for attempt in range(1, tries + 1):
             if attempt > 1:
-                print("  nouvelle tentative %d/%d (%s)…" % (attempt, ATTEMPTS, last), flush=True)
+                print("  nouvelle tentative %d/%d (%s)…" % (attempt, tries, last), flush=True)
                 time.sleep(3 * attempt)
             try:
                 with urllib.request.urlopen(req, timeout=NET_TIMEOUT) as r:
@@ -256,7 +259,7 @@ class Http:
                 last = "connexion impossible : %s" % e.reason
             except (TimeoutError, OSError, http.client.HTTPException) as e:
                 last = "connexion interrompue : %s" % (e or type(e).__name__)
-        raise Erreur("Échec après %d tentatives (%s) : %s" % (ATTEMPTS, last, what))
+        raise Erreur("Échec après %d %s (%s) : %s" % (tries, "tentatives" if tries > 1 else "tentative", last, what))
 
 
 
@@ -427,6 +430,7 @@ class ForeverAH(Http):
             with gzip.open(cache, "rt", encoding="utf-8") as f:
                 out = json.load(f)
             out["items"] = {int(k): tuple(v) for k, v in out["items"].items()}
+            out["stats"] = {int(k): tuple(v) for k, v in (out.get("stats") or {}).items()}
             return out
         key = None
         for h in self.houses():
@@ -438,10 +442,19 @@ class ForeverAH(Http):
         rows = obj.get("rows") if isinstance(obj, dict) else None
         if not isinstance(rows, list):
             raise Erreur("Réponse inattendue de Forever AH (pas de table « rows ») pour l'HDV %d." % hid)
-        items, total, newest = {}, 0, 0
+        items, total, newest, stats = {}, 0, 0, {}
         for r in rows:
             it, cur = r.get("item") or {}, r.get("current") or {}
             iid, unit = it.get("item_id"), cur.get("min_unit")
+            # Indicateurs Forever AH : valeur habituelle (market_value, moyenne
+            # pondérée sur 14 jours du 10e centile) et ventes estimées par jour.
+            st = r.get("stats") or {}
+            mv, spd = st.get("market_value"), st.get("sold_per_day")
+            if isinstance(iid, int) and (isinstance(mv, (int, float)) or isinstance(spd, (int, float))):
+                mv = int(round(mv)) if isinstance(mv, (int, float)) and mv > 0 else 0
+                spd = int(round(spd * 10)) if isinstance(spd, (int, float)) and spd > 0 else 0
+                if mv or spd:
+                    stats[iid] = (mv, spd)
             if not isinstance(iid, int) or not isinstance(unit, (int, float)) or unit <= 0:
                 continue
             qty = int(cur.get("quantity") or 0)
@@ -451,10 +464,11 @@ class ForeverAH(Http):
         if isinstance(obj.get("total"), int) and obj["total"] > len(rows):
             print("  (Forever AH : %d lignes reçues sur %d annoncées)" % (len(rows), obj["total"]))
         when = iso_time(obj.get("as_of")) or newest or int(time.time())
-        out = {"time": when, "total": total, "items": items}
+        out = {"time": when, "total": total, "items": items, "stats": stats}
         os.makedirs(self.cache_dir, exist_ok=True)
         with gzip.open(cache, "wt", encoding="utf-8") as f:
-            json.dump({"time": when, "total": total, "items": {str(k): v for k, v in items.items()}}, f)
+            json.dump({"time": when, "total": total, "items": {str(k): v for k, v in items.items()},
+                       "stats": {str(k): v for k, v in stats.items()}}, f)
         return out
 
 
@@ -495,6 +509,87 @@ def fetch_market(cfg, hid, api=None, mode="total"):
     items, variants = summarize_full(data, mode)
     return {"time": data["time"], "total": len(data.get("auctions") or []) + len(data.get("commodities") or []),
             "items": items, "variants": variants}
+
+
+def fetch_stats(cfg, ids, fah=None, log=print):
+    """Indicateurs de marché (valeur habituelle, ventes par jour) de Forever AH
+    pour chaque HDV configuré, quelle que soit la source des prix : 1 requête
+    par HDV, gratuite. Facultatif : en cas d'échec, les prix restent publiés
+    sans indicateurs. Retourne {clé: {objet: (valeur habituelle, ventes×10)}}."""
+    out = {}
+    try:
+        fah = fah or ForeverAH(dict_cfg_for_fah(cfg))
+        fah.attempts = 1
+    except Exception as e:
+        log("  (indicateurs Forever AH indisponibles : %s)" % e)
+        return out
+    for key, hid in ids.items():
+        try:
+            out[key] = fah.market(hid).get("stats") or {}
+        except Exception as e:
+            log("  (indicateurs Forever AH indisponibles pour l'HDV %d : %s)" % (hid, e))
+            if "connexion" in str(e):
+                break    # site injoignable : inutile d'essayer les autres HDV
+    return out
+
+
+def dict_cfg_for_fah(cfg):
+    """Configuration pour Forever AH quand la source des prix est Blizzard :
+    même région et même cache, adresse Forever AH par défaut."""
+    c = configparser.ConfigParser()
+    c.read_dict({s: dict(cfg[s]) for s in cfg.sections()})
+    if not c.has_section("source"):
+        c.add_section("source")
+    if source_of(cfg) != "foreverah":
+        c["source"]["url"] = ""
+    return c
+
+
+# ---------------------------------------------------------------------------
+# Historique local des prix (SQLite) / local price history
+#   Une ligne par HDV, objet et relevé (heure des données). Relevés horaires
+#   gardés HISTORY_HOURLY_DAYS jours, puis résumés par jour (prix min, moyen,
+#   quantité max). Sert plus tard aux courbes, à la volatilité, au score.
+# ---------------------------------------------------------------------------
+HISTORY_FILE = "historique.sqlite"
+HISTORY_HOURLY_DAYS = 14
+
+
+def history_path(cfg=None):
+    """Dans le dossier du cache (celui de l'application : %APPDATA%\\ShadsunGoldLens\\cache)."""
+    sub = cfg["outil"].get("dossier_cache", "cache") if cfg is not None and cfg.has_section("outil") else "cache"
+    return os.path.join(CACHE_ROOT, sub, HISTORY_FILE)
+
+
+def record_history(markets, path=None, now=None):
+    """Ajoute les relevés de la mise à jour ; retourne le nombre de lignes ajoutées."""
+    import sqlite3
+    path = path or history_path()
+    now = int(now or time.time())
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    con = sqlite3.connect(path, timeout=30)
+    try:
+        con.executescript(
+            "CREATE TABLE IF NOT EXISTS relevés (hdv INTEGER, objet INTEGER, t INTEGER, prix INTEGER, qte INTEGER,"
+            " PRIMARY KEY (hdv, objet, t)) WITHOUT ROWID;"
+            "CREATE TABLE IF NOT EXISTS jours (hdv INTEGER, objet INTEGER, jour INTEGER, prix_min INTEGER, prix_moyen INTEGER,"
+            " qte_max INTEGER, n INTEGER, PRIMARY KEY (hdv, objet, jour)) WITHOUT ROWID;")
+        added = 0
+        for key, m in markets.items():
+            hid, t = int(m["house"]), int(m["time"])
+            rows = [(hid, int(i), t, int(v[0]), int(v[1])) for i, v in m["items"].items()]
+            cur = con.executemany("INSERT OR IGNORE INTO relevés VALUES (?,?,?,?,?)", rows)
+            added += cur.rowcount if cur.rowcount and cur.rowcount > 0 else 0
+        # Relevés anciens → résumé par jour (jour = nombre de jours depuis 1970, UTC)
+        limit = now - HISTORY_HOURLY_DAYS * 86400
+        con.execute(
+            "INSERT OR REPLACE INTO jours SELECT hdv, objet, t / 86400, MIN(prix), CAST(AVG(prix) AS INTEGER), MAX(qte), COUNT(*)"
+            " FROM relevés WHERE t < ? GROUP BY hdv, objet, t / 86400", (limit,))
+        con.execute("DELETE FROM relevés WHERE t < ?", (limit,))
+        con.commit()
+        return added
+    finally:
+        con.close()
 
 
 def match_rulesets(own, fetch, factions=None, log=print):
@@ -802,13 +897,15 @@ def write_module(outdir, interface, meta, markets):
            "## Author: Shadsun\n## Version: %s\n## Dependencies: ShadsunGoldLens\n\nPrix.lua\n") % (interface, src, TOOL_VERSION)
     with open(os.path.join(outdir, MODULE + ".toc"), "w", encoding="utf-8", newline="\r\n") as f:
         f.write(toc)
+    has_stats = any((markets.get(k) or {}).get("stats") for k in FACTIONS)
     lines = [
-        "-- Shadsun Gold Lens — prix des HDV (%s)" % src + (" — " + FAH_CREDIT if src == SOURCES["foreverah"] else ""),
+        "-- Shadsun Gold Lens — prix des HDV (%s)" % src + (" — " + FAH_CREDIT if (src == SOURCES["foreverah"] or has_stats) else ""),
         "-- Généré par sgl_prix_api.py %s le %s. Ne pas modifier : relancez l'outil." % (
             TOOL_VERSION, time.strftime("%Y-%m-%d %H:%M", time.localtime(meta["generated"]))),
         "-- Auteur de l'outil : Tarak Ben Abda – novembre 2026",
-        "ShadsunGoldLensExternal = { version = 1, generated = %d, source = %s, region = %s, rulesetName = %s, markets = {} }" % (
-            meta["generated"], lua_str(src), lua_str(meta["region"]), lua_str(meta["ruleset"])),
+        "ShadsunGoldLensExternal = { version = 1, generated = %d, source = %s, region = %s, rulesetName = %s, markets = {}%s }" % (
+            meta["generated"], lua_str(src), lua_str(meta["region"]), lua_str(meta["ruleset"]),
+            ", statsSource = \"Forever AH\"" if has_stats else ""),
         "local function S(t, s) for k, v in pairs(s) do t[k] = v end end",
     ]
     for key in FACTIONS:
@@ -824,6 +921,14 @@ def write_module(outdir, interface, meta, markets):
             body = ",".join("[%d]=%d" % (i, pack(*m["items"][i])) for i in part)
             # Une fonction par tranche : chaque fonction a sa propre table de constantes.
             lines.append("S(d, (function() return {%s} end)())" % body)
+        st = m.get("stats") or {}
+        if st:
+            # Indicateurs Forever AH : valeur = valeur habituelle × QBASE + ventes par jour × 10.
+            lines.append("local s = {}; ShadsunGoldLensExternal.markets.%s.s = s" % key)
+            sids = sorted(st)
+            for start in range(0, len(sids), CHUNK):
+                body = ",".join("[%d]=%d" % (i, pack(*st[i])) for i in sids[start:start + CHUNK])
+                lines.append("S(s, (function() return {%s} end)())" % body)
         var = m.get("variants") or {}
         if var:
             # Objets vendus seulement en variantes (suffixe, bonus) : prix « dès ».
@@ -978,11 +1083,32 @@ def cmd_update(cfg, args):
         print("  %d annonces, %d objets, données du %s (%d s)" % (mk["total"], len(mk["items"]),
                                                                 time.strftime("%d/%m %H:%M", time.localtime(mk["time"])), time.time() - t0), flush=True)
         del mk   # libère la mémoire avant l'HDV suivant / free memory
+    # Indicateurs (ventes par jour, valeur habituelle) : Forever AH, même si les prix viennent de Blizzard
+    if cfg["outil"].get("indicateurs", "1").strip() != "0":
+        stats = {}
+        if src == "foreverah":
+            for key in markets:
+                stats[key] = api.market(markets[key]["house"]).get("stats") or {}
+        else:
+            print("Indicateurs de marché (Forever AH)…", flush=True)
+            stats = fetch_stats(cfg, {k: markets[k]["house"] for k in markets})
+        for key, st in stats.items():
+            if key in markets and st:
+                markets[key]["stats"] = st
+        n = sum(len(markets[k].get("stats") or {}) for k in markets)
+        print("  %d objets avec ventes par jour et valeur habituelle" % n if n else "  aucun indicateur reçu", flush=True)
     rs = ruleset_of(next(iter(ids.values())))
     meta = {"generated": int(time.time()), "region": m.get("region", "eu").strip().lower() or "eu",
             "ruleset": ruleset_label(rs) if rs else m.get("type_serveur", ""), "source": SOURCES[src]}
     write_module(outdir, addon_interface(addons) if addons else "16001", meta, markets)
     print("Module écrit : %s" % outdir)
+    # Historique local (pour les courbes et analyses futures) : jamais bloquant.
+    if cfg["outil"].get("historique", "1").strip() != "0":
+        try:
+            n = record_history(markets, history_path(cfg))
+            print("Historique local : %d relevés ajoutés (%s)" % (n, history_path(cfg)))
+        except Exception as e:
+            print("  (historique local non enregistré : %s)" % e)
     print("En jeu : /reload (ou reconnectez-vous). Vérifiez le module « Shadsun Gold Lens - Prix » dans la liste des add-ons.")
     return 0
 

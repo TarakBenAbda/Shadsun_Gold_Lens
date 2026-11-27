@@ -1,7 +1,7 @@
 -- Shadsun Gold Lens — prix des HDV (API Blizzard)
--- Généré par sgl_prix_api.py 0.14.0 le 2026-11-25 20:09. Ne pas modifier : relancez l'outil.
+-- Généré par sgl_prix_api.py 0.16.0 le 2026-11-26 19:19. Ne pas modifier : relancez l'outil.
 -- Auteur de l'outil : Tarak Ben Abda – novembre 2026
-ShadsunGoldLensExternal = { version = 1, generated = 1795655340, source = "API Blizzard", region = "eu", rulesetName = "PvP", markets = {} }
+ShadsunGoldLensExternal = { version = 1, generated = 1795738798, source = "API Blizzard", region = "eu", rulesetName = "PvP", markets = {} }
 local function S(t, s) for k, v in pairs(s) do t[k] = v end end
 do local d = {}
 ShadsunGoldLensExternal.markets.A = { time = 1763600000, total = 66, house = 113, d = d }

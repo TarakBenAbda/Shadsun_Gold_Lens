@@ -3,7 +3,7 @@
 ## Notes: Prix PNJ, prix des HDV scannés, arbitrage PNJ/HDV et entre HDV (WoW Forever).
 ## Notes-frFR: Prix PNJ, prix des HDV scannés, arbitrage PNJ/HDV et entre HDV (WoW Forever).
 ## Author: Shadsun
-## Version: 0.15.1
+## Version: 0.16.0
 ## X-Code-Author: Tarak Ben Abda
 ## X-License: GPLv3
 ## IconTexture: Interface\AddOns\ShadsunGoldLens\Media\icon
